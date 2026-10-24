@@ -12,3 +12,34 @@
 .app__circle {
   width: min(100%, 480px);
 }
+
+.app__tones {
+  min-height: 1.5em;
+  margin: 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.app__toolbar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.app__toolbar button {
+  min-width: 3rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #86b359;
+  border-radius: 999px;
+  background: #fff;
+  color: #4a6b2a;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.app__toolbar button[aria-label] {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.app__toolbar button:hover {
+  background: #d4e6c3;
+}
