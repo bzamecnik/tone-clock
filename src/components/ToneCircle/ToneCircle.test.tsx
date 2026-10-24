@@ -50,6 +50,15 @@ describe('ToneCircle', () => {
       expect(screen.getByRole('button', { name: 'F#' })).toBeInTheDocument()
     })
 
+    it('marks the tonic bead when a tonic is given', () => {
+      const { rerender } = render(<ToneCircle />)
+      expect(document.querySelector('.tone-circle__bead--tonic')).toBeNull()
+      rerender(<ToneCircle tonic={9} />)
+      const tonics = document.querySelectorAll('.tone-circle__bead--tonic')
+      expect(tonics).toHaveLength(1)
+      expect(tonics[0]).toHaveAttribute('aria-label', 'A')
+    })
+
     it('renders a square SVG centered at the origin', () => {
       const { container } = render(<ToneCircle />)
       expect(container.querySelector('svg')).toHaveAttribute('viewBox', '-100 -100 200 200')

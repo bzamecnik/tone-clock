@@ -54,6 +54,8 @@ export interface ToneCircleProps {
   onChange?: (value: PitchClassSet) => void
   /** Labels of the 12 pitch classes, starting from C. */
   names?: PitchClassNames
+  /** Tonic of the current key, highlighted with a ring. */
+  tonic?: number
   className?: string
 }
 
@@ -62,6 +64,7 @@ export function ToneCircle({
   defaultValue = EMPTY,
   onChange,
   names = FLAT_NAMES,
+  tonic,
   className,
 }: ToneCircleProps) {
   const [internalValue, setInternalValue] = useState(defaultValue)
@@ -180,10 +183,15 @@ export function ToneCircle({
       {BEADS.map(({ pitchClass, center }) => {
         const active = has(tones, pitchClass)
         const name = names[pitchClass]
+        const beadClasses = [
+          'tone-circle__bead',
+          active && 'tone-circle__bead--active',
+          pitchClass === tonic && 'tone-circle__bead--tonic',
+        ]
         return (
           <g
             key={pitchClass}
-            className={active ? 'tone-circle__bead tone-circle__bead--active' : 'tone-circle__bead'}
+            className={beadClasses.filter(Boolean).join(' ')}
             role="button"
             tabIndex={0}
             aria-label={name}

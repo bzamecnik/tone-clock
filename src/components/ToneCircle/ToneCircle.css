@@ -3,7 +3,8 @@
   --tone-circle-bead: #d4e6c3;
   --tone-circle-bead-active: #86b359;
   --tone-circle-label: #fff;
-  --tone-circle-focus: #4a6b2a;
+  --tone-circle-tonic: #4a6b2a;
+  --tone-circle-focus: #2f6db5;
 
   display: block;
   width: 100%;
@@ -18,6 +19,11 @@
 
 .tone-circle__bead--active circle {
   fill: var(--tone-circle-bead-active);
+}
+
+.tone-circle__bead--tonic circle {
+  stroke: var(--tone-circle-tonic);
+  stroke-width: 2.5;
 }
 
 .tone-circle__bead text {
