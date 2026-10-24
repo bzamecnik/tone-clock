@@ -106,17 +106,30 @@ src/
 - [x] demo app shows the selected pitch classes, persists the set in
       `localStorage` (default C major triad)
 
-### 5. Extras
+### 5. Features of the original app
 - [x] curved polygon ("chord path") between active beads
 - [ ] canonic form + root (`getCanonic` / `getRoot`)
 - [ ] pitch class set naming from `chord_names.json`, shown as a title
-- [ ] drag & drop of beads (move tone, drag off to clear)
-- [ ] rotation by dragging around the circle (mouse) / two-finger gesture
-      (touch), snapping to semitones
-- [ ] alternative label sets (sharp, Roman numerals, intervals)
+      (chord name + scale name)
+- [ ] drag & drop of beads (move a tone, drag off the circle to clear it)
+- [ ] rotation by dragging around the circle, snapping to semitones
+      (mouse and single touch; drag starting off the beads)
+
+### 6. New ideas (beyond the original app)
+- [ ] select a key (tonic); highlight the tonic bead
+- [ ] label beads by scale degrees relative to the key
+      (`1 b2 2 b3 3 4 b5 5 b6 6 b7 7`), e.g. a minor chord is `1 b3 5`
+- [ ] relative chord names with Roman numerals (`VIm`, `bVII7`, …)
+- [ ] reverse input: type a chord name (`Am7`, `F#dim`, `Bb13`), a scale
+      (`D dorian`), a list of notes (`C E G`) or, in a key, Roman numerals
+      (`V7`) / degrees (`1 b3 5`) to set the active beads
+
+### 7. Other extras
+- [ ] two-finger rotation gesture on touch screens
+- [ ] alternative label sets (sharp) in the UI
 - [ ] publish the component as a reusable package
 
-### 6. Desktop app
+### 8. Desktop app
 - [ ] Tauri v2 shell around the React app (`src-tauri/`)
 - [ ] macOS build, app icon from the original
 - [ ] native persistence / menu (e.g. copy set as text)
