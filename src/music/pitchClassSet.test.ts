@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   EMPTY,
   add,
+  canonic,
   cardinality,
   fromPitchClasses,
   has,
   remove,
+  root,
   toPitchClasses,
   toggle,
   transpose,
@@ -78,6 +80,37 @@ describe('pitch class set', () => {
     it('preserves the empty and full sets', () => {
       expect(transpose(EMPTY, 5)).toBe(EMPTY)
       expect(transpose(4095, 5)).toBe(4095)
+    })
+  })
+
+  describe('canonic form and root', () => {
+    it('is the transposition with the smallest index', () => {
+      // all major triads share the canonic form {0, 4, 7} = 145
+      expect(canonic(C_MAJOR)).toBe(145)
+      expect(canonic(fromPitchClasses([2, 6, 9]))).toBe(145)
+      expect(canonic(fromPitchClasses([1, 4, 9]))).toBe(145)
+      // a minor triad {0, 3, 7} = 137 is smaller than its other rotations
+      expect(canonic(fromPitchClasses([9, 0, 4]))).toBe(137)
+    })
+
+    it('has a root that transposes the canonic form back to the set', () => {
+      expect(root(C_MAJOR)).toBe(0)
+      expect(root(fromPitchClasses([2, 6, 9]))).toBe(2)
+      expect(root(fromPitchClasses([1, 4, 9]))).toBe(9)
+      for (let set = 1; set < 4096; set += 37) {
+        expect(transpose(canonic(set), root(set))).toBe(set)
+      }
+    })
+
+    it('picks the lowest root for symmetric sets', () => {
+      // Db augmented {1, 5, 9} maps onto itself by major thirds
+      expect(canonic(fromPitchClasses([1, 5, 9]))).toBe(fromPitchClasses([0, 4, 8]))
+      expect(root(fromPitchClasses([1, 5, 9]))).toBe(1)
+    })
+
+    it('handles the empty set', () => {
+      expect(canonic(EMPTY)).toBe(EMPTY)
+      expect(root(EMPTY)).toBe(0)
     })
   })
 })

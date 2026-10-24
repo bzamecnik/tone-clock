@@ -76,3 +76,30 @@ export function transpose(set: PitchClassSet, offset: number): PitchClassSet {
   const o = mod(offset, OCTAVE_SIZE)
   return ((set << o) | (set >> (OCTAVE_SIZE - o))) & FULL_MASK
 }
+
+/**
+ * Canonic form: of all transpositions of the set, the one with the smallest
+ * index. All sets equal up to transposition (e.g. all major triads) share it.
+ */
+export function canonic(set: PitchClassSet): PitchClassSet {
+  return canonicWithRoot(set).canonic
+}
+
+/**
+ * Root: the pitch class `r` such that `transpose(canonic(set), r) === set`.
+ * For symmetric sets (e.g. augmented triads) the lowest such `r` is used.
+ */
+export function root(set: PitchClassSet): number {
+  return canonicWithRoot(set).root
+}
+
+function canonicWithRoot(set: PitchClassSet): { canonic: PitchClassSet; root: number } {
+  let best = { canonic: set, root: 0 }
+  for (let r = 1; r < OCTAVE_SIZE; r++) {
+    const candidate = transpose(set, -r)
+    if (candidate < best.canonic) {
+      best = { canonic: candidate, root: r }
+    }
+  }
+  return best
+}
