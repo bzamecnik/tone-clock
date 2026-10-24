@@ -36,3 +36,16 @@
   stroke: var(--tone-circle-focus);
   stroke-width: 2;
 }
+
+/* Drawn on top of the beads, as in the original app. */
+.tone-circle__chord {
+  fill: none;
+  stroke: var(--tone-circle-bead-active);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.tone-circle__chord--closed {
+  fill: var(--tone-circle-bead-active);
+}

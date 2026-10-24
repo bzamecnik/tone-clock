@@ -1,6 +1,7 @@
 import { useState, type KeyboardEvent } from 'react'
 import { FLAT_NAMES, type PitchClassNames } from '../../music/pitchClassNames.ts'
 import { EMPTY, has, toggle, transpose, type PitchClassSet } from '../../music/pitchClassSet.ts'
+import { chordPath } from './chordPath.ts'
 import { BEAD_RADIUS, VIEW_RADIUS, beadLayout } from './geometry.ts'
 import './ToneCircle.css'
 
@@ -37,6 +38,7 @@ export function ToneCircle({
   const [internalValue, setInternalValue] = useState(defaultValue)
   const isControlled = value !== undefined
   const tones = isControlled ? value : internalValue
+  const chord = chordPath(tones)
 
   function change(newTones: PitchClassSet) {
     if (!isControlled) {
@@ -89,6 +91,13 @@ export function ToneCircle({
           </g>
         )
       })}
+      {chord && (
+        <path
+          className={chord.closed ? 'tone-circle__chord tone-circle__chord--closed' : 'tone-circle__chord'}
+          d={chord.d}
+          aria-hidden="true"
+        />
+      )}
     </svg>
   )
 }

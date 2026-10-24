@@ -112,4 +112,27 @@ describe('ToneCircle', () => {
       expect(pressedNames()).toEqual(['Eb', 'Gb', 'B'])
     })
   })
+
+  describe('chord path', () => {
+    function chordPathElement(container: HTMLElement) {
+      return container.querySelector('.tone-circle__chord')
+    }
+
+    it('is not drawn for fewer than two tones', () => {
+      const { container } = render(<ToneCircle value={fromPitchClasses([2])} />)
+      expect(chordPathElement(container)).toBeNull()
+    })
+
+    it('is drawn as an open curve for two tones', () => {
+      const { container } = render(<ToneCircle value={fromPitchClasses([0, 6])} />)
+      const path = chordPathElement(container)
+      expect(path).toHaveAttribute('d', 'M 0 -61 Q 0 0 0 61')
+      expect(path).not.toHaveClass('tone-circle__chord--closed')
+    })
+
+    it('is drawn as a filled polygon for three or more tones', () => {
+      const { container } = render(<ToneCircle value={C_MAJOR} />)
+      expect(chordPathElement(container)).toHaveClass('tone-circle__chord--closed')
+    })
+  })
 })
