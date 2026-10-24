@@ -49,3 +49,32 @@
 .tone-circle__chord--closed {
   fill: var(--tone-circle-bead-active);
 }
+
+/* Pointer gestures: no scrolling or text selection while dragging. */
+.tone-circle {
+  touch-action: none;
+  cursor: grab;
+}
+
+.tone-circle--rotating {
+  cursor: grabbing;
+}
+
+.tone-circle__ghost {
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.tone-circle__ghost circle {
+  fill: var(--tone-circle-bead-active);
+}
+
+.tone-circle__ghost text {
+  fill: var(--tone-circle-label);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.tone-circle__ghost--remove {
+  opacity: 0.3;
+}

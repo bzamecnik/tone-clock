@@ -1,8 +1,10 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { SHARP_NAMES } from '../../music/pitchClassNames.ts'
 import { fromPitchClasses } from '../../music/pitchClassSet.ts'
+import { beadLayout, type Point } from './geometry.ts'
 import { ToneCircle } from './ToneCircle.tsx'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
@@ -133,6 +135,87 @@ describe('ToneCircle', () => {
     it('is drawn as a filled polygon for three or more tones', () => {
       const { container } = render(<ToneCircle value={C_MAJOR} />)
       expect(chordPathElement(container)).toHaveClass('tone-circle__chord--closed')
+    })
+  })
+
+  describe('pointer gestures', () => {
+    const BEADS = beadLayout()
+
+    /** Renders the circle as a 200x200 px element at the page origin. */
+    function renderSized(ui: ReactElement) {
+      const result = render(ui)
+      const svg = result.container.querySelector('svg')!
+      svg.getBoundingClientRect = () => ({
+        left: 0, top: 0, right: 200, bottom: 200, width: 200, height: 200, x: 0, y: 0,
+        toJSON: () => ({}),
+      })
+      return { ...result, svg }
+    }
+
+    // view box coordinates -> client coordinates of the 200x200 element
+    const client = ({ x, y }: Point) => ({ clientX: x + 100, clientY: y + 100, pointerId: 1 })
+    const beadAt = (pitchClass: number) => client(BEADS[pitchClass].center)
+
+    it('moves a tone by dragging it onto another bead', () => {
+      const onChange = vi.fn()
+      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} onChange={onChange} />)
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'E' }), beadAt(4))
+      fireEvent.pointerMove(svg, beadAt(3))
+      fireEvent.pointerUp(svg, beadAt(3))
+
+      expect(pressedNames()).toEqual(['C', 'Eb', 'G'])
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenCalledWith(fromPitchClasses([0, 3, 7]))
+    })
+
+    it('clears a tone dragged off the circle', () => {
+      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} />)
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'G' }), beadAt(7))
+      fireEvent.pointerMove(svg, client({ x: 0, y: 0 }))
+      fireEvent.pointerUp(svg, client({ x: 0, y: 0 }))
+
+      expect(pressedNames()).toEqual(['C', 'E'])
+    })
+
+    it('shows a ghost bead following the pointer while dragging', () => {
+      const { container, svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} />)
+      const ghost = () => container.querySelector('.tone-circle__ghost')
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'E' }), beadAt(4))
+      expect(ghost()).toBeNull()
+      fireEvent.pointerMove(svg, client({ x: 30, y: 10 }))
+      expect(ghost()).not.toBeNull()
+      expect(ghost()!.querySelector('circle')).toHaveAttribute('cx', '30')
+      fireEvent.pointerUp(svg, client({ x: 30, y: 10 }))
+      expect(ghost()).toBeNull()
+    })
+
+    it('transposes by dragging around the circle inside the ring', () => {
+      const onChange = vi.fn()
+      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} onChange={onChange} />)
+
+      fireEvent.pointerDown(svg, client({ x: 0, y: -30 }))
+      // a quarter turn clockwise = 3 semitones up: C major -> Eb major
+      fireEvent.pointerMove(svg, client({ x: 21, y: -21 }))
+      fireEvent.pointerMove(svg, client({ x: 30, y: 0 }))
+      expect(pressedNames()).toEqual(['Eb', 'G', 'Bb'])
+      fireEvent.pointerUp(svg, client({ x: 30, y: 0 }))
+
+      expect(pressedNames()).toEqual(['Eb', 'G', 'Bb'])
+      expect(onChange).toHaveBeenLastCalledWith(fromPitchClasses([3, 7, 10]))
+    })
+
+    it('rotates relative to the starting set and can rotate back', () => {
+      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} />)
+
+      fireEvent.pointerDown(svg, client({ x: 0, y: -30 }))
+      fireEvent.pointerMove(svg, client({ x: 30, y: 0 }))
+      fireEvent.pointerMove(svg, client({ x: 0, y: -30 }))
+      fireEvent.pointerUp(svg, client({ x: 0, y: -30 }))
+
+      expect(pressedNames()).toEqual(['C', 'E', 'G'])
     })
   })
 })
