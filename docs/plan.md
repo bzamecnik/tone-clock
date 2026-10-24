@@ -82,32 +82,32 @@ src/
 ## Roadmap
 
 ### 1. Project skeleton
-- [ ] Vite + React + TypeScript app
-- [ ] Vitest + Testing Library (jsdom), `npm test`
-- [ ] Minimal demo `App`
+- [x] Vite + React + TypeScript app
+- [x] Vitest + Testing Library (jsdom), `npm test`
+- [x] Minimal demo `App`
 
 ### 2. Pitch class set model (`src/music`)
-- [ ] `fromPitchClasses`, `toPitchClasses`, `has`, `toggle`, `add`,
+- [x] `fromPitchClasses`, `toPitchClasses`, `has`, `toggle`, `add`,
       `remove`, `cardinality`
-- [ ] `transpose` (rotation mod 12)
-- [ ] pitch class labels (flat by default)
+- [x] `transpose` (rotation mod 12)
+- [x] pitch class labels (flat by default)
 
 ### 3. Basic layout (static)
-- [ ] `geometry.ts`: bead centers / radius for 12 positions
-- [ ] `ToneCircle` renders 12 labelled beads in an SVG circle, C on top,
+- [x] `geometry.ts`: bead centers / radius for 12 positions
+- [x] `ToneCircle` renders 12 labelled beads in an SVG circle, C on top,
       clockwise
-- [ ] active beads drawn in the active color
+- [x] active beads drawn in the active color
 
 ### 4. Interactivity
-- [ ] click a bead toggles it (controlled + uncontrolled modes, `onChange`)
-- [ ] keyboard: Tab between beads, Enter/Space toggles
-- [ ] transposition: buttons / ←→ keys rotate the set by one semitone
+- [x] click a bead toggles it (controlled + uncontrolled modes, `onChange`)
+- [x] keyboard: Tab between beads, Enter/Space toggles
+- [x] transposition: buttons / ←→ keys rotate the set by one semitone
       (desktop replacement for the two-finger rotation gesture)
-- [ ] demo app shows the selected pitch classes, persists the set in
+- [x] demo app shows the selected pitch classes, persists the set in
       `localStorage` (default C major triad)
 
 ### 5. Extras
-- [ ] curved polygon ("chord path") between active beads
+- [x] curved polygon ("chord path") between active beads
 - [ ] canonic form + root (`getCanonic` / `getRoot`)
 - [ ] pitch class set naming from `chord_names.json`, shown as a title
 - [ ] drag & drop of beads (move tone, drag off to clear)
