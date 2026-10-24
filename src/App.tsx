@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { ToneCircle } from './components/ToneCircle/ToneCircle.tsx'
 import { pitchClassName } from './music/pitchClassNames.ts'
 import { nameSet } from './music/pitchClassSetNamer.ts'
@@ -9,38 +8,18 @@ import {
   transpose,
   type PitchClassSet,
 } from './music/pitchClassSet.ts'
+import { useStoredState } from './useStoredState.ts'
 import './App.css'
 
-const STORAGE_KEY = 'tone-circle:tones'
 const C_MAJOR = fromPitchClasses([0, 4, 7])
 
-function loadTones(): PitchClassSet {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored !== null && /^\d+$/.test(stored)) {
-      const tones = Number(stored)
-      if (tones <= 0xfff) {
-        return tones
-      }
-    }
-  } catch {
-    // storage unavailable (e.g. private mode)
-  }
-  return C_MAJOR
-}
-
-function saveTones(tones: PitchClassSet) {
-  try {
-    localStorage.setItem(STORAGE_KEY, String(tones))
-  } catch {
-    // storage unavailable (e.g. private mode)
-  }
+function parseTones(stored: string): PitchClassSet | undefined {
+  const tones = Number(stored)
+  return /^\d+$/.test(stored) && tones <= 0xfff ? tones : undefined
 }
 
 function App() {
-  const [tones, setTones] = useState(loadTones)
-
-  useEffect(() => saveTones(tones), [tones])
+  const [tones, setTones] = useStoredState('tone-circle:tones', C_MAJOR, parseTones)
 
   const { chord, scale } = nameSet(tones)
 
