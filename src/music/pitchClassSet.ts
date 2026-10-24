@@ -93,7 +93,7 @@ export function root(set: PitchClassSet): number {
   return canonicWithRoot(set).root
 }
 
-function canonicWithRoot(set: PitchClassSet): { canonic: PitchClassSet; root: number } {
+export function canonicWithRoot(set: PitchClassSet): { canonic: PitchClassSet; root: number } {
   let best = { canonic: set, root: 0 }
   for (let r = 1; r < OCTAVE_SIZE; r++) {
     const candidate = transpose(set, -r)
