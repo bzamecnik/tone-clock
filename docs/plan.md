@@ -108,21 +108,31 @@ src/
 
 ### 5. Features of the original app
 - [x] curved polygon ("chord path") between active beads
-- [ ] canonic form + root (`getCanonic` / `getRoot`)
-- [ ] pitch class set naming from `chord_names.json`, shown as a title
+- [x] canonic form + root (`getCanonic` / `getRoot`)
+- [x] pitch class set naming from `chord_names.json`, shown as a title
       (chord name + scale name)
-- [ ] drag & drop of beads (move a tone, drag off the circle to clear it)
-- [ ] rotation by dragging around the circle, snapping to semitones
+- [x] drag & drop of beads (move a tone, drag off the circle to clear it)
+- [x] rotation by dragging around the circle, snapping to semitones
       (mouse and single touch; drag starting off the beads)
 
 ### 6. New ideas (beyond the original app)
-- [ ] select a key (tonic); highlight the tonic bead
-- [ ] label beads by scale degrees relative to the key
+- [x] select a key (tonic); highlight the tonic bead
+- [x] label beads by scale degrees relative to the key
       (`1 b2 2 b3 3 4 b5 5 b6 6 b7 7`), e.g. a minor chord is `1 b3 5`
-- [ ] relative chord names with Roman numerals (`VIm`, `bVII7`, …)
-- [ ] reverse input: type a chord name (`Am7`, `F#dim`, `Bb13`), a scale
+- [x] relative chord names with Roman numerals (`VIm`, `bVII7`, …)
+- [x] reverse input: type a chord name (`Am7`, `F#dim`, `Bb13`), a scale
       (`D dorian`), a list of notes (`C E G`) or, in a key, Roman numerals
       (`V7`) / degrees (`1 b3 5`) to set the active beads
+
+Notes:
+- Symmetric sets get the lowest root (Db augmented, not A augmented as in
+  the original).
+- The original JSON stored the diatonic scale name inside the X13 chord
+  entry, sharing its root (wrong scale root); chord and scale templates are
+  now separate and the commented-out scales are restored.
+- As in the original, "Xdim" is the diminished seventh chord and the
+  diminished triad is "Xmb5"; the parser follows this (`Cdim` = C Eb Gb A,
+  `C°` = C Eb Gb).
 
 ### 7. Other extras
 - [ ] two-finger rotation gesture on touch screens

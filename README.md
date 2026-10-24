@@ -8,6 +8,18 @@ button, so any subset of pitch classes — a single tone, an interval, a chord,
 a scale — can be drawn on the circle. Because pitch classes form the cyclic
 group Z12, transposition corresponds to rotating the circle.
 
+Features:
+
+- click a bead to toggle a tone; drag a tone onto another bead to move it,
+  or off the circle to remove it
+- drag around the circle (off the beads), use the arrow keys or the ↺ ↻
+  buttons to transpose
+- chord and scale names (e.g. "Am7", "C diatonic (major)")
+- pick a key to see Roman numeral chord names (`IVm7 in A`) and scale
+  degrees (`1 b3 5`), optionally as bead labels
+- type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
+  key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
+
 This is a re-creation of the Android app *Tone Circle* (2013), originally
 written in Java, first as a React component for the web, later as a
 Rust/Tauri/React desktop app for macOS.
@@ -29,6 +41,7 @@ npm run build   # type-check and build for production
 
 - `src/music/` — pure, UI-independent music theory model (pitch class sets)
 - `src/components/ToneCircle/` — the tone circle React component
+- `src/components/ChordInput/` — text input parsing chord/scale names
 - `docs/plan.md` — implementation plan and roadmap
 
 ## License
