@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ToneCircle } from './components/ToneCircle/ToneCircle.tsx'
 import { pitchClassName } from './music/pitchClassNames.ts'
+import { nameSet } from './music/pitchClassSetNamer.ts'
 import {
   EMPTY,
   fromPitchClasses,
@@ -41,9 +42,19 @@ function App() {
 
   useEffect(() => saveTones(tones), [tones])
 
+  const { chord, scale } = nameSet(tones)
+
   return (
     <main className="app">
       <h1>Tone Circle</h1>
+      <div className="app__names">
+        <output className="app__chord" aria-label="Chord name">
+          {chord}
+        </output>
+        <output className="app__scale" aria-label="Scale name">
+          {scale}
+        </output>
+      </div>
       <div className="app__circle">
         <ToneCircle value={tones} onChange={setTones} />
       </div>

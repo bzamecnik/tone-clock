@@ -6,6 +6,14 @@ import { fromPitchClasses } from './music/pitchClassSet.ts'
 
 const STORAGE_KEY = 'tone-circle:tones'
 
+function chordName() {
+  return screen.getByLabelText('Chord name').textContent
+}
+
+function scaleName() {
+  return screen.getByLabelText('Scale name').textContent
+}
+
 function selectedTones() {
   return screen.getByLabelText('Selected tones').textContent
 }
@@ -60,5 +68,22 @@ describe('App', () => {
     localStorage.setItem(STORAGE_KEY, 'garbage')
     render(<App />)
     expect(selectedTones()).toBe('C E G')
+  })
+
+  it('names the selected chord and scale', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    expect(chordName()).toBe('C')
+    expect(scaleName()).toBe('')
+
+    await user.click(screen.getByRole('button', { name: 'Bb' }))
+    expect(chordName()).toBe('C7')
+
+    await user.click(screen.getByRole('button', { name: 'Clear' }))
+    for (const tone of ['C', 'D', 'E', 'F', 'G', 'A', 'B']) {
+      await user.click(screen.getByRole('button', { name: tone }))
+    }
+    expect(chordName()).toBe('G13')
+    expect(scaleName()).toBe('C diatonic (major)')
   })
 })
