@@ -7,4 +7,10 @@ describe('App', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: 'Tone Circle' })).toBeInTheDocument()
   })
+
+  it('shows the tone circle with the C major triad', () => {
+    render(<App />)
+    expect(screen.getByRole('group', { name: 'Tone circle' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'E' })).toHaveAttribute('aria-pressed', 'true')
+  })
 })

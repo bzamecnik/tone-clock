@@ -1,0 +1,28 @@
+/* Colors of the original app: HSV(90°, 0.15, 0.9) and HSV(90°, 0.5, 0.7). */
+.tone-circle {
+  --tone-circle-bead: #d4e6c3;
+  --tone-circle-bead-active: #86b359;
+  --tone-circle-label: #fff;
+  --tone-circle-focus: #4a6b2a;
+
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tone-circle__bead circle {
+  fill: var(--tone-circle-bead);
+}
+
+.tone-circle__bead--active circle {
+  fill: var(--tone-circle-bead-active);
+}
+
+.tone-circle__bead text {
+  fill: var(--tone-circle-label);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}

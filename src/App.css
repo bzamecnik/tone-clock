@@ -8,3 +8,7 @@
 .app h1 {
   font-weight: 400;
 }
+
+.app__circle {
+  width: min(100%, 480px);
+}
