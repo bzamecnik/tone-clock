@@ -86,4 +86,70 @@ describe('App', () => {
     expect(chordName()).toBe('G13')
     expect(scaleName()).toBe('C diatonic (major)')
   })
+
+  describe('key', () => {
+    function selectKey(user: ReturnType<typeof userEvent.setup>, key: string) {
+      return user.selectOptions(screen.getByRole('combobox', { name: 'Key' }), key)
+    }
+
+    it('has no key by default', () => {
+      render(<App />)
+      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('')
+      expect(screen.queryByLabelText('Relative chord name')).toBeNull()
+      expect(document.querySelector('.tone-circle__bead--tonic')).toBeNull()
+    })
+
+    it('highlights the tonic and names the chord with a Roman numeral', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await selectKey(user, 'A')
+      expect(document.querySelector('.tone-circle__bead--tonic')).toHaveAttribute('aria-label', 'A')
+      // C major in A (minor) is bIII
+      expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('bIII')
+
+      await user.click(screen.getByRole('button', { name: 'Bb' }))
+      expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('bIII7')
+    })
+
+    it('lists the selected tones as scale degrees', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await selectKey(user, 'C')
+      expect(screen.getByLabelText('Selected degrees')).toHaveTextContent('1 3 5')
+      await selectKey(user, 'A')
+      expect(screen.getByLabelText('Selected degrees')).toHaveTextContent('b3 5 b7')
+      // listed in ascending order from the tonic
+      await selectKey(user, 'D')
+      expect(screen.getByLabelText('Selected degrees')).toHaveTextContent('2 4 b7')
+    })
+
+    it('can label the beads by scale degrees', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      const labels = screen.getByRole('combobox', { name: 'Labels' })
+      expect(labels).toBeDisabled()
+
+      await selectKey(user, 'A')
+      expect(labels).toBeEnabled()
+      await user.selectOptions(labels, 'Degrees')
+      expect(screen.getByRole('button', { name: '1' })).toHaveClass('tone-circle__bead--tonic')
+      expect(screen.getByRole('button', { name: 'b3' })).toHaveAttribute('aria-pressed', 'true')
+
+      // without a key, beads fall back to note names
+      await selectKey(user, 'None')
+      expect(screen.getByRole('button', { name: 'C' })).toBeInTheDocument()
+    })
+
+    it('remembers the key and labels', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<App />)
+      await selectKey(user, 'D')
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Labels' }), 'Degrees')
+      unmount()
+
+      render(<App />)
+      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('2')
+      expect(screen.getByRole('combobox', { name: 'Labels' })).toHaveValue('degrees')
+    })
+  })
 })

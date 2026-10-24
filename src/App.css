@@ -23,6 +23,15 @@
   color: #4a6b2a;
 }
 
+.app__relative {
+  font-size: 1.1rem;
+  color: #4a6b2a;
+}
+
+.app__relative output {
+  font-weight: 600;
+}
+
 .app__scale {
   min-height: 1.3em;
   font-size: 1.1rem;
@@ -37,6 +46,11 @@
   min-height: 1.5em;
   margin: 0.5rem 0;
   font-size: 1.25rem;
+}
+
+.app__degrees {
+  margin-bottom: 0.5rem;
+  color: #666;
 }
 
 .app__toolbar {
@@ -62,4 +76,20 @@
 
 .app__toolbar button:hover {
   background: #d4e6c3;
+}
+
+.app__settings {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.app__settings label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.app__settings select {
+  font-size: 1rem;
 }
