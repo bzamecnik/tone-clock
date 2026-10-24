@@ -26,3 +26,13 @@
   dominant-baseline: central;
   pointer-events: none;
 }
+
+.tone-circle__bead {
+  cursor: pointer;
+  outline: none;
+}
+
+.tone-circle__bead:focus-visible circle {
+  stroke: var(--tone-circle-focus);
+  stroke-width: 2;
+}
