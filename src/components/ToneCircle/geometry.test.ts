@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { BEAD_RADIUS, CIRCLE_RADIUS, VIEW_RADIUS, beadLayout } from './geometry.ts'
+import {
+  BEAD_RADIUS,
+  CIRCLE_RADIUS,
+  VIEW_RADIUS,
+  beadLayout,
+  clientToView,
+  pitchClassAt,
+  pointAngle,
+} from './geometry.ts'
 
 describe('bead layout', () => {
   const beads = beadLayout()
@@ -33,5 +41,58 @@ describe('bead layout', () => {
       // apex lies on the same ray as the center
       expect(bead.apex.x * bead.center.y - bead.apex.y * bead.center.x).toBeCloseTo(0)
     }
+  })
+})
+
+describe('pitchClassAt (hit testing)', () => {
+  const beads = beadLayout()
+
+  it('finds the bead at its center', () => {
+    for (const bead of beads) {
+      expect(pitchClassAt(bead.center)).toBe(bead.pitchClass)
+    }
+  })
+
+  it('finds the nearest bead within the ring of beads', () => {
+    // slightly clockwise from C, at the outer edge of the ring
+    expect(pitchClassAt({ x: 10, y: -95 })).toBe(0)
+    // between C and Db, closer to Db
+    const angle = (-90 + 20) * (Math.PI / 180)
+    expect(pitchClassAt({ x: 80 * Math.cos(angle), y: 80 * Math.sin(angle) })).toBe(1)
+  })
+
+  it('returns null inside or outside the ring', () => {
+    expect(pitchClassAt({ x: 0, y: 0 })).toBeNull()
+    expect(pitchClassAt({ x: 0, y: -50 })).toBeNull()
+    expect(pitchClassAt({ x: 0, y: -100 })).toBeNull()
+    expect(pitchClassAt({ x: 100, y: 100 })).toBeNull()
+  })
+})
+
+describe('pointAngle', () => {
+  it('is measured clockwise from the top in radians', () => {
+    expect(pointAngle({ x: 0, y: -1 })).toBeCloseTo(0)
+    expect(pointAngle({ x: 1, y: 0 })).toBeCloseTo(Math.PI / 2)
+    expect(pointAngle({ x: 0, y: 1 })).toBeCloseTo(Math.PI)
+    expect(pointAngle({ x: -1, y: 0 })).toBeCloseTo((3 * Math.PI) / 2)
+  })
+})
+
+describe('clientToView', () => {
+  it('maps client coordinates to view box coordinates', () => {
+    const rect = { left: 10, top: 20, width: 400, height: 400 }
+    expect(clientToView(rect, 210, 220)).toEqual({ x: 0, y: 0 })
+    expect(clientToView(rect, 10, 20)).toEqual({ x: -100, y: -100 })
+    expect(clientToView(rect, 410, 420)).toEqual({ x: 100, y: 100 })
+  })
+
+  it('keeps the view box centered in non-square elements', () => {
+    const rect = { left: 0, top: 0, width: 400, height: 200 }
+    expect(clientToView(rect, 200, 100)).toEqual({ x: 0, y: 0 })
+    expect(clientToView(rect, 300, 100)).toEqual({ x: 100, y: 0 })
+  })
+
+  it('returns null for an element without size', () => {
+    expect(clientToView({ left: 0, top: 0, width: 0, height: 0 }, 0, 0)).toBeNull()
   })
 })
