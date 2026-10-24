@@ -152,4 +152,49 @@ describe('App', () => {
       expect(screen.getByRole('combobox', { name: 'Labels' })).toHaveValue('degrees')
     })
   })
+
+  describe('typing a chord', () => {
+    const input = () => screen.getByRole('textbox', { name: 'Chord, scale or notes' })
+
+    it('sets the tones from a chord name', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'Am7{Enter}')
+      expect(selectedTones()).toBe('C E G A')
+      expect(chordName()).toBe('Am7')
+    })
+
+    it('sets the tones from a scale or a list of notes', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'D dorian{Enter}')
+      expect(selectedTones()).toBe('C D E F G A B')
+      await user.clear(input())
+      await user.type(input(), 'Db F Ab B{Enter}')
+      expect(chordName()).toBe('Db7')
+    })
+
+    it('understands Roman numerals and degrees in the selected key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Key' }), 'F')
+      await user.type(input(), 'V7{Enter}')
+      expect(chordName()).toBe('C7')
+      await user.clear(input())
+      await user.type(input(), '1 b3 5{Enter}')
+      expect(chordName()).toBe('Fm')
+    })
+
+    it('reports input it does not understand and keeps the tones', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'Cxyz{Enter}')
+      expect(screen.getByRole('alert')).toHaveTextContent('Unknown chord')
+      expect(input()).toHaveAttribute('aria-invalid', 'true')
+      expect(selectedTones()).toBe('C E G')
+
+      await user.type(input(), '{Backspace}')
+      expect(screen.queryByRole('alert')).toBeNull()
+    })
+  })
 })
