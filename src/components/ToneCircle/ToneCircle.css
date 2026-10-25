@@ -51,16 +51,16 @@
   fill: oklch(0.5 0.1 var(--level-hue));
 }
 
-/* the diatonic scale: a thin outline, a cue that does not rely on hue */
-.tone-circle__bead--diatonic circle {
-  stroke: hsl(var(--level-hue) 40% 38%);
-  stroke-width: 1;
-}
-
-/* neutral, to stand out on any bead color; after the diatonic outline, which it overrides */
+/* neutral, to stand out on any bead color */
 .tone-circle__bead--root circle {
   stroke: var(--tone-circle-root);
   stroke-width: 2.5;
+}
+
+/* the diatonic scale of the key; above the chord path, below the beads */
+.tone-circle__scale-arc path {
+  fill: none;
+  stroke: var(--tone-circle-tonic);
 }
 
 /* a neutral chord path, not to compete with the colored beads */

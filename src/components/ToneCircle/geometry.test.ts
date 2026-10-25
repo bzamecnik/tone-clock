@@ -5,6 +5,8 @@ import {
   VIEW_RADIUS,
   beadLayout,
   markerLayout,
+  arcPath,
+  arcRuns,
   positionOf,
   nearestPitchClass,
   clientToView,
@@ -158,5 +160,48 @@ describe('clientToView', () => {
 
   it('returns null for an element without size', () => {
     expect(clientToView({ left: 0, top: 0, width: 0, height: 0 }, 0, 0)).toBeNull()
+  })
+})
+
+describe('arcRuns', () => {
+  it('groups positions into runs of neighbors around the circle', () => {
+    // C major in semitones: B-C, D, E-F, G, A
+    expect(arcRuns([0, 2, 4, 5, 7, 9, 11])).toEqual([
+      { start: 2, length: 1 },
+      { start: 4, length: 2 },
+      { start: 7, length: 1 },
+      { start: 9, length: 1 },
+      { start: 11, length: 2 },
+    ])
+    // C major on the circle of fifths: one arc F C G D A E B
+    expect(arcRuns([11, 0, 1, 2, 3, 4, 5])).toEqual([{ start: 11, length: 7 }])
+  })
+
+  it('handles no positions and all of them', () => {
+    expect(arcRuns([])).toEqual([])
+    expect(arcRuns(Array.from({ length: 12 }, (_, i) => i))).toEqual([{ start: 0, length: 12 }])
+  })
+})
+
+describe('arcPath', () => {
+  const numbers = (d: string) => d.match(/-?\d+(\.\d+)?/g)!.map(Number)
+
+  it('draws an arc over the beads of a run, clockwise, with a gap at both ends', () => {
+    // one bead at the top: from -15° to +15° minus the gaps, radius 50
+    const [x1, y1, rx, ry, , large, sweep, x2, y2] = numbers(arcPath({ start: 0, length: 1 }, 50, 0))
+    expect(rx).toBe(50)
+    expect(ry).toBe(50)
+    expect(large).toBe(0)
+    expect(sweep).toBe(1)
+    expect(x1).toBeCloseTo(-50 * Math.sin(Math.PI / 12))
+    expect(y1).toBeCloseTo(-50 * Math.cos(Math.PI / 12))
+    expect(x2).toBeCloseTo(-x1)
+    expect(y2).toBeCloseTo(y1)
+    const [gx1] = numbers(arcPath({ start: 0, length: 1 }, 50, 5))
+    expect(gx1).toBeGreaterThan(x1)
+  })
+
+  it('uses the large arc for runs over half of the circle', () => {
+    expect(numbers(arcPath({ start: 11, length: 7 }, 50, 2))[5]).toBe(1)
   })
 })

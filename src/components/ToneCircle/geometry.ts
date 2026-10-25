@@ -12,6 +12,14 @@ export const CIRCLE_RADIUS = 0.8 * UNIT
 /** Radius of the bead apexes, the vertices of the chord polygon. */
 export const APEX_RADIUS = CIRCLE_RADIUS - BEAD_RADIUS
 
+/**
+ * Scale arc: a band just inside the beads marking the diatonic scale of the
+ * key (like the white keys of a piano), with gaps between separate runs.
+ */
+export const SCALE_ARC_WIDTH = 6
+export const SCALE_ARC_RADIUS = APEX_RADIUS - 3 - SCALE_ARC_WIDTH / 2
+export const SCALE_ARC_GAP_DEGREES = 1.5
+
 /** Key marker: a small triangle outside each bead, pointing inwards. */
 const MARKER_TIP_RADIUS = CIRCLE_RADIUS + BEAD_RADIUS + 3
 const MARKER_LENGTH = 6
@@ -151,4 +159,57 @@ export function clientToView(rect: Rect, clientX: number, clientY: number): Poin
     x: (clientX - (rect.left + rect.width / 2)) * scale,
     y: (clientY - (rect.top + rect.height / 2)) * scale,
   }
+}
+
+/** A run of `length` neighboring positions around the circle, from `start` clockwise. */
+export interface ArcRun {
+  start: number
+  length: number
+}
+
+/** Groups positions (0..11) into runs of neighbors, wrapping around the circle. */
+export function arcRuns(positions: number[]): ArcRun[] {
+  const included = new Set(positions)
+  if (included.size === OCTAVE_SIZE) {
+    return [{ start: 0, length: OCTAVE_SIZE }]
+  }
+  const runs: ArcRun[] = []
+  for (let start = 0; start < OCTAVE_SIZE; start++) {
+    // a run starts where the previous position is not included
+    if (!included.has(start) || included.has(mod(start - 1, OCTAVE_SIZE))) {
+      continue
+    }
+    let length = 1
+    while (included.has(mod(start + length, OCTAVE_SIZE))) {
+      length++
+    }
+    runs.push({ start, length })
+  }
+  return runs
+}
+
+/**
+ * SVG path of an arc of the given radius over the beads of a run (each bead
+ * spans 30°), clockwise, shortened by `gapDegrees` at both ends so that
+ * neighboring runs stay apart.
+ */
+export function arcPath({ start, length }: ArcRun, radius: number, gapDegrees: number): string {
+  const point = (position: number) => {
+    const angle = positionAngle(position)
+    return `${format(radius * Math.cos(angle))} ${format(radius * Math.sin(angle))}`
+  }
+  if (length >= OCTAVE_SIZE) {
+    // a full circle, as two half arcs
+    return `M ${point(0)} A ${radius} ${radius} 0 0 1 ${point(6)} A ${radius} ${radius} 0 0 1 ${point(0)}`
+  }
+  const gap = (gapDegrees / 360) * OCTAVE_SIZE
+  const from = start - 0.5 + gap
+  const to = start + length - 0.5 - gap
+  const large = (to - from) / OCTAVE_SIZE > 0.5 ? 1 : 0
+  return `M ${point(from)} A ${radius} ${radius} 0 ${large} 1 ${point(to)}`
+}
+
+/** Rounds to 3 decimals and avoids printing "-0". */
+function format(n: number): string {
+  return String(Math.round(n * 1000) / 1000 + 0)
 }

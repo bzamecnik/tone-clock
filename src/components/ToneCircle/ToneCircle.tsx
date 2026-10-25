@@ -15,7 +15,12 @@ import { useWindowKeys } from '../../useWindowKeys.ts'
 import { chordPath } from './chordPath.ts'
 import {
   BEAD_RADIUS,
+  SCALE_ARC_GAP_DEGREES,
+  SCALE_ARC_RADIUS,
+  SCALE_ARC_WIDTH,
   VIEW_RADIUS,
+  arcPath,
+  arcRuns,
   beadLayout,
   clientToView,
   markerLayout,
@@ -160,13 +165,15 @@ export interface ToneCircleProps {
   order?: CircleOrder
   /**
    * Color the beads by how "inside" the key (tonic) they are, from green
-   * (degree 2) via yellow (the tritone 4-7) to red (b6), and outline the
-   * diatonic ones. See keyLevel.
+   * (degree 2) via yellow (the tritone 4-7) to red (b6). See keyLevel.
    */
   keyColors?: boolean
   /** Root of the chord, outlined on its bead. */
   root?: number
-  /** Tonic of the current key, marked by a triangle outside its bead. */
+  /**
+   * Tonic of the current key, marked by a triangle outside its bead. The
+   * diatonic scale of the key is marked by arcs inside the beads.
+   */
   tonic?: number
   /**
    * Called with the new tonic (null = no key) when the user changes the key.
@@ -205,6 +212,10 @@ export function ToneCircle({
   const step = orderStep(order)
   const { beads, markers } = LAYOUTS[order]
   const colorTonic = keyColors ? tonic : undefined
+  const scaleArcs =
+    tonic === undefined
+      ? []
+      : arcRuns(beads.filter((b) => isDiatonic(b.pitchClass, tonic)).map((b) => b.position))
 
   function change(newTones: PitchClassSet) {
     if (newTones === tones) {
@@ -392,6 +403,13 @@ export function ToneCircle({
           aria-hidden="true"
         />
       )}
+      {scaleArcs.length > 0 && (
+        <g className="tone-circle__scale-arc" strokeWidth={SCALE_ARC_WIDTH} aria-hidden="true">
+          {scaleArcs.map((run) => (
+            <path key={run.start} d={arcPath(run, SCALE_ARC_RADIUS, SCALE_ARC_GAP_DEGREES)} />
+          ))}
+        </g>
+      )}
       {beads.map(({ pitchClass, center }) => {
         const active = has(tones, pitchClass)
         const name = names[pitchClass]
@@ -399,7 +417,6 @@ export function ToneCircle({
           'tone-circle__bead',
           active && 'tone-circle__bead--active',
           pitchClass === root && 'tone-circle__bead--root',
-          colorTonic !== undefined && isDiatonic(pitchClass, colorTonic) && 'tone-circle__bead--diatonic',
         ]
         return (
           <g

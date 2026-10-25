@@ -4,7 +4,15 @@ import { useState, type ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { DEGREE_NAMES, FLAT_NAMES, SHARP_NAMES, relativeNames } from '../../music/pitchClassNames.ts'
 import { fromPitchClasses } from '../../music/pitchClassSet.ts'
-import { VIEW_RADIUS, beadLayout, markerLayout, type Point } from './geometry.ts'
+import {
+  SCALE_ARC_GAP_DEGREES,
+  SCALE_ARC_RADIUS,
+  VIEW_RADIUS,
+  arcPath,
+  beadLayout,
+  markerLayout,
+  type Point,
+} from './geometry.ts'
 import { chordPath } from './chordPath.ts'
 import { ToneCircle } from './ToneCircle.tsx'
 
@@ -301,16 +309,12 @@ describe('ToneCircle', () => {
   describe('key colors', () => {
     const level = (name: string) => screen.getByRole('button', { name }).getAttribute('data-level')
 
-    it('marks each bead with its level in the key and the diatonic ones', () => {
+    it('marks each bead with its level in the key', () => {
       const { container } = render(<ToneCircle tonic={0} keyColors />)
       expect(container.querySelector('svg')).toHaveClass('tone-circle--key-colors')
       expect(level('D')).toBe('3')
       expect(level('F')).toBe('0')
       expect(level('Ab')).toBe('-3')
-      const diatonic = beads()
-        .filter((b) => b.classList.contains('tone-circle__bead--diatonic'))
-        .map((b) => b.getAttribute('aria-label'))
-      expect(diatonic).toEqual(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
     })
 
     it('is off without a key or when not enabled', () => {
@@ -319,7 +323,28 @@ describe('ToneCircle', () => {
       expect(level('D')).toBeNull()
       rerender(<ToneCircle tonic={0} />)
       expect(level('D')).toBeNull()
-      expect(container.querySelector('.tone-circle__bead--diatonic')).toBeNull()
+    })
+  })
+
+  describe('scale arc', () => {
+    const arcs = (container: HTMLElement) => container.querySelectorAll('.tone-circle__scale-arc path')
+
+    it('marks the diatonic scale of the key with arcs inside the beads', () => {
+      const { container, rerender } = render(<ToneCircle tonic={0} />)
+      // B-C, D, E-F, G, A
+      expect(arcs(container)).toHaveLength(5)
+      expect(arcs(container)[0]).toHaveAttribute(
+        'd',
+        arcPath({ start: 2, length: 1 }, SCALE_ARC_RADIUS, SCALE_ARC_GAP_DEGREES),
+      )
+      // one arc on the circle of fifths: F C G D A E B
+      rerender(<ToneCircle tonic={0} order="fifths" />)
+      expect(arcs(container)).toHaveLength(1)
+    })
+
+    it('is not shown without a key', () => {
+      const { container } = render(<ToneCircle />)
+      expect(arcs(container)).toHaveLength(0)
     })
   })
 
