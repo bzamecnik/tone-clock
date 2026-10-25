@@ -3,6 +3,7 @@
   --tone-circle-bead: #d4e6c3;
   --tone-circle-bead-active: #86b359;
   --tone-circle-label: #fff;
+  --tone-circle-label-inactive: #5b7f38;
   --tone-circle-tonic: #4a6b2a;
   --tone-circle-root: #2b3320;
   --tone-circle-chord-neutral: rgb(60 60 60 / 0.22);
@@ -104,6 +105,11 @@
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
+}
+
+/* inverse labels: dark on the light inactive beads, light on the active ones */
+.tone-circle__bead:not(.tone-circle__bead--active) text {
+  fill: var(--tone-circle-label-inactive);
 }
 
 .tone-circle__secondary-label {
