@@ -85,12 +85,27 @@ So:
   (-3). This is a discrete gradient of 7 colors; the three groups (inner
   pentatonic, tritone, outer pentatonic) are still recognizable as green,
   yellow and red.
-- The **lightness** still shows whether a tone is active (saturated) or not
-  (pale), as without key colors, so the chord and its relation to the key
-  can be read at once.
-- **Diatonic tones are outlined** with a thin border. This doesn't rely on
-  hue: the yellow tritone and the orange b5/b7 are close in hue, and
-  red-green color blindness is common.
+- The **lightness** shows whether a tone is active or not, as without key
+  colors, so the chord and its relation to the key can be read at once. For
+  that the lightness must not depend on the hue. In HSL it does (a yellow
+  of the same "lightness" looks much brighter than a green or red one), so
+  active beads looked inconsistent when squinting or on a dim screen. The
+  colors are therefore defined in **OKLCH**, a color space whose lightness
+  is perceptual: all active beads share one lightness and all inactive
+  beads another. The price is a somewhat muted, ochre yellow, since a
+  saturated yellow can't be as dark as a green.
+- **Labels are inverse**: white on active beads, a dark shade of the bead's
+  hue on inactive ones, which is easier to read and another cue for which
+  tones are active.
+- The **diatonic scale** is marked by a **scale arc**, a band just inside
+  the ring of beads covering the diatonic tones. On the circle of fifths it
+  is one continuous arc over 7 beads (in C: F C G D A E B), showing the key
+  as a region next to the tonic marker. In semitones it splits into pieces
+  with gaps at the outer pentatonic, like the white and black keys of a
+  piano (inverted: dark marks for the "white" keys). It encodes membership
+  by position, not by color, so it works without key colors, for color
+  blind people and when squinting. (A first attempt with a thin outline of
+  diatonic beads was too subtle.)
 - The **root ring** of a chord is a dark neutral color and the **chord
   path** a translucent gray when colored, so that they don't clash with the
   colored beads.

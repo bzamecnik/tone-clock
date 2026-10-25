@@ -148,8 +148,12 @@ src/
       semitones and fifths (diatonic scales and their chords become
       clusters of neighbors); one rotation step is then a fifth
 - [x] key colors: beads colored by how "inside" the key they are (green
-      for degree 2 via yellow for the tritone 4-7 to red for b6), diatonic
-      tones outlined; the C key or a toggle switches them
+      for degree 2 via yellow for the tritone 4-7 to red for b6), in OKLCH
+      with equal lightness so that brightness tells active tones; the C key
+      or a toggle switches them
+- [x] inverse bead labels (dark on inactive beads)
+- [x] scale arc: the diatonic scale of the key marked by arcs inside the
+      beads
 - [x] toggle buttons for the circle order and the labels in the panel,
       showing their keyboard shortcuts
 - [x] the L key swaps note names and degrees on the beads (replaces the
@@ -174,6 +178,7 @@ Notes:
 - [ ] two-finger rotation gesture on touch screens
 - [ ] alternative label sets (sharp) in the UI
 - [ ] publish the component as a reusable package
+- [ ] dark mode (light/dark switching); the key colors may suit it well
 
 ### 8. Desktop app
 - [ ] Tauri v2 shell around the React app (`src-tauri/`)
