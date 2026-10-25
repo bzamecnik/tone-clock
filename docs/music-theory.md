@@ -116,6 +116,10 @@ So:
   inactive labels), and the **chord path** a light green tint without a
   border: neutral black and gray looked harsh and out of place among the
   colored beads.
+- Switching key colors on and off changes **only the hues** of the beads
+  and markers. The chord path, the scale arc and the lightness of the
+  markers stay the same in both modes, so that nothing else catches the
+  eye.
 
 ## Naming and listing tones
 
