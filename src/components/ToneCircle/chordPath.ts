@@ -1,5 +1,5 @@
 import { OCTAVE_SIZE, mod, toPitchClasses, type PitchClassSet } from '../../music/pitchClassSet.ts'
-import { beadLayout, positionOf, type CircleOrder, type Point } from './geometry.ts'
+import { beadLayout, format, positionOf, type CircleOrder, type Point } from './geometry.ts'
 
 // in the chromatic order, indexed by position
 const APEXES = beadLayout().map((bead) => bead.apex)
@@ -15,11 +15,6 @@ export interface ChordPath {
 export function intervalClass(one: number, other: number): number {
   const interval = mod(one - other, OCTAVE_SIZE)
   return Math.min(interval, OCTAVE_SIZE - interval)
-}
-
-/** Rounds to 3 decimals and avoids printing "-0". */
-function format(n: number): string {
-  return String(Math.round(n * 1000) / 1000 + 0)
 }
 
 function formatPoint(p: Point): string {

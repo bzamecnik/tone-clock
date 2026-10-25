@@ -209,7 +209,7 @@ export function arcPath({ start, length }: ArcRun, radius: number, gapDegrees: n
   return `M ${point(from)} A ${radius} ${radius} 0 ${large} 1 ${point(to)}`
 }
 
-/** Rounds to 3 decimals and avoids printing "-0". */
-function format(n: number): string {
+/** Formats a coordinate for SVG: rounded to 3 decimals, without "-0". */
+export function format(n: number): string {
   return String(Math.round(n * 1000) / 1000 + 0)
 }
