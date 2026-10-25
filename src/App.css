@@ -23,7 +23,7 @@
   margin: 0 0 0.5rem;
   font-size: 1rem;
   font-weight: 400;
-  color: #888;
+  color: var(--color-muted);
 }
 
 .app__top {
@@ -46,13 +46,13 @@
   min-height: 1.3em;
   font-size: 2rem;
   font-weight: 600;
-  color: #4a6b2a;
+  color: var(--color-accent-strong);
 }
 
 .app__relative {
   min-height: 1.3em;
   font-size: 1.1rem;
-  color: #4a6b2a;
+  color: var(--color-accent-strong);
 }
 
 .app__relative output {
@@ -62,7 +62,7 @@
 .app__scale {
   min-height: 1.3em;
   font-size: 1.1rem;
-  color: #666;
+  color: var(--color-subtle);
 }
 
 .app__circle {
@@ -87,13 +87,13 @@
 }
 
 .app__degrees {
-  color: #666;
+  color: var(--color-subtle);
 }
 
 /* small row labels telling the two kinds of degrees apart */
 .app__tones th {
   padding-right: 0.4em;
-  color: #aaa;
+  color: var(--color-faint);
   font-size: 0.7rem;
   font-weight: 400;
   text-align: right;
@@ -105,7 +105,7 @@
   margin: 0.5rem 0 0;
   padding: 0;
   list-style: none;
-  color: #888;
+  color: var(--color-muted);
   font-size: 0.85rem;
   line-height: 1.5;
   text-align: center;

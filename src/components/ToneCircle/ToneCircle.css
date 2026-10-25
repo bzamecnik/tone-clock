@@ -8,6 +8,12 @@
   --tone-circle-scale-arc: oklch(0.55 0.09 140 / 0.55);
   --tone-circle-chord-tint: oklch(0.7 0.07 140 / 0.3);
   --tone-circle-focus: #2f6db5;
+  /* key colors: OKLCH lightness and chroma, the hue comes from the level */
+  --tone-circle-level-bead: 0.91 0.05;
+  --tone-circle-level-bead-active: 0.64 0.13;
+  --tone-circle-level-dark: 0.5 0.1;
+  --tone-circle-level-root: 0.45 0.1;
+  --tone-circle-level-marker: 0.82 0.07;
 
   display: block;
   width: 100%;
@@ -40,15 +46,15 @@
 [data-level='-3'] { --level-hue: 22; }
 
 .tone-circle__bead[data-level] circle {
-  fill: oklch(0.91 0.05 var(--level-hue));
+  fill: oklch(var(--tone-circle-level-bead) var(--level-hue));
 }
 
 .tone-circle__bead--active[data-level] circle {
-  fill: oklch(0.64 0.13 var(--level-hue));
+  fill: oklch(var(--tone-circle-level-bead-active) var(--level-hue));
 }
 
 .tone-circle__bead[data-level]:not(.tone-circle__bead--active) text {
-  fill: oklch(0.5 0.1 var(--level-hue));
+  fill: oklch(var(--tone-circle-level-dark) var(--level-hue));
 }
 
 /* a dark shade of the bead's color, like the inactive labels */
@@ -58,7 +64,7 @@
 }
 
 .tone-circle__bead--root[data-level] circle {
-  stroke: oklch(0.45 0.1 var(--level-hue));
+  stroke: oklch(var(--tone-circle-level-root) var(--level-hue));
 }
 
 /* the diatonic scale of the key; above the chord path, below the beads */
@@ -109,16 +115,16 @@
 
 /* with key colors, markers take the hue of their tone's level */
 .tone-circle__marker[data-level] polygon {
-  stroke: oklch(0.82 0.07 var(--level-hue));
+  stroke: oklch(var(--tone-circle-level-marker) var(--level-hue));
 }
 
 .tone-circle__marker[data-level]:hover polygon {
-  stroke: oklch(0.5 0.1 var(--level-hue));
+  stroke: oklch(var(--tone-circle-level-dark) var(--level-hue));
 }
 
 .tone-circle__marker--active[data-level] polygon {
-  fill: oklch(0.5 0.1 var(--level-hue));
-  stroke: oklch(0.5 0.1 var(--level-hue));
+  fill: oklch(var(--tone-circle-level-dark) var(--level-hue));
+  stroke: oklch(var(--tone-circle-level-dark) var(--level-hue));
 }
 
 .tone-circle__marker[data-level]:focus-visible polygon {

@@ -1,7 +1,25 @@
 :root {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  color: #333;
-  background: #fff;
+  /* colors of the app (the tone circle has its own --tone-circle-* ones) */
+  --color-text: #333;
+  --color-background: #fff;
+  --color-muted: #888;
+  --color-subtle: #666;
+  --color-faint: #aaa;
+  --color-accent: #86b359;
+  --color-accent-strong: #4a6b2a;
+  --color-on-accent: #fff;
+  --color-control: #fff;
+  --color-disabled: #eee;
+  --color-disabled-border: #ddd;
+  --color-disabled-text: #bbb;
+  --color-error: #c0392b;
+  --color-key-border: #ccc;
+  --color-key: #fafafa;
+  --color-key-text: #555;
+
+  color: var(--color-text);
+  background: var(--color-background);
 }
 
 body {
@@ -13,11 +31,11 @@ kbd {
   display: inline-block;
   min-width: 1.1em;
   padding: 0 0.3em;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-key-border);
   border-bottom-width: 2px;
   border-radius: 0.25em;
-  background: #fafafa;
-  color: #555;
+  background: var(--color-key);
+  color: var(--color-key-text);
   /* not monospace: arrows would come out tiny */
   font-family: inherit;
   font-size: 0.85em;

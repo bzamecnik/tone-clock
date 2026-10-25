@@ -9,24 +9,26 @@
   box-sizing: border-box;
   width: 100%;
   padding: 0.45rem 0.9rem;
-  border: 1px solid #86b359;
+  border: 1px solid var(--color-accent);
   border-radius: 999px;
+  background: var(--color-control);
+  color: var(--color-text);
   font-size: 1rem;
   text-align: center;
 }
 
 .chord-input input:focus {
-  outline: 2px solid #86b359;
+  outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
 
 .chord-input input[aria-invalid='true'] {
-  border-color: #c0392b;
-  outline-color: #c0392b;
+  border-color: var(--color-error);
+  outline-color: var(--color-error);
 }
 
 .chord-input__error {
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
-  color: #c0392b;
+  color: var(--color-error);
 }

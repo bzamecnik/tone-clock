@@ -9,7 +9,7 @@
   align-items: center;
   gap: 0.4em;
   min-width: 5.5rem;
-  color: #888;
+  color: var(--color-muted);
   font-size: 0.85rem;
 }
 
@@ -19,9 +19,9 @@
 
 .segmented-toggle__buttons button {
   padding: 0.2rem 0.7rem;
-  border: 1px solid #86b359;
-  background: #fff;
-  color: #4a6b2a;
+  border: 1px solid var(--color-accent);
+  background: var(--color-control);
+  color: var(--color-accent-strong);
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
@@ -40,17 +40,17 @@
 }
 
 .segmented-toggle__buttons button[aria-pressed='true'] {
-  background: #86b359;
-  color: #fff;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }
 
 .segmented-toggle__buttons button:disabled {
-  border-color: #ddd;
-  background: #fff;
-  color: #bbb;
+  border-color: var(--color-disabled-border);
+  background: var(--color-control);
+  color: var(--color-disabled-text);
   cursor: default;
 }
 
 .segmented-toggle__buttons button[aria-pressed='true']:disabled {
-  background: #eee;
+  background: var(--color-disabled);
 }
