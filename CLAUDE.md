@@ -23,6 +23,8 @@ Reference implementation (Java, Android), read-only:
   the code they cover. Don't mix refactoring, formatting and features.
 - Run `npm test -- --run` and `npm run build` before committing; both must pass.
 - Keep `docs/plan.md` up to date: tick off finished steps.
+- Explain the music theory reasoning behind features in
+  `docs/music-theory.md`.
 
 ## Code conventions
 

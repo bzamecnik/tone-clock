@@ -1,0 +1,126 @@
+# Music theory behind the features
+
+Design notes explaining why some features of Tone Circle work the way they
+do. The code lives in `src/music/` (pure functions) and is visualized by
+`src/components/ToneCircle/`.
+
+## Two orders of the circle: semitones and fifths
+
+The 12 pitch classes can be arranged around the circle in two useful ways:
+
+- **semitones** (chromatic): C Db D Eb E F Gb G Ab A Bb B,
+- **fifths**: C G D A E B Gb Db Ab Eb Bb F.
+
+A bead's position is `pitch class × step mod 12`, with a step of 1 or 7
+semitones. Since 7 × 7 = 49 ≡ 1 (mod 12), the same formula maps positions
+back to pitch classes: the circle of fifths is its own inverse.
+
+One step around the circle is always one bead. So on the circle of fifths
+the arrow keys and dragging transpose by a fifth, and moving the key by one
+step adds a sharp (or removes a flat) from the key signature.
+
+### What forms a cluster on the circle of fifths
+
+The circle of fifths makes some structures visible as **contiguous arcs**
+of neighboring beads:
+
+- a **diatonic scale** is an arc of 7 tones, e.g. C major = F C G D A E B,
+- a **pentatonic scale** is an arc of 5 tones, e.g. C D E G A = C G D A E.
+
+Chords built by stacking thirds (triads, 7th, 9th chords) do **not** form
+clusters, which can be surprising at first. A third doesn't follow the
+7-semitone steps: a major third is 4 steps on the circle of fifths and a
+minor third is 3 steps back (4 × 7 = 28 ≡ 4, 3 × 7 = 21 ≡ 9 ≡ -3). Within
+the 7-tone diatonic arc, a third is a walk by 4 positions (modulo 7), so a
+triad is spread out over the arc: C major (C E G) takes the 2nd, 3rd and
+6th beads of F C G D A E B, reached as C → E → G by steps of 4 (C at index
+1, E at 1 + 4 = 5, G at 5 + 4 = 9 ≡ 2). Only the 11th and 13th chords, which stack all 7 tones of the
+scale, fill the arc completely.
+
+## Key colors: how "inside" a key a tone is
+
+With a key selected, the beads can be colored by how close each tone is to
+the key (`keyLevel` in `src/music/keyLevel.ts`).
+
+### The structure of the chromatic scale in a key
+
+The 12 tones split into nested parts:
+
+- the **diatonic scale** (1 2 3 4 5 6 7) and its complement, the **outer
+  pentatonic** (b2 b3 b5 b6 b7),
+- the diatonic scale itself is an **inner pentatonic** (1 2 3 5 6) plus two
+  **transition tones**, 4 and 7, which form a tritone,
+- the tritone together with the outer pentatonic forms a **mirrored diatonic
+  scale**: the major scale a tritone away (in C: F B + Db Eb Gb Ab Bb = Gb
+  major).
+
+### The levels
+
+On the circle of fifths, relative to the tonic, the degrees are at these
+positions:
+
+| position | 0 | 1 | 2 | 3 | 4 | 5 | 6  | 7  | 8  | 9  | 10 | 11 |
+|----------|---|---|---|---|---|---|----|----|----|----|----|----|
+| degree   | 1 | 5 | 2 | 6 | 3 | 7 | b5 | b2 | b6 | b3 | b7 | 4  |
+
+The diatonic arc (4 1 5 2 6 3 7) is centered at **degree 2**. The tritone
+4-7 is the axis that cuts the circle in half: the diatonic side and the
+other side. The level of a tone is 3 minus its distance from degree 2 around
+the circle, which gives 7 symmetric levels:
+
+| level   | +3 | +2   | +1   | 0           | -1     | -2     | -3 |
+|---------|----|------|------|-------------|--------|--------|----|
+| degrees | 2  | 5, 6 | 1, 3 | 4, 7        | b5, b7 | b2, b3 | b6 |
+
+So:
+
+- diatonic tones have levels 0..3, the others -1..-3,
+- the inner pentatonic has levels 1..3, the outer pentatonic -1..-3,
+- on the circle of fifths the levels change smoothly around the circle, in
+  semitones they alternate.
+
+### The visual representation
+
+- The **hue** shows the level: green (+3) via yellow (0, the tritone) to red
+  (-3). This is a discrete gradient of 7 colors; the three groups (inner
+  pentatonic, tritone, outer pentatonic) are still recognizable as green,
+  yellow and red.
+- The **lightness** still shows whether a tone is active (saturated) or not
+  (pale), as without key colors, so the chord and its relation to the key
+  can be read at once.
+- **Diatonic tones are outlined** with a thin border. This doesn't rely on
+  hue: the yellow tritone and the orange b5/b7 are close in hue, and
+  red-green color blindness is common.
+- The **root ring** of a chord is a dark neutral color and the **chord
+  path** a translucent gray when colored, so that they don't clash with the
+  colored beads.
+
+## Naming and listing tones
+
+### Roman numerals are case-sensitive
+
+Chord qualities are parsed case-insensitively where unambiguous (`CMAJ7`,
+`cDim`), but `m` (minor) and `M` (major) differ. Roman numerals stay
+uppercase only: by a common convention, lowercase numerals mean a minor
+chord (`ii7` = IIm7, `vi` = VIm), so reading `v7` as V7 would be
+misleading.
+
+### Tones are listed from the chord root
+
+The table of selected tones starts at the root of the chord name (else the
+tonic, else C), since that is how a chord is read: Em7 = E G B D. Below the
+notes there are two rows of degrees:
+
+- **chord**: relative to the chord root (Em7 = 1 b3 5 b7),
+- **key**: relative to the tonic (Em7 in A = 5 b7 2 4).
+
+This is a simplification: in practice the order depends on the voicing
+(inversions, upper extensions). Chord degrees use the names within one
+octave (`b3`, not `#9`).
+
+### Choosing a key without one
+
+When there is no key, the first ↑/↓ press picks one: the root of the scale
+name if any, else of the chord name, else the lowest tone. A scale is
+preferred because e.g. the full C diatonic set is also named as a G13 chord,
+but C is the more natural key.

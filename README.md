@@ -26,6 +26,10 @@ Features:
 - type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
   key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
 
+The music theory behind the features (circle of fifths, key colors, how
+tones are named and listed) is explained in
+[docs/music-theory.md](docs/music-theory.md).
+
 This is a re-creation of the Android app *Tone Circle* (2013), originally
 written in Java, first as a React component for the web, later as a
 Rust/Tauri/React desktop app for macOS.
