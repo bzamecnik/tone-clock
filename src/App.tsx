@@ -98,20 +98,9 @@ function App() {
       )}
       <p className="app__hint">
         Click a tone to toggle it, drag it to move it or off the circle to remove it. Drag around the
-        circle or press ← → to transpose, ↑ ↓ to change the key. Delete clears.
+        circle or press ← → to transpose. Click a triangle or press ↑ ↓ to choose the key. Delete clears.
       </p>
       <div className="app__settings">
-        <label>
-          Key
-          <select value={serializeKey(key)} onChange={(e) => setKey(parseKey(e.target.value) ?? null)}>
-            <option value="">None</option>
-            {FLAT_NAMES.map((name, pc) => (
-              <option key={pc} value={pc}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </label>
         <label>
           Labels
           <select

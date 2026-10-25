@@ -21,9 +21,38 @@
   fill: var(--tone-circle-bead-active);
 }
 
-.tone-circle__bead--tonic circle {
+.tone-circle__marker {
+  outline: none;
+}
+
+.tone-circle__marker[role='button'] {
+  cursor: pointer;
+}
+
+.tone-circle__marker polygon {
+  fill: none;
+  stroke: var(--tone-circle-bead);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.tone-circle__marker:hover polygon,
+.tone-circle__marker:focus-visible polygon {
   stroke: var(--tone-circle-tonic);
-  stroke-width: 2.5;
+}
+
+.tone-circle__marker:focus-visible polygon {
+  stroke: var(--tone-circle-focus);
+  stroke-width: 1.5;
+}
+
+.tone-circle__marker--active polygon {
+  fill: var(--tone-circle-tonic);
+  stroke: var(--tone-circle-tonic);
+}
+
+.tone-circle__marker-hit {
+  fill: transparent;
 }
 
 .tone-circle__bead text {

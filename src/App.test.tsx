@@ -92,22 +92,29 @@ describe('App', () => {
   })
 
   describe('key', () => {
+    /** Clicks the key marker (toggles the key) */
     function selectKey(user: ReturnType<typeof userEvent.setup>, key: string) {
-      return user.selectOptions(screen.getByRole('combobox', { name: 'Key' }), key)
+      return user.click(screen.getByRole('button', { name: `Key ${key}` }))
+    }
+
+    function selectedKey() {
+      return screen
+        .getAllByRole('button', { name: /^Key / })
+        .find((m) => m.getAttribute('aria-pressed') === 'true')
+        ?.getAttribute('aria-label')
     }
 
     it('has no key by default', () => {
       render(<App />)
-      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('')
+      expect(selectedKey()).toBeUndefined()
       expect(screen.queryByLabelText('Relative chord name')).toBeNull()
-      expect(document.querySelector('.tone-circle__bead--tonic')).toBeNull()
     })
 
-    it('highlights the tonic and names the chord with a Roman numeral', async () => {
+    it('marks the tonic and names the chord with a Roman numeral', async () => {
       const user = userEvent.setup()
       render(<App />)
       await selectKey(user, 'A')
-      expect(document.querySelector('.tone-circle__bead--tonic')).toHaveAttribute('aria-label', 'A')
+      expect(selectedKey()).toBe('Key A')
       // C major in A (minor) is bIII
       expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('bIII')
 
@@ -119,11 +126,16 @@ describe('App', () => {
       const user = userEvent.setup()
       render(<App />)
       await user.keyboard('{ArrowUp}')
-      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('0')
+      expect(selectedKey()).toBe('Key C')
       await user.keyboard('{ArrowDown}{ArrowDown}')
-      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('10')
+      expect(selectedKey()).toBe('Key Bb')
       expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('II')
       expect(selectedTones()).toBe('C E G')
+    })
+
+    it('has no key dropdown', () => {
+      render(<App />)
+      expect(screen.queryByRole('combobox', { name: 'Key' })).toBeNull()
     })
 
     it('lists the selected tones as scale degrees', async () => {
@@ -147,11 +159,11 @@ describe('App', () => {
       await selectKey(user, 'A')
       expect(labels).toBeEnabled()
       await user.selectOptions(labels, 'Degrees')
-      expect(screen.getByRole('button', { name: '1' })).toHaveClass('tone-circle__bead--tonic')
+      expect(screen.getByRole('button', { name: '1' })).toHaveAttribute('aria-pressed', 'false')
       expect(screen.getByRole('button', { name: 'b3' })).toHaveAttribute('aria-pressed', 'true')
 
       // without a key, beads fall back to note names
-      await selectKey(user, 'None')
+      await selectKey(user, 'A')
       expect(screen.getByRole('button', { name: 'C' })).toBeInTheDocument()
     })
 
@@ -163,7 +175,7 @@ describe('App', () => {
       unmount()
 
       render(<App />)
-      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('2')
+      expect(selectedKey()).toBe('Key D')
       expect(screen.getByRole('combobox', { name: 'Labels' })).toHaveValue('degrees')
     })
   })
@@ -192,7 +204,7 @@ describe('App', () => {
     it('understands Roman numerals and degrees in the selected key', async () => {
       const user = userEvent.setup()
       render(<App />)
-      await user.selectOptions(screen.getByRole('combobox', { name: 'Key' }), 'F')
+      await user.click(screen.getByRole('button', { name: 'Key F' }))
       await user.type(input(), 'V7{Enter}')
       expect(chordName()).toBe('C7')
       await user.clear(input())

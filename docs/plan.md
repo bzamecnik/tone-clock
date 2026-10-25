@@ -133,6 +133,9 @@ src/
       gestures
 - [x] ↑ ↓ rotate the key (the tones stay); without a key the first press
       picks the root of the scale or chord name
+- [x] key markers: a small triangle outside each bead pointing inwards;
+      click an empty one to select the key, the filled one to unselect it
+      (replaces the Key dropdown and the tonic ring)
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in

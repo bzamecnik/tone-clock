@@ -16,6 +16,7 @@ import {
   VIEW_RADIUS,
   beadLayout,
   clientToView,
+  markerLayout,
   pitchClassAt,
   pointAngle,
   type Point,
@@ -24,6 +25,7 @@ import { applyDrop, rotationSteps } from './gestures.ts'
 import './ToneCircle.css'
 
 const BEADS = beadLayout()
+const MARKERS = markerLayout()
 const VIEW_BOX = `${-VIEW_RADIUS} ${-VIEW_RADIUS} ${2 * VIEW_RADIUS} ${2 * VIEW_RADIUS}`
 
 /**
@@ -62,6 +64,11 @@ type Drag =
       point: Point | null
     }
   | {
+      kind: 'marker'
+      pointerId: number
+      source: number
+    }
+  | {
       kind: 'rotate'
       pointerId: number
       startAngle: number
@@ -77,9 +84,13 @@ export interface ToneCircleProps {
   onChange?: (value: PitchClassSet) => void
   /** Labels of the 12 pitch classes, starting from C. */
   names?: PitchClassNames
-  /** Tonic of the current key, highlighted with a ring. */
+  /** Tonic of the current key, marked by a triangle outside its bead. */
   tonic?: number
-  /** Called with the new tonic (null = no key) when the user changes the key. */
+  /**
+   * Called with the new tonic (null = no key) when the user changes the key.
+   * Makes the key markers interactive: a marker per tone, clicking an empty
+   * one selects that key, clicking the filled one unselects it.
+   */
   onTonicChange?: (tonic: number | null) => void
   /**
    * Handle the circle's keys (arrows) anywhere on the page, not only when the
@@ -123,9 +134,13 @@ export function ToneCircle({
     if (event.button !== 0 || drag) {
       return
     }
-    const bead = (event.target as Element).closest('[data-pitch-class]')
+    const target = event.target as Element
+    const bead = target.closest('[data-pitch-class]')
+    const marker = target.closest('[data-tonic]')
     const point = toViewPoint(event)
-    if (bead) {
+    if (marker) {
+      setDrag({ kind: 'marker', pointerId: event.pointerId, source: Number(marker.getAttribute('data-tonic')) })
+    } else if (bead) {
       setDrag({
         kind: 'bead',
         pointerId: event.pointerId,
@@ -159,7 +174,7 @@ export function ToneCircle({
         drag.moved ||
         Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > DRAG_THRESHOLD
       setDrag({ ...drag, moved, point })
-    } else if (point) {
+    } else if (drag.kind === 'rotate' && point) {
       change(transpose(drag.startTones, rotationSteps(drag.startAngle, pointAngle(point))))
     }
   }
@@ -169,7 +184,9 @@ export function ToneCircle({
       return
     }
     setDrag(null)
-    if (drag.kind === 'bead') {
+    if (drag.kind === 'marker') {
+      toggleTonic(drag.source)
+    } else if (drag.kind === 'bead') {
       const point = toViewPoint(event)
       const target = drag.moved && point ? pitchClassAt(point) : drag.source
       change(applyDrop(tones, drag.source, target))
@@ -217,6 +234,17 @@ export function ToneCircle({
     return () => window.removeEventListener('keydown', handleWindowKeyDown)
   }, [windowKeys])
 
+  function toggleTonic(pitchClass: number) {
+    onTonicChange?.(pitchClass === tonic ? null : pitchClass)
+  }
+
+  function handleMarkerKeyDown(event: KeyboardEvent, pitchClass: number) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      toggleTonic(pitchClass)
+    }
+  }
+
   function handleBeadKeyDown(event: KeyboardEvent, pitchClass: number) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
@@ -245,7 +273,6 @@ export function ToneCircle({
         const beadClasses = [
           'tone-circle__bead',
           active && 'tone-circle__bead--active',
-          pitchClass === tonic && 'tone-circle__bead--tonic',
         ]
         return (
           <g
@@ -262,6 +289,29 @@ export function ToneCircle({
             <text x={center.x} y={center.y} fontSize={BEAD_RADIUS} aria-hidden="true">
               {name}
             </text>
+          </g>
+        )
+      })}
+      {MARKERS.map(({ pitchClass, tip, base, hitCenter, hitRadius }) => {
+        const active = pitchClass === tonic
+        if (!active && !onTonicChange) {
+          return null
+        }
+        const className = active ? 'tone-circle__marker tone-circle__marker--active' : 'tone-circle__marker'
+        const points = [tip, ...base].map(({ x, y }) => `${x},${y}`).join(' ')
+        const interactive = onTonicChange && {
+          role: 'button',
+          // a single tab stop; the arrow keys move the key
+          tabIndex: active || (tonic === undefined && pitchClass === 0) ? 0 : -1,
+          'aria-label': `Key ${FLAT_NAMES[pitchClass]}`,
+          'aria-pressed': active,
+          'data-tonic': pitchClass,
+          onKeyDown: (event: KeyboardEvent) => handleMarkerKeyDown(event, pitchClass),
+        }
+        return (
+          <g key={pitchClass} className={className} aria-hidden={interactive ? undefined : true} {...interactive}>
+            <circle className="tone-circle__marker-hit" cx={hitCenter.x} cy={hitCenter.y} r={hitRadius} />
+            <polygon points={points} />
           </g>
         )
       })}

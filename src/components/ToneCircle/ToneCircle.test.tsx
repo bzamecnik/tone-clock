@@ -4,7 +4,7 @@ import type { ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { SHARP_NAMES } from '../../music/pitchClassNames.ts'
 import { fromPitchClasses } from '../../music/pitchClassSet.ts'
-import { beadLayout, type Point } from './geometry.ts'
+import { VIEW_RADIUS, beadLayout, type Point } from './geometry.ts'
 import { ToneCircle } from './ToneCircle.tsx'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
@@ -16,7 +16,19 @@ function pressedNames() {
 }
 
 function beads() {
-  return within(screen.getByRole('group', { name: 'Tone circle' })).getAllByRole('button')
+  return within(screen.getByRole('group', { name: 'Tone circle' }))
+    .getAllByRole('button')
+    .filter((b) => b.hasAttribute('data-pitch-class'))
+}
+
+function markers() {
+  return screen.queryAllByRole('button', { name: /^Key / })
+}
+
+function pressedMarkers() {
+  return markers()
+    .filter((m) => m.getAttribute('aria-pressed') === 'true')
+    .map((m) => m.getAttribute('aria-label'))
 }
 
 describe('ToneCircle', () => {
@@ -50,18 +62,10 @@ describe('ToneCircle', () => {
       expect(screen.getByRole('button', { name: 'F#' })).toBeInTheDocument()
     })
 
-    it('marks the tonic bead when a tonic is given', () => {
-      const { rerender } = render(<ToneCircle />)
-      expect(document.querySelector('.tone-circle__bead--tonic')).toBeNull()
-      rerender(<ToneCircle tonic={9} />)
-      const tonics = document.querySelectorAll('.tone-circle__bead--tonic')
-      expect(tonics).toHaveLength(1)
-      expect(tonics[0]).toHaveAttribute('aria-label', 'A')
-    })
-
     it('renders a square SVG centered at the origin', () => {
       const { container } = render(<ToneCircle />)
-      expect(container.querySelector('svg')).toHaveAttribute('viewBox', '-100 -100 200 200')
+      const r = VIEW_RADIUS
+      expect(container.querySelector('svg')).toHaveAttribute('viewBox', `${-r} ${-r} ${2 * r} ${2 * r}`)
     })
   })
 
@@ -135,6 +139,53 @@ describe('ToneCircle', () => {
   })
 
   describe('key (tonic)', () => {
+    it('shows only the tonic marker when the key cannot be changed', () => {
+      const { container, rerender } = render(<ToneCircle />)
+      expect(container.querySelectorAll('.tone-circle__marker')).toHaveLength(0)
+      rerender(<ToneCircle tonic={9} />)
+      expect(container.querySelectorAll('.tone-circle__marker--active')).toHaveLength(1)
+      expect(markers()).toEqual([])
+    })
+
+    it('shows a toggleable key marker for every tone', () => {
+      render(<ToneCircle tonic={9} onTonicChange={() => {}} />)
+      expect(markers()).toHaveLength(12)
+      expect(markers()[0]).toHaveAttribute('aria-label', 'Key C')
+      expect(pressedMarkers()).toEqual(['Key A'])
+    })
+
+    it('selects a key by clicking its marker and unselects it by clicking again', async () => {
+      const user = userEvent.setup()
+      const onTonicChange = vi.fn()
+      const { rerender } = render(<ToneCircle onTonicChange={onTonicChange} />)
+      await user.click(screen.getByRole('button', { name: 'Key D' }))
+      expect(onTonicChange).toHaveBeenLastCalledWith(2)
+
+      rerender(<ToneCircle tonic={2} onTonicChange={onTonicChange} />)
+      await user.click(screen.getByRole('button', { name: 'Key E' }))
+      expect(onTonicChange).toHaveBeenLastCalledWith(4)
+      await user.click(screen.getByRole('button', { name: 'Key D' }))
+      expect(onTonicChange).toHaveBeenLastCalledWith(null)
+    })
+
+    it('makes only the active (or first) marker a tab stop, toggled by Enter/Space', async () => {
+      const user = userEvent.setup()
+      const onTonicChange = vi.fn()
+      const { rerender } = render(<ToneCircle onTonicChange={onTonicChange} />)
+      expect(markers().filter((m) => m.tabIndex === 0)).toHaveLength(1)
+      screen.getByRole('button', { name: 'Key C' }).focus()
+      await user.keyboard('{Enter}')
+      expect(onTonicChange).toHaveBeenLastCalledWith(0)
+
+      rerender(<ToneCircle tonic={7} onTonicChange={onTonicChange} />)
+      expect(markers().filter((m) => m.tabIndex === 0).map((m) => m.getAttribute('aria-label'))).toEqual([
+        'Key G',
+      ])
+      screen.getByRole('button', { name: 'Key G' }).focus()
+      await user.keyboard(' ')
+      expect(onTonicChange).toHaveBeenLastCalledWith(null)
+    })
+
     it('rotates the tonic with the up/down arrows when it can be changed', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
@@ -222,19 +273,25 @@ describe('ToneCircle', () => {
   describe('pointer gestures', () => {
     const BEADS = beadLayout()
 
-    /** Renders the circle as a 200x200 px element at the page origin. */
+    const SIZE = 2 * VIEW_RADIUS
+
+    /** Renders the circle at the page origin, 1 px per view box unit. */
     function renderSized(ui: ReactElement) {
       const result = render(ui)
       const svg = result.container.querySelector('svg')!
       svg.getBoundingClientRect = () => ({
-        left: 0, top: 0, right: 200, bottom: 200, width: 200, height: 200, x: 0, y: 0,
+        left: 0, top: 0, right: SIZE, bottom: SIZE, width: SIZE, height: SIZE, x: 0, y: 0,
         toJSON: () => ({}),
       })
       return { ...result, svg }
     }
 
-    // view box coordinates -> client coordinates of the 200x200 element
-    const client = ({ x, y }: Point) => ({ clientX: x + 100, clientY: y + 100, pointerId: 1 })
+    // view box coordinates -> client coordinates of the sized element
+    const client = ({ x, y }: Point) => ({
+      clientX: x + VIEW_RADIUS,
+      clientY: y + VIEW_RADIUS,
+      pointerId: 1,
+    })
     const beadAt = (pitchClass: number) => client(BEADS[pitchClass].center)
 
     it('moves a tone by dragging it onto another bead', () => {

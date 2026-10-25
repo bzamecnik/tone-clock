@@ -1,15 +1,25 @@
 import { OCTAVE_SIZE } from '../../music/pitchClassSet.ts'
 
 /**
- * Geometry of the tone circle in SVG user units. The view box is a square
- * centered at the origin with "radius" VIEW_RADIUS; proportions follow the
- * original Android ToneCircleView.
+ * Geometry of the tone circle in SVG user units. The beads follow the
+ * proportions of the original Android ToneCircleView, scaled to a circle of
+ * "radius" 100. The view box is a square centered at the origin with "radius"
+ * VIEW_RADIUS, leaving room for the key markers outside the beads.
  */
-export const VIEW_RADIUS = 100
-export const BEAD_RADIUS = 0.19 * VIEW_RADIUS
-export const CIRCLE_RADIUS = 0.8 * VIEW_RADIUS
+const UNIT = 100
+export const BEAD_RADIUS = 0.19 * UNIT
+export const CIRCLE_RADIUS = 0.8 * UNIT
 /** Radius of the bead apexes, the vertices of the chord polygon. */
 export const APEX_RADIUS = CIRCLE_RADIUS - BEAD_RADIUS
+
+/** Key marker: a small triangle outside each bead, pointing inwards. */
+const MARKER_TIP_RADIUS = CIRCLE_RADIUS + BEAD_RADIUS + 3
+const MARKER_LENGTH = 6
+const MARKER_HALF_WIDTH = 6
+/** Invisible hit area around a marker, larger than the triangle (touch). */
+const MARKER_HIT_RADIUS = 8
+
+export const VIEW_RADIUS = Math.ceil(MARKER_TIP_RADIUS + MARKER_LENGTH / 2 + MARKER_HIT_RADIUS)
 
 export interface Point {
   x: number
@@ -37,6 +47,35 @@ export function beadLayout(): Bead[] {
       pitchClass,
       center: { x: CIRCLE_RADIUS * x, y: CIRCLE_RADIUS * y },
       apex: { x: APEX_RADIUS * x, y: APEX_RADIUS * y },
+    }
+  })
+}
+
+export interface Marker {
+  pitchClass: number
+  tip: Point
+  base: [Point, Point]
+  hitCenter: Point
+  hitRadius: number
+}
+
+export function markerLayout(): Marker[] {
+  return Array.from({ length: OCTAVE_SIZE }, (_, pitchClass) => {
+    const angle = pitchClassAngle(pitchClass)
+    // radial (outwards) and tangential unit vectors
+    const r = { x: Math.cos(angle), y: Math.sin(angle) }
+    const t = { x: -r.y, y: r.x }
+    const at = (radius: number, side: number) => ({
+      x: radius * r.x + side * t.x,
+      y: radius * r.y + side * t.y,
+    })
+    const baseRadius = MARKER_TIP_RADIUS + MARKER_LENGTH
+    return {
+      pitchClass,
+      tip: at(MARKER_TIP_RADIUS, 0),
+      base: [at(baseRadius, -MARKER_HALF_WIDTH), at(baseRadius, MARKER_HALF_WIDTH)],
+      hitCenter: at(MARKER_TIP_RADIUS + MARKER_LENGTH / 2, 0),
+      hitRadius: MARKER_HIT_RADIUS,
     }
   })
 }
