@@ -1,5 +1,5 @@
 import { ChordInput } from './components/ChordInput/ChordInput.tsx'
-import { ToneCircle } from './components/ToneCircle/ToneCircle.tsx'
+import { ToneCircle, type CircleOrder } from './components/ToneCircle/ToneCircle.tsx'
 import {
   DEGREE_NAMES,
   FLAT_NAMES,
@@ -41,6 +41,10 @@ function serializeKey(key: number | null): string {
   return key === null ? '' : String(key)
 }
 
+function parseOrder(stored: string): CircleOrder | undefined {
+  return stored === 'semitones' || stored === 'fifths' ? stored : undefined
+}
+
 function parseLabels(stored: string): Labels | undefined {
   return stored === 'notes' || stored === 'degrees' ? stored : undefined
 }
@@ -54,10 +58,13 @@ function App() {
   const [tones, setTones] = useStoredState('tone-circle:tones', C_MAJOR, parseTones)
   const [key, setKey] = useStoredState('tone-circle:key', null, parseKey, serializeKey)
   const [labels, setLabels] = useStoredState<Labels>('tone-circle:labels', 'notes', parseLabels)
+  const [order, setOrder] = useStoredState<CircleOrder>('tone-circle:order', 'semitones', parseOrder)
 
   useWindowKeys((event) => {
     if (event.key === 'l' || event.key === 'L') {
       setLabels(labels === 'notes' ? 'degrees' : 'notes')
+    } else if (event.key === 'f' || event.key === 'F') {
+      setOrder(order === 'semitones' ? 'fifths' : 'semitones')
     }
   })
 
@@ -98,6 +105,7 @@ function App() {
           names={beadNames}
           secondaryNames={secondaryBeadNames ?? undefined}
           root={root ?? undefined}
+          order={order}
           tonic={key ?? undefined}
           onTonicChange={setKey}
           windowKeys
@@ -137,9 +145,9 @@ function App() {
         <li>
           Click or drag a triangle, or press <kbd>↑</kbd> <kbd>↓</kbd>, to choose the key.
         </li>
-        <li>
-          <kbd>L</kbd> swaps note names and degrees. <kbd>Delete</kbd> clears all tones.
-        </li>
+        <li><kbd>L</kbd> swaps note names and degrees.</li>
+        <li><kbd>F</kbd> switches to the circle of fifths and back.</li>
+        <li><kbd>Delete</kbd> clears all tones.</li>
       </ul>
     </main>
   )

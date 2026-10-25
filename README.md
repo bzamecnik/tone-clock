@@ -18,6 +18,8 @@ Features:
 - pick a key (click or drag a triangle outside the circle, or press ↑ ↓)
   to see Roman numeral chord names (`IVm7 in A`) and scale degrees
   (`1 b3 5`), also on the beads under the note names (L swaps them)
+- press F to arrange the circle in fifths, where a diatonic scale and its
+  chords form clusters of neighboring beads
 - type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
   key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
 

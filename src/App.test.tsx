@@ -69,7 +69,37 @@ describe('App', () => {
   it('shows the keys in the hint as keyboard keys', () => {
     const { container } = render(<App />)
     const keys = [...container.querySelectorAll('.app__hint kbd')].map((k) => k.textContent)
-    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'Delete'])
+    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'F', 'Delete'])
+  })
+
+  describe('circle of fifths', () => {
+    const beadNames = () =>
+      within(screen.getByRole('group', { name: 'Tone circle' }))
+        .getAllByRole('button')
+        .filter((b) => b.hasAttribute('data-pitch-class'))
+        .map((b) => b.getAttribute('aria-label'))
+
+    it('switches between semitones and fifths with the F key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'Db', 'D'])
+      await user.keyboard('f')
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'G', 'D'])
+      // one step is a fifth now
+      await user.keyboard('{ArrowRight}')
+      expect(selectedTones()).toBe('G B D')
+      await user.keyboard('F')
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'Db', 'D'])
+    })
+
+    it('remembers the order', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<App />)
+      await user.keyboard('f')
+      unmount()
+      render(<App />)
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'G', 'D'])
+    })
   })
 
   it('starts with the C major triad', () => {

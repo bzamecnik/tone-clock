@@ -31,6 +31,8 @@ import {
 import { applyDrop, rotationSteps } from './gestures.ts'
 import './ToneCircle.css'
 
+export type { CircleOrder } from './geometry.ts'
+
 /** Beads and key markers of both orders, in the order around the circle. */
 const LAYOUTS = Object.fromEntries(
   (['semitones', 'fifths'] as const).map((order) => {
