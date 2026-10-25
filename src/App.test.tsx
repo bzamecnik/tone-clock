@@ -158,7 +158,10 @@ describe('App', () => {
 
       await selectKey(user, 'A')
       expect(labels).toBeEnabled()
+      // note names first, degrees as secondary labels
+      expect(screen.getByRole('button', { name: 'A' })).toHaveTextContent('A1')
       await user.selectOptions(labels, 'Degrees')
+      expect(screen.getByRole('button', { name: '1' })).toHaveTextContent('1A')
       expect(screen.getByRole('button', { name: '1' })).toHaveAttribute('aria-pressed', 'false')
       expect(screen.getByRole('button', { name: 'b3' })).toHaveAttribute('aria-pressed', 'true')
 

@@ -92,6 +92,46 @@ type Drag =
       startTones: PitchClassSet
     }
 
+interface BeadLabelsProps {
+  center: Point
+  pitchClass: number
+  names: PitchClassNames
+  secondaryNames?: PitchClassNames
+}
+
+/** The label of a bead, with an optional smaller secondary label below it. */
+function BeadLabels({ center, pitchClass, names, secondaryNames }: BeadLabelsProps) {
+  if (!secondaryNames) {
+    return (
+      <text className="tone-circle__label" x={center.x} y={center.y} fontSize={BEAD_RADIUS} aria-hidden="true">
+        {names[pitchClass]}
+      </text>
+    )
+  }
+  return (
+    <>
+      <text
+        className="tone-circle__label"
+        x={center.x}
+        y={center.y - 0.2 * BEAD_RADIUS}
+        fontSize={0.85 * BEAD_RADIUS}
+        aria-hidden="true"
+      >
+        {names[pitchClass]}
+      </text>
+      <text
+        className="tone-circle__secondary-label"
+        x={center.x}
+        y={center.y + 0.5 * BEAD_RADIUS}
+        fontSize={0.5 * BEAD_RADIUS}
+        aria-hidden="true"
+      >
+        {secondaryNames[pitchClass]}
+      </text>
+    </>
+  )
+}
+
 export interface ToneCircleProps {
   /** Selected pitch classes as a 12-bit mask (controlled mode). */
   value?: PitchClassSet
@@ -101,6 +141,8 @@ export interface ToneCircleProps {
   onChange?: (value: PitchClassSet) => void
   /** Labels of the 12 pitch classes, starting from C. */
   names?: PitchClassNames
+  /** Optional smaller labels shown below the main ones (e.g. scale degrees). */
+  secondaryNames?: PitchClassNames
   /** Tonic of the current key, marked by a triangle outside its bead. */
   tonic?: number
   /**
@@ -122,6 +164,7 @@ export function ToneCircle({
   defaultValue = EMPTY,
   onChange,
   names = FLAT_NAMES,
+  secondaryNames,
   tonic,
   onTonicChange,
   windowKeys = false,
@@ -319,9 +362,7 @@ export function ToneCircle({
             onKeyDown={(event) => handleBeadKeyDown(event, pitchClass)}
           >
             <circle cx={center.x} cy={center.y} r={BEAD_RADIUS} />
-            <text x={center.x} y={center.y} fontSize={BEAD_RADIUS} aria-hidden="true">
-              {name}
-            </text>
+            <BeadLabels center={center} pitchClass={pitchClass} names={names} secondaryNames={secondaryNames} />
           </g>
         )
       })}
@@ -365,9 +406,12 @@ export function ToneCircle({
           aria-hidden="true"
         >
           <circle cx={ghost.point.x} cy={ghost.point.y} r={BEAD_RADIUS} />
-          <text x={ghost.point.x} y={ghost.point.y} fontSize={BEAD_RADIUS}>
-            {names[ghost.source]}
-          </text>
+          <BeadLabels
+            center={ghost.point}
+            pitchClass={ghost.source}
+            names={names}
+            secondaryNames={secondaryNames}
+          />
         </g>
       )}
     </svg>

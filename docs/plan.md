@@ -137,6 +137,8 @@ src/
       click an empty one to select the key, the filled one to unselect it
       (replaces the Key dropdown and the tonic ring)
 - [x] drag a key marker around the circle to move the key
+- [x] with a key, beads show both labels: the chosen kind (notes or
+      degrees) large, the other one small below it
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in

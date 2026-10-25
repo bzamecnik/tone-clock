@@ -59,7 +59,9 @@ function App() {
   // degrees listed from the tonic up
   const degrees = key === null ? '' : spell(transpose(tones, -key), DEGREE_NAMES)
   const relativeChord = key === null ? '' : nameSet(tones, relativeNames(ROMAN_NAMES, key)).chord
+  // with a key, beads show both note names and degrees, the chosen one larger
   const beadNames = degreeNames && labels === 'degrees' ? degreeNames : FLAT_NAMES
+  const secondaryBeadNames = degreeNames && (labels === 'degrees' ? FLAT_NAMES : degreeNames)
 
   return (
     <main className="app">
@@ -83,6 +85,7 @@ function App() {
           value={tones}
           onChange={setTones}
           names={beadNames}
+          secondaryNames={secondaryBeadNames ?? undefined}
           tonic={key ?? undefined}
           onTonicChange={setKey}
           windowKeys

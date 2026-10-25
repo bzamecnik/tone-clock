@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { SHARP_NAMES } from '../../music/pitchClassNames.ts'
+import { DEGREE_NAMES, FLAT_NAMES, SHARP_NAMES, relativeNames } from '../../music/pitchClassNames.ts'
 import { fromPitchClasses } from '../../music/pitchClassSet.ts'
 import { VIEW_RADIUS, beadLayout, markerLayout, type Point } from './geometry.ts'
 import { ToneCircle } from './ToneCircle.tsx'
@@ -60,6 +60,14 @@ describe('ToneCircle', () => {
     it('accepts custom pitch class names', () => {
       render(<ToneCircle names={SHARP_NAMES} />)
       expect(screen.getByRole('button', { name: 'F#' })).toBeInTheDocument()
+    })
+
+    it('shows secondary labels below the primary ones', () => {
+      const { container } = render(<ToneCircle names={FLAT_NAMES} secondaryNames={relativeNames(DEGREE_NAMES, 9)} />)
+      const a = screen.getByRole('button', { name: 'A' })
+      expect(a.querySelector('.tone-circle__label')).toHaveTextContent('A')
+      expect(a.querySelector('.tone-circle__secondary-label')).toHaveTextContent(/^1$/)
+      expect(container.querySelectorAll('.tone-circle__secondary-label')).toHaveLength(12)
     })
 
     it('renders a square SVG centered at the origin', () => {

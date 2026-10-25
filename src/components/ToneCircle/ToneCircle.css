@@ -62,6 +62,10 @@
   pointer-events: none;
 }
 
+.tone-circle__secondary-label {
+  opacity: 0.85;
+}
+
 .tone-circle__bead {
   cursor: pointer;
   outline: none;
