@@ -48,6 +48,21 @@ describe('parseTones', () => {
       expect(parseTones('bb')).toBe(set([10, 2, 5]))
     })
 
+    it('accepts chord qualities in any case when unambiguous', () => {
+      expect(parseTones('CMAJ7')).toBe(set([0, 4, 7, 11]))
+      expect(parseTones('cDim')).toBe(set([0, 3, 6, 9]))
+      expect(parseTones('CSUS4')).toBe(set([0, 5, 7]))
+      expect(parseTones('CAdd9')).toBe(set([0, 2, 4, 7]))
+      expect(parseTones('CMIN7')).toBe(set([0, 3, 7, 10]))
+    })
+
+    it('keeps the case of m (minor) and M (major) significant', () => {
+      expect(parseTones('Cm7')).toBe(set([0, 3, 7, 10]))
+      expect(parseTones('CM7')).toBe(set([0, 4, 7, 11]))
+      expect(parseTones('cm')).toBe(set([0, 3, 7]))
+      expect(parseTones('cM')).toBe(set([0, 4, 7]))
+    })
+
     it('parses back every chord name produced by the namer', () => {
       for (const [index, template] of Object.entries(CHORD_TEMPLATES)) {
         for (let r = 0; r < 12; r++) {
@@ -97,6 +112,12 @@ describe('parseTones', () => {
       expect(parseTones('IIm7', 0)).toBe(set([2, 5, 9, 0]))
       expect(parseTones('bVII', 9)).toBe(set([7, 11, 2]))
       expect(parseTones('IV', 7)).toBe(set([0, 4, 7]))
+      expect(parseTones('IVMAJ7', 0)).toBe(set([5, 9, 0, 4]))
+    })
+
+    it('keeps Roman numerals case-sensitive (lowercase conventionally means minor)', () => {
+      expect(parseTones('v7', 0)).toBeNull()
+      expect(parseTones('ii', 0)).toBeNull()
     })
 
     it('parses back every Roman numeral name produced by the namer', () => {

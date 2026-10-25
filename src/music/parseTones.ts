@@ -98,6 +98,21 @@ const CHORDS = new Map<string, PitchClassSet>([
   ...Object.entries(CHORD_ALIASES).map(([suffix, intervals]) => [suffix, fromPitchClasses(intervals)] as const),
 ])
 
+/**
+ * Lowercase chord qualities -> set, for case-insensitive lookup. Qualities
+ * whose spellings differ in meaning by case (e.g. "m7" vs. "M7") map to null.
+ */
+const CHORDS_LOWERCASE = new Map<string, PitchClassSet | null>()
+for (const [suffix, chord] of CHORDS) {
+  const key = suffix.toLowerCase()
+  const existing = CHORDS_LOWERCASE.get(key)
+  CHORDS_LOWERCASE.set(key, existing === undefined || existing === chord ? chord : null)
+}
+
+function lookupChord(suffix: string): PitchClassSet | undefined {
+  return CHORDS.get(suffix) ?? CHORDS_LOWERCASE.get(suffix.toLowerCase()) ?? undefined
+}
+
 /** Scale names (lowercase, after the root) -> set rooted at C. */
 const SCALES = new Map<string, PitchClassSet>([
   ...Object.entries(SCALE_TEMPLATES)
@@ -124,7 +139,7 @@ function noteToPitchClass(letter: string, accidentals: string): number {
  * a chord ("Cmajor" = the triad).
  */
 function parseQuality(rest: string): PitchClassSet | undefined {
-  const chord = CHORDS.get(rest.trim())
+  const chord = lookupChord(rest.trim())
   if (/^\s/.test(rest)) {
     return SCALES.get(rest.trim().toLowerCase().replace(/\s+/g, ' ')) ?? chord
   }
@@ -194,6 +209,8 @@ function parseNoteList(tokens: string[]): PitchClassSet | null {
  * - a list of notes: "C E G", "D, F#, A",
  * - in a key (tonic pitch class): Roman numeral chords ("V7", "bVII") and
  *   lists of scale degrees ("1 b3 5").
+ * Chord qualities are case-insensitive unless the case matters ("m7" vs.
+ * "M7"); Roman numerals are uppercase only.
  * Returns null if the text is not understood.
  */
 export function parseTones(text: string, key: number | null = null): PitchClassSet | null {
