@@ -26,23 +26,29 @@
 
 /*
  * Key colors: the hue tells the level of a tone in the key (keyLevel), from
- * green (+3, degree 2) via yellow (0, the tritone 4-7) to red (-3, b6);
- * lightness tells active from inactive tones, as without colors.
+ * green (+3, degree 2) via yellow (0, the tritone 4-7) to red (-3, b6).
+ * Defined in OKLCH, where lightness is perceptual: all active beads share one
+ * lightness and all inactive beads another, so brightness alone tells active
+ * from inactive tones (as without colors), whatever the hue.
  */
-.tone-circle__bead[data-level='3'] { --level-hue: 115; }
-.tone-circle__bead[data-level='2'] { --level-hue: 95; }
-.tone-circle__bead[data-level='1'] { --level-hue: 75; }
-.tone-circle__bead[data-level='0'] { --level-hue: 52; }
-.tone-circle__bead[data-level='-1'] { --level-hue: 35; }
-.tone-circle__bead[data-level='-2'] { --level-hue: 18; }
-.tone-circle__bead[data-level='-3'] { --level-hue: 0; }
+.tone-circle__bead[data-level='3'] { --level-hue: 145; }
+.tone-circle__bead[data-level='2'] { --level-hue: 128; }
+.tone-circle__bead[data-level='1'] { --level-hue: 112; }
+.tone-circle__bead[data-level='0'] { --level-hue: 95; }
+.tone-circle__bead[data-level='-1'] { --level-hue: 65; }
+.tone-circle__bead[data-level='-2'] { --level-hue: 42; }
+.tone-circle__bead[data-level='-3'] { --level-hue: 22; }
 
 .tone-circle__bead[data-level] circle {
-  fill: hsl(var(--level-hue) 45% 80%);
+  fill: oklch(0.91 0.05 var(--level-hue));
 }
 
 .tone-circle__bead--active[data-level] circle {
-  fill: hsl(var(--level-hue) 55% 47%);
+  fill: oklch(0.64 0.13 var(--level-hue));
+}
+
+.tone-circle__bead[data-level]:not(.tone-circle__bead--active) text {
+  fill: oklch(0.5 0.1 var(--level-hue));
 }
 
 /* the diatonic scale: a thin outline, a cue that does not rely on hue */
