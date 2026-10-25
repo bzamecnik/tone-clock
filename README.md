@@ -18,8 +18,8 @@ Features:
 - pick a key (click or drag a triangle outside the circle, or press ↑ ↓)
   to see Roman numeral chord names (`IVm7 in A`) and scale degrees
   (`1 b3 5`), also on the beads under the note names (L swaps them)
-- press F to arrange the circle in fifths, where a diatonic scale and its
-  chords form clusters of neighboring beads
+- press F to arrange the circle in fifths, where a diatonic scale forms an
+  arc of neighboring beads
 - press C to color the tones by how close they are to the key (green
   inside, yellow for the tritone 4-7, red outside); arcs inside the beads
   mark the diatonic scale of the key

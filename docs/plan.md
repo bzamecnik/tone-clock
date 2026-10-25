@@ -145,8 +145,9 @@ src/
       the key
 - [x] the root of the chord is outlined on the circle
 - [x] circle of fifths: the F key switches the order of the beads between
-      semitones and fifths (diatonic scales and their chords become
-      clusters of neighbors); one rotation step is then a fifth
+      semitones and fifths (diatonic scales become arcs of neighbors;
+      stacked-third chords only with 11ths and 13ths); one rotation step
+      is then a fifth
 - [x] key colors: beads colored by how "inside" the key they are (green
       for degree 2 via yellow for the tritone 4-7 to red for b6), in OKLCH
       with equal lightness so that brightness tells active tones; the C key
