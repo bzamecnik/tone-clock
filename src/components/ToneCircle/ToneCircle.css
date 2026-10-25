@@ -21,6 +21,11 @@
   fill: var(--tone-circle-bead-active);
 }
 
+.tone-circle__bead--root circle {
+  stroke: var(--tone-circle-tonic);
+  stroke-width: 2.5;
+}
+
 .tone-circle__marker {
   outline: none;
 }

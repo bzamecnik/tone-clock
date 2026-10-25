@@ -143,6 +143,7 @@ src/
       from the chord root (else the tonic, else C), with degrees both in
       the chord and in the key; the names above the circle don't jump with
       the key
+- [x] the root of the chord is outlined on the circle
 - [x] the L key swaps note names and degrees on the beads (replaces the
       Labels dropdown)
 - [x] mouse presses don't focus beads/markers (no stray focus ring); a

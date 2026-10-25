@@ -62,6 +62,15 @@ describe('ToneCircle', () => {
       expect(screen.getByRole('button', { name: 'F#' })).toBeInTheDocument()
     })
 
+    it('marks the root bead when a root is given', () => {
+      const { container, rerender } = render(<ToneCircle value={C_MAJOR} />)
+      expect(container.querySelector('.tone-circle__bead--root')).toBeNull()
+      rerender(<ToneCircle value={C_MAJOR} root={0} />)
+      const roots = container.querySelectorAll('.tone-circle__bead--root')
+      expect(roots).toHaveLength(1)
+      expect(roots[0]).toHaveAttribute('aria-label', 'C')
+    })
+
     it('shows secondary labels below the primary ones', () => {
       const { container } = render(<ToneCircle names={FLAT_NAMES} secondaryNames={relativeNames(DEGREE_NAMES, 9)} />)
       const a = screen.getByRole('button', { name: 'A' })

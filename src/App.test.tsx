@@ -55,6 +55,17 @@ describe('App', () => {
     expect(screen.queryByRole('row', { name: 'Degrees in the key' })).toBeNull()
   })
 
+  it('outlines the root of the chord on the circle', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const root = () => document.querySelector('.tone-circle__bead--root')
+    expect(root()).toHaveAttribute('aria-label', 'C')
+    await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'Am7{Enter}')
+    expect(root()).toHaveAttribute('aria-label', 'A')
+    await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), '{Backspace}{Backspace}{Backspace}C chromatic{Enter}')
+    expect(root()).toBeNull()
+  })
+
   it('starts with the C major triad', () => {
     render(<App />)
     expect(screen.getByRole('button', { name: 'E' })).toHaveAttribute('aria-pressed', 'true')

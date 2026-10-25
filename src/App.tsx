@@ -97,6 +97,7 @@ function App() {
           onChange={setTones}
           names={beadNames}
           secondaryNames={secondaryBeadNames ?? undefined}
+          root={root ?? undefined}
           tonic={key ?? undefined}
           onTonicChange={setKey}
           windowKeys

@@ -138,6 +138,8 @@ export interface ToneCircleProps {
   names?: PitchClassNames
   /** Optional smaller labels shown below the main ones (e.g. scale degrees). */
   secondaryNames?: PitchClassNames
+  /** Root of the chord, outlined on its bead. */
+  root?: number
   /** Tonic of the current key, marked by a triangle outside its bead. */
   tonic?: number
   /**
@@ -160,6 +162,7 @@ export function ToneCircle({
   onChange,
   names = FLAT_NAMES,
   secondaryNames,
+  root,
   tonic,
   onTonicChange,
   windowKeys = false,
@@ -351,6 +354,7 @@ export function ToneCircle({
         const beadClasses = [
           'tone-circle__bead',
           active && 'tone-circle__bead--active',
+          pitchClass === root && 'tone-circle__bead--root',
         ]
         return (
           <g
