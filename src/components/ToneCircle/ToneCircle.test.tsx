@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { DEGREE_NAMES, FLAT_NAMES, SHARP_NAMES, relativeNames } from '../../music/pitchClassNames.ts'
 import { fromPitchClasses } from '../../music/pitchClassSet.ts'
@@ -176,6 +176,21 @@ describe('ToneCircle', () => {
       expect(onTonicChange).toHaveBeenLastCalledWith(null)
     })
 
+    it('moves the focus along with the key', async () => {
+      const user = userEvent.setup()
+      function Stateful() {
+        const [tonic, setTonic] = useState<number | null>(0)
+        return <ToneCircle tonic={tonic ?? undefined} onTonicChange={setTonic} windowKeys />
+      }
+      render(<Stateful />)
+      screen.getByRole('button', { name: 'Key C' }).focus()
+      await user.keyboard('{ArrowUp}')
+      expect(screen.getByRole('button', { name: 'Key Db' })).toHaveFocus()
+      await user.keyboard('{Enter}')
+      // no key: the focus stays on the (now empty) marker, the tab stop
+      expect(screen.getByRole('button', { name: 'Key Db' })).toHaveFocus()
+    })
+
     it('makes only the active (or first) marker a tab stop, toggled by Enter/Space', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
@@ -245,6 +260,24 @@ describe('ToneCircle', () => {
       await user.tab()
       await user.keyboard('{ArrowRight}')
       expect(pressedNames()).toEqual(['Db', 'F', 'Ab'])
+    })
+
+    it('does not focus beads or markers on mouse presses, releasing the focus', async () => {
+      const user = userEvent.setup()
+      render(
+        <>
+          <input aria-label="Text" />
+          <ToneCircle defaultValue={C_MAJOR} tonic={0} onTonicChange={() => {}} windowKeys />
+        </>,
+      )
+      await user.click(screen.getByRole('textbox'))
+      await user.click(screen.getByRole('button', { name: 'D' }))
+      expect(document.body).toHaveFocus()
+      await user.click(screen.getByRole('button', { name: 'Key C' }))
+      expect(document.body).toHaveFocus()
+      // the arrow keys now go to the circle
+      await user.keyboard('{ArrowRight}')
+      expect(pressedNames()).toEqual(['Db', 'Eb', 'F', 'Ab'])
     })
 
     it('ignores keys outside the circle by default', async () => {

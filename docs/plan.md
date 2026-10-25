@@ -143,6 +143,8 @@ src/
       from the tonic; the names above the circle don't jump with the key
 - [x] the L key swaps note names and degrees on the beads (replaces the
       Labels dropdown)
+- [x] mouse presses don't focus beads/markers (no stray focus ring); a
+      focused key marker follows the key when ↑ ↓ move it
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in

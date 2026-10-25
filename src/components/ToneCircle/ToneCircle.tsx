@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { FLAT_NAMES, type PitchClassNames } from '../../music/pitchClassNames.ts'
 import {
   EMPTY,
@@ -167,6 +167,7 @@ export function ToneCircle({
 }: ToneCircleProps) {
   const [internalValue, setInternalValue] = useState(defaultValue)
   const [drag, setDrag] = useState<Drag | null>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
   const isControlled = value !== undefined
   const tones = isControlled ? value : internalValue
   const chord = chordPath(tones)
@@ -287,6 +288,27 @@ export function ToneCircle({
 
   useWindowKeys(handleCircleKeyDown, windowKeys)
 
+  function handleMouseDown(event: MouseEvent<SVGSVGElement>) {
+    // keys go to the whole page: clicks need not focus a bead or marker,
+    // which would only show a focus ring after the next arrow key press
+    if (windowKeys) {
+      event.preventDefault()
+      const focused = document.activeElement
+      if (focused instanceof HTMLElement && !event.currentTarget.contains(focused)) {
+        focused.blur()
+      }
+    }
+  }
+
+  // a focused marker follows the key when it moves (roving tab stop)
+  useEffect(() => {
+    const focused = document.activeElement
+    if (tonic === undefined || !focused?.hasAttribute('data-tonic') || !svgRef.current?.contains(focused)) {
+      return
+    }
+    svgRef.current.querySelector<SVGElement>(`[data-tonic="${tonic}"]`)?.focus()
+  }, [tonic])
+
   function toggleTonic(pitchClass: number) {
     onTonicChange?.(pitchClass === tonic ? null : pitchClass)
   }
@@ -315,7 +337,9 @@ export function ToneCircle({
       viewBox={VIEW_BOX}
       role="group"
       aria-label="Tone circle"
+      ref={svgRef}
       onKeyDown={windowKeys ? undefined : handleCircleKeyDown}
+      onMouseDown={handleMouseDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
