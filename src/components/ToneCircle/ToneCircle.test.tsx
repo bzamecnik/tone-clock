@@ -124,6 +124,43 @@ describe('ToneCircle', () => {
     })
   })
 
+  describe('window keys', () => {
+    it('handles the arrow keys anywhere on the page when enabled', async () => {
+      const user = userEvent.setup()
+      render(<ToneCircle defaultValue={C_MAJOR} windowKeys />)
+      await user.keyboard('{ArrowRight}')
+      expect(pressedNames()).toEqual(['Db', 'F', 'Ab'])
+    })
+
+    it('ignores keys typed into form fields', async () => {
+      const user = userEvent.setup()
+      render(
+        <>
+          <input aria-label="Text" />
+          <ToneCircle defaultValue={C_MAJOR} windowKeys />
+        </>,
+      )
+      await user.click(screen.getByRole('textbox'))
+      await user.keyboard('{ArrowRight}')
+      expect(pressedNames()).toEqual(['C', 'E', 'G'])
+    })
+
+    it('handles a key only once when the circle has focus', async () => {
+      const user = userEvent.setup()
+      render(<ToneCircle defaultValue={C_MAJOR} windowKeys />)
+      await user.tab()
+      await user.keyboard('{ArrowRight}')
+      expect(pressedNames()).toEqual(['Db', 'F', 'Ab'])
+    })
+
+    it('ignores keys outside the circle by default', async () => {
+      const user = userEvent.setup()
+      render(<ToneCircle defaultValue={C_MAJOR} />)
+      await user.keyboard('{ArrowRight}')
+      expect(pressedNames()).toEqual(['C', 'E', 'G'])
+    })
+  })
+
   describe('chord path', () => {
     function chordPathElement(container: HTMLElement) {
       return container.querySelector('.tone-circle__chord')

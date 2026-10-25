@@ -53,6 +53,13 @@ describe('App', () => {
     expect(selectedTones()).toBe('')
   })
 
+  it('transposes with the arrow keys without focusing the circle', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.keyboard('{ArrowRight}')
+    expect(selectedTones()).toBe('Db F Ab')
+  })
+
   it('remembers the selected tones between sessions', async () => {
     const user = userEvent.setup()
     const { unmount } = render(<App />)

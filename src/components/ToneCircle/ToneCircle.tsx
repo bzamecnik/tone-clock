@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { FLAT_NAMES, type PitchClassNames } from '../../music/pitchClassNames.ts'
 import { EMPTY, has, toggle, transpose, type PitchClassSet } from '../../music/pitchClassSet.ts'
 import { chordPath } from './chordPath.ts'
@@ -23,6 +23,12 @@ const TRANSPOSE_KEYS: Record<string, number> = {
   ArrowUp: 1,
   ArrowLeft: -1,
   ArrowDown: -1,
+}
+
+/** Whether a key event belongs to a form field rather than to the circle. */
+function isFromFormField(event: globalThis.KeyboardEvent): boolean {
+  const target = event.target as HTMLElement | null
+  return !!target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
 }
 
 /** Pointer movement (px) below which a press counts as a tap, not a drag. */
@@ -56,6 +62,11 @@ export interface ToneCircleProps {
   names?: PitchClassNames
   /** Tonic of the current key, highlighted with a ring. */
   tonic?: number
+  /**
+   * Handle the circle's keys (arrows) anywhere on the page, not only when the
+   * circle has focus. Keys typed into form fields are left alone.
+   */
+  windowKeys?: boolean
   className?: string
 }
 
@@ -65,6 +76,7 @@ export function ToneCircle({
   onChange,
   names = FLAT_NAMES,
   tonic,
+  windowKeys = false,
   className,
 }: ToneCircleProps) {
   const [internalValue, setInternalValue] = useState(defaultValue)
@@ -150,13 +162,32 @@ export function ToneCircle({
     }
   }
 
-  function handleCircleKeyDown(event: KeyboardEvent) {
+  function handleCircleKeyDown(event: Pick<KeyboardEvent, 'key' | 'preventDefault'>) {
     const offset = TRANSPOSE_KEYS[event.key]
     if (offset !== undefined) {
       event.preventDefault()
       change(transpose(tones, offset))
     }
   }
+
+  // the window listener is attached once and calls the latest handler
+  const keyDownRef = useRef(handleCircleKeyDown)
+  useEffect(() => {
+    keyDownRef.current = handleCircleKeyDown
+  })
+  useEffect(() => {
+    if (!windowKeys) {
+      return
+    }
+    function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || isFromFormField(event)) {
+        return
+      }
+      keyDownRef.current(event)
+    }
+    window.addEventListener('keydown', handleWindowKeyDown)
+    return () => window.removeEventListener('keydown', handleWindowKeyDown)
+  }, [windowKeys])
 
   function handleBeadKeyDown(event: KeyboardEvent, pitchClass: number) {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -174,7 +205,7 @@ export function ToneCircle({
       viewBox={VIEW_BOX}
       role="group"
       aria-label="Tone circle"
-      onKeyDown={handleCircleKeyDown}
+      onKeyDown={windowKeys ? undefined : handleCircleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

@@ -80,7 +80,7 @@ function App() {
         </output>
       </div>
       <div className="app__circle">
-        <ToneCircle value={tones} onChange={setTones} names={beadNames} tonic={key ?? undefined} />
+        <ToneCircle value={tones} onChange={setTones} names={beadNames} tonic={key ?? undefined} windowKeys />
       </div>
       <output className="app__tones" aria-label="Selected tones">
         {spell(tones, FLAT_NAMES)}

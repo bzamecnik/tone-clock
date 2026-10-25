@@ -126,6 +126,8 @@ src/
 - [x] case-insensitive chord qualities where unambiguous (`CMAJ7`, `cDim`;
       `m7` vs. `M7` and Roman numerals stay case-sensitive)
 - [x] submitting empty input clears the tones
+- [x] arrow keys work anywhere on the page (except in form fields), not
+      only after focusing a bead
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in
