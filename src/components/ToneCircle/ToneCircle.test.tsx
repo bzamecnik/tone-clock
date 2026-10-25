@@ -4,7 +4,7 @@ import type { ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { SHARP_NAMES } from '../../music/pitchClassNames.ts'
 import { fromPitchClasses } from '../../music/pitchClassSet.ts'
-import { VIEW_RADIUS, beadLayout, type Point } from './geometry.ts'
+import { VIEW_RADIUS, beadLayout, markerLayout, type Point } from './geometry.ts'
 import { ToneCircle } from './ToneCircle.tsx'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
@@ -343,6 +343,44 @@ describe('ToneCircle', () => {
 
       expect(pressedNames()).toEqual(['Eb', 'G', 'Bb'])
       expect(onChange).toHaveBeenLastCalledWith(fromPitchClasses([3, 7, 10]))
+    })
+
+    describe('key markers', () => {
+      const MARKERS = markerLayout()
+      const markerAt = (pitchClass: number) => client(MARKERS[pitchClass].hitCenter)
+
+      it('moves the key while dragging its marker around the circle', () => {
+        const onTonicChange = vi.fn()
+        const { svg } = renderSized(
+          <ToneCircle defaultValue={C_MAJOR} tonic={9} onTonicChange={onTonicChange} />,
+        )
+        fireEvent.pointerDown(screen.getByRole('button', { name: 'Key A' }), markerAt(9))
+        fireEvent.pointerMove(svg, markerAt(10))
+        expect(onTonicChange).toHaveBeenLastCalledWith(10)
+        // anywhere in the direction of a tone, e.g. near the center
+        fireEvent.pointerMove(svg, client({ x: 10, y: 0 }))
+        expect(onTonicChange).toHaveBeenLastCalledWith(3)
+        fireEvent.pointerUp(svg, client({ x: 10, y: 0 }))
+        expect(onTonicChange).toHaveBeenLastCalledWith(3)
+        expect(pressedNames()).toEqual(['C', 'E', 'G'])
+      })
+
+      it('does not report the same key twice while dragging', () => {
+        const onTonicChange = vi.fn()
+        const { svg } = renderSized(<ToneCircle tonic={9} onTonicChange={onTonicChange} />)
+        fireEvent.pointerDown(screen.getByRole('button', { name: 'Key A' }), markerAt(9))
+        fireEvent.pointerMove(svg, client({ ...MARKERS[9].hitCenter, y: MARKERS[9].hitCenter.y + 6 }))
+        fireEvent.pointerUp(svg, client({ ...MARKERS[9].hitCenter, y: MARKERS[9].hitCenter.y + 6 }))
+        expect(onTonicChange).not.toHaveBeenCalled()
+      })
+
+      it('toggles the key when the marker is tapped without moving', () => {
+        const onTonicChange = vi.fn()
+        const { svg } = renderSized(<ToneCircle tonic={9} onTonicChange={onTonicChange} />)
+        fireEvent.pointerDown(screen.getByRole('button', { name: 'Key A' }), markerAt(9))
+        fireEvent.pointerUp(svg, markerAt(9))
+        expect(onTonicChange).toHaveBeenCalledExactlyOnceWith(null)
+      })
     })
 
     it('rotates relative to the starting set and can rotate back', () => {

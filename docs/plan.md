@@ -136,6 +136,7 @@ src/
 - [x] key markers: a small triangle outside each bead pointing inwards;
       click an empty one to select the key, the filled one to unselect it
       (replaces the Key dropdown and the tonic ring)
+- [x] drag a key marker around the circle to move the key
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in

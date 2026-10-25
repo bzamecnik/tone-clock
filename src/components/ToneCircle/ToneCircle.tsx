@@ -17,6 +17,7 @@ import {
   beadLayout,
   clientToView,
   markerLayout,
+  nearestPitchClass,
   pitchClassAt,
   pointAngle,
   type Point,
@@ -53,6 +54,17 @@ function isFromFormField(event: globalThis.KeyboardEvent): boolean {
 /** Pointer movement (px) below which a press counts as a tap, not a drag. */
 const DRAG_THRESHOLD = 4
 
+interface Press {
+  startX: number
+  startY: number
+  moved: boolean
+}
+
+/** Whether a press has turned into a drag (stays so once it has). */
+function hasMoved(press: Press, event: { clientX: number; clientY: number }): boolean {
+  return press.moved || Math.hypot(event.clientX - press.startX, event.clientY - press.startY) > DRAG_THRESHOLD
+}
+
 type Drag =
   | {
       kind: 'bead'
@@ -67,6 +79,11 @@ type Drag =
       kind: 'marker'
       pointerId: number
       source: number
+      startX: number
+      startY: number
+      moved: boolean
+      /** Last tonic reported while dragging. */
+      current: number | null
     }
   | {
       kind: 'rotate'
@@ -139,7 +156,15 @@ export function ToneCircle({
     const marker = target.closest('[data-tonic]')
     const point = toViewPoint(event)
     if (marker) {
-      setDrag({ kind: 'marker', pointerId: event.pointerId, source: Number(marker.getAttribute('data-tonic')) })
+      setDrag({
+        kind: 'marker',
+        pointerId: event.pointerId,
+        source: Number(marker.getAttribute('data-tonic')),
+        startX: event.clientX,
+        startY: event.clientY,
+        moved: false,
+        current: tonic ?? null,
+      })
     } else if (bead) {
       setDrag({
         kind: 'bead',
@@ -170,10 +195,15 @@ export function ToneCircle({
     }
     const point = toViewPoint(event)
     if (drag.kind === 'bead') {
-      const moved =
-        drag.moved ||
-        Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > DRAG_THRESHOLD
-      setDrag({ ...drag, moved, point })
+      setDrag({ ...drag, moved: hasMoved(drag, event), point })
+    } else if (drag.kind === 'marker') {
+      const moved = hasMoved(drag, event)
+      // the key follows the pointer around the circle
+      const current = moved && point ? nearestPitchClass(point) : drag.current
+      if (current !== drag.current) {
+        onTonicChange?.(current)
+      }
+      setDrag({ ...drag, moved, current })
     } else if (drag.kind === 'rotate' && point) {
       change(transpose(drag.startTones, rotationSteps(drag.startAngle, pointAngle(point))))
     }
@@ -185,7 +215,9 @@ export function ToneCircle({
     }
     setDrag(null)
     if (drag.kind === 'marker') {
-      toggleTonic(drag.source)
+      if (!drag.moved) {
+        toggleTonic(drag.source)
+      }
     } else if (drag.kind === 'bead') {
       const point = toViewPoint(event)
       const target = drag.moved && point ? pitchClassAt(point) : drag.source
@@ -253,7 +285,8 @@ export function ToneCircle({
   }
 
   const ghost = drag?.kind === 'bead' && drag.moved && drag.point ? drag : null
-  const classes = ['tone-circle', drag?.kind === 'rotate' && 'tone-circle--rotating', className]
+  const grabbing = drag?.kind === 'rotate' || (drag?.kind === 'marker' && drag.moved)
+  const classes = ['tone-circle', grabbing && 'tone-circle--rotating', className]
 
   return (
     <svg

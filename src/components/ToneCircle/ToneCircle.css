@@ -91,7 +91,8 @@
   cursor: grab;
 }
 
-.tone-circle--rotating {
+.tone-circle--rotating,
+.tone-circle--rotating .tone-circle__marker[role='button'] {
   cursor: grabbing;
 }
 

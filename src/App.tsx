@@ -98,7 +98,7 @@ function App() {
       )}
       <p className="app__hint">
         Click a tone to toggle it, drag it to move it or off the circle to remove it. Drag around the
-        circle or press ← → to transpose. Click a triangle or press ↑ ↓ to choose the key. Delete clears.
+        circle or press ← → to transpose. Click or drag a triangle, or press ↑ ↓, to choose the key. Delete clears.
       </p>
       <div className="app__settings">
         <label>

@@ -86,13 +86,18 @@ export function pointAngle({ x, y }: Point): number {
   return angle < 0 ? angle + 2 * Math.PI : angle
 }
 
+/** The pitch class in the direction of a point from the center. */
+export function nearestPitchClass(point: Point): number {
+  return Math.round((pointAngle(point) / (2 * Math.PI)) * OCTAVE_SIZE) % OCTAVE_SIZE
+}
+
 /** The bead under a point, or null if the point is off the ring of beads. */
 export function pitchClassAt(point: Point): number | null {
   const radius = Math.hypot(point.x, point.y)
   if (radius < CIRCLE_RADIUS - BEAD_RADIUS || radius > CIRCLE_RADIUS + BEAD_RADIUS) {
     return null
   }
-  return Math.round((pointAngle(point) / (2 * Math.PI)) * OCTAVE_SIZE) % OCTAVE_SIZE
+  return nearestPitchClass(point)
 }
 
 export interface Rect {

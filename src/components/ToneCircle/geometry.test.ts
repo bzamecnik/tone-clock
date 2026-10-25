@@ -5,6 +5,7 @@ import {
   VIEW_RADIUS,
   beadLayout,
   markerLayout,
+  nearestPitchClass,
   clientToView,
   pitchClassAt,
   pointAngle,
@@ -90,6 +91,15 @@ describe('pitchClassAt (hit testing)', () => {
     expect(pitchClassAt({ x: 0, y: -50 })).toBeNull()
     expect(pitchClassAt({ x: 0, y: -100 })).toBeNull()
     expect(pitchClassAt({ x: 100, y: 100 })).toBeNull()
+  })
+})
+
+describe('nearestPitchClass', () => {
+  it('is the pitch class in the direction of the point, at any radius', () => {
+    expect(nearestPitchClass({ x: 0, y: -110 })).toBe(0)
+    expect(nearestPitchClass({ x: 5, y: 0 })).toBe(3)
+    expect(nearestPitchClass({ x: -1, y: -100 })).toBe(0)
+    expect(nearestPitchClass({ x: -60, y: -100 })).toBe(11)
   })
 })
 
