@@ -47,11 +47,19 @@
 .app__tones {
   min-height: 1.5em;
   margin: 0.5rem 0;
+  border-collapse: collapse;
   font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* one column per tone: the note above its degree */
+.app__tones td {
+  min-width: 2.2em;
+  padding: 0 0.15em;
+  text-align: center;
 }
 
 .app__degrees {
-  margin-bottom: 0.5rem;
   color: #666;
 }
 

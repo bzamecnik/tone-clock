@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App.tsx'
@@ -14,8 +14,21 @@ function scaleName() {
   return screen.getByLabelText('Scale name').textContent
 }
 
+/** Cells of a row of the table of selected tones, joined by spaces. */
+function toneRow(name: string) {
+  const row = within(screen.getByRole('table', { name: 'Selected tones' })).getByRole('row', { name })
+  return within(row)
+    .queryAllByRole('cell')
+    .map((cell) => cell.textContent)
+    .join(' ')
+}
+
 function selectedTones() {
-  return screen.getByLabelText('Selected tones').textContent
+  return toneRow('Notes')
+}
+
+function selectedDegrees() {
+  return toneRow('Degrees')
 }
 
 describe('App', () => {
@@ -143,12 +156,14 @@ describe('App', () => {
       const user = userEvent.setup()
       render(<App />)
       await selectKey(user, 'C')
-      expect(screen.getByLabelText('Selected degrees')).toHaveTextContent('1 3 5')
+      expect(selectedDegrees()).toBe('1 3 5')
       await selectKey(user, 'A')
-      expect(screen.getByLabelText('Selected degrees')).toHaveTextContent('b3 5 b7')
-      // listed in ascending order from the tonic
+      expect(selectedDegrees()).toBe('b3 5 b7')
+      // listed in ascending order from the tonic, aligned with the notes
+      expect(selectedTones()).toBe('C E G')
       await selectKey(user, 'D')
-      expect(screen.getByLabelText('Selected degrees')).toHaveTextContent('2 4 b7')
+      expect(selectedDegrees()).toBe('2 4 b7')
+      expect(selectedTones()).toBe('E G C')
     })
 
     it('can label the beads by scale degrees', async () => {

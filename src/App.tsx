@@ -5,11 +5,12 @@ import {
   FLAT_NAMES,
   ROMAN_NAMES,
   relativeNames,
-  type PitchClassNames,
 } from './music/pitchClassNames.ts'
 import { nameSet } from './music/pitchClassSetNamer.ts'
 import {
+  OCTAVE_SIZE,
   fromPitchClasses,
+  mod,
   toPitchClasses,
   transpose,
   type PitchClassSet,
@@ -43,10 +44,9 @@ function parseLabels(stored: string): Labels | undefined {
   return stored === 'notes' || stored === 'degrees' ? stored : undefined
 }
 
-function spell(tones: PitchClassSet, names: PitchClassNames): string {
-  return toPitchClasses(tones)
-    .map((pc) => names[pc])
-    .join(' ')
+/** Pitch classes of a set in ascending order from `from` (C by default). */
+function ascendingFrom(tones: PitchClassSet, from = 0): number[] {
+  return toPitchClasses(transpose(tones, -from)).map((pc) => mod(pc + from, OCTAVE_SIZE))
 }
 
 function App() {
@@ -56,8 +56,8 @@ function App() {
 
   const { chord, scale } = nameSet(tones)
   const degreeNames = key === null ? null : relativeNames(DEGREE_NAMES, key)
-  // degrees listed from the tonic up
-  const degrees = key === null ? '' : spell(transpose(tones, -key), DEGREE_NAMES)
+  // listed from the tonic up, if any
+  const toneList = ascendingFrom(tones, key ?? 0)
   const relativeChord = key === null ? '' : nameSet(tones, relativeNames(ROMAN_NAMES, key)).chord
   // with a key, beads show both note names and degrees, the chosen one larger
   const beadNames = degreeNames && labels === 'degrees' ? degreeNames : FLAT_NAMES
@@ -91,14 +91,22 @@ function App() {
           windowKeys
         />
       </div>
-      <output className="app__tones" aria-label="Selected tones">
-        {spell(tones, FLAT_NAMES)}
-      </output>
-      {degreeNames && (
-        <output className="app__degrees" aria-label="Selected degrees">
-          {degrees}
-        </output>
-      )}
+      <table className="app__tones" aria-label="Selected tones">
+        <tbody>
+          <tr aria-label="Notes">
+            {toneList.map((pc) => (
+              <td key={pc}>{FLAT_NAMES[pc]}</td>
+            ))}
+          </tr>
+          {degreeNames && (
+            <tr className="app__degrees" aria-label="Degrees">
+              {toneList.map((pc) => (
+                <td key={pc}>{degreeNames[pc]}</td>
+              ))}
+            </tr>
+          )}
+        </tbody>
+      </table>
       <p className="app__hint">
         Click a tone to toggle it, drag it to move it or off the circle to remove it. Drag around the
         circle or press ← → to transpose. Click or drag a triangle, or press ↑ ↓, to choose the key. Delete clears.

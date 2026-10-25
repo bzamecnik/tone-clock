@@ -139,6 +139,8 @@ src/
 - [x] drag a key marker around the circle to move the key
 - [x] with a key, beads show both labels: the chosen kind (notes or
       degrees) large, the other one small below it
+- [x] the selected notes and degrees are shown as aligned columns, ordered
+      from the tonic; the names above the circle don't jump with the key
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in
