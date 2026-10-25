@@ -131,9 +131,15 @@ function App() {
       </table>
       <ul className="app__hint">
         <li>Click a tone to toggle it, drag it to move it or off the circle to remove it.</li>
-        <li>Drag around the circle or press ← → to transpose.</li>
-        <li>Click or drag a triangle, or press ↑ ↓, to choose the key.</li>
-        <li>L swaps note names and degrees. Delete clears all tones.</li>
+        <li>
+          Drag around the circle or press <kbd>←</kbd> <kbd>→</kbd> to transpose.
+        </li>
+        <li>
+          Click or drag a triangle, or press <kbd>↑</kbd> <kbd>↓</kbd>, to choose the key.
+        </li>
+        <li>
+          <kbd>L</kbd> swaps note names and degrees. <kbd>Delete</kbd> clears all tones.
+        </li>
       </ul>
     </main>
   )

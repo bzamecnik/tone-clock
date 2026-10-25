@@ -66,6 +66,12 @@ describe('App', () => {
     expect(root()).toBeNull()
   })
 
+  it('shows the keys in the hint as keyboard keys', () => {
+    const { container } = render(<App />)
+    const keys = [...container.querySelectorAll('.app__hint kbd')].map((k) => k.textContent)
+    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'Delete'])
+  })
+
   it('starts with the C major triad', () => {
     render(<App />)
     expect(screen.getByRole('button', { name: 'E' })).toHaveAttribute('aria-pressed', 'true')
