@@ -17,13 +17,15 @@ import './ToneCircle.css'
 const BEADS = beadLayout()
 const VIEW_BOX = `${-VIEW_RADIUS} ${-VIEW_RADIUS} ${2 * VIEW_RADIUS} ${2 * VIEW_RADIUS}`
 
-/** Arrow keys rotate the circle: right/up clockwise (up a semitone). */
+/** Arrow keys rotate the circle: right/up clockwise (up a semitone). Delete clears it. */
 const TRANSPOSE_KEYS: Record<string, number> = {
   ArrowRight: 1,
   ArrowUp: 1,
   ArrowLeft: -1,
   ArrowDown: -1,
 }
+
+const CLEAR_KEYS = new Set(['Delete', 'Backspace'])
 
 /** Whether a key event belongs to a form field rather than to the circle. */
 function isFromFormField(event: globalThis.KeyboardEvent): boolean {
@@ -167,6 +169,9 @@ export function ToneCircle({
     if (offset !== undefined) {
       event.preventDefault()
       change(transpose(tones, offset))
+    } else if (CLEAR_KEYS.has(event.key)) {
+      event.preventDefault()
+      change(EMPTY)
     }
   }
 

@@ -124,6 +124,16 @@ describe('ToneCircle', () => {
     })
   })
 
+  it('clears all tones with Delete or Backspace', async () => {
+    const user = userEvent.setup()
+    render(<ToneCircle defaultValue={C_MAJOR} />)
+    await user.tab()
+    await user.keyboard('{Delete}')
+    expect(pressedNames()).toEqual([])
+    await user.keyboard(' {Backspace}')
+    expect(pressedNames()).toEqual([])
+  })
+
   describe('window keys', () => {
     it('handles the arrow keys anywhere on the page when enabled', async () => {
       const user = userEvent.setup()

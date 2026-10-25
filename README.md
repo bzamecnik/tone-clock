@@ -12,8 +12,8 @@ Features:
 
 - click a bead to toggle a tone; drag a tone onto another bead to move it,
   or off the circle to remove it
-- drag around the circle (off the beads), use the arrow keys or the ↺ ↻
-  buttons to transpose
+- drag around the circle (off the beads) or use the ← → keys to transpose
+- Delete (or submitting an empty chord field) clears all tones
 - chord and scale names (e.g. "Am7", "C diatonic (major)")
 - pick a key to see Roman numeral chord names (`IVm7 in A`) and scale
   degrees (`1 b3 5`), optionally as bead labels

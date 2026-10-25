@@ -128,6 +128,9 @@ src/
 - [x] submitting empty input clears the tones
 - [x] arrow keys work anywhere on the page (except in form fields), not
       only after focusing a bead
+- [x] drop the Clear/transpose buttons (empty input, Delete/Backspace,
+      dragging and arrow keys replace them); a short hint explains the
+      gestures
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in

@@ -41,23 +41,20 @@ describe('App', () => {
     expect(selectedTones()).toBe('C E G Bb')
   })
 
-  it('transposes and clears with buttons', async () => {
-    const user = userEvent.setup()
+  it('has no toolbar buttons, but explains the gestures', () => {
     render(<App />)
-    await user.click(screen.getByRole('button', { name: 'Transpose up' }))
-    expect(selectedTones()).toBe('Db F Ab')
-    await user.click(screen.getByRole('button', { name: 'Transpose down' }))
-    await user.click(screen.getByRole('button', { name: 'Transpose down' }))
-    expect(selectedTones()).toBe('Eb Gb B')
-    await user.click(screen.getByRole('button', { name: 'Clear' }))
-    expect(selectedTones()).toBe('')
+    expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull()
+    expect(screen.queryByRole('button', { name: /Transpose/ })).toBeNull()
+    expect(screen.getByText(/drag around/i)).toBeInTheDocument()
   })
 
-  it('transposes with the arrow keys without focusing the circle', async () => {
+  it('transposes and clears with keys without focusing the circle', async () => {
     const user = userEvent.setup()
     render(<App />)
     await user.keyboard('{ArrowRight}')
     expect(selectedTones()).toBe('Db F Ab')
+    await user.keyboard('{Delete}')
+    expect(selectedTones()).toBe('')
   })
 
   it('remembers the selected tones between sessions', async () => {
@@ -86,7 +83,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Bb' }))
     expect(chordName()).toBe('C7')
 
-    await user.click(screen.getByRole('button', { name: 'Clear' }))
+    await user.keyboard('{Delete}')
     for (const tone of ['C', 'D', 'E', 'F', 'G', 'A', 'B']) {
       await user.click(screen.getByRole('button', { name: tone }))
     }

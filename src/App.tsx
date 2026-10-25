@@ -9,7 +9,6 @@ import {
 } from './music/pitchClassNames.ts'
 import { nameSet } from './music/pitchClassSetNamer.ts'
 import {
-  EMPTY,
   fromPitchClasses,
   toPitchClasses,
   transpose,
@@ -90,17 +89,10 @@ function App() {
           {degrees}
         </output>
       )}
-      <div className="app__toolbar">
-        <button type="button" aria-label="Transpose down" onClick={() => setTones(transpose(tones, -1))}>
-          ↺
-        </button>
-        <button type="button" onClick={() => setTones(EMPTY)}>
-          Clear
-        </button>
-        <button type="button" aria-label="Transpose up" onClick={() => setTones(transpose(tones, 1))}>
-          ↻
-        </button>
-      </div>
+      <p className="app__hint">
+        Click a tone to toggle it, drag it to move it or off the circle to remove it. Drag around the
+        circle or press ← → to transpose. Delete clears.
+      </p>
       <div className="app__settings">
         <label>
           Key
