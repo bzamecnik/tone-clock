@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { FLAT_NAMES, type PitchClassNames } from '../../music/pitchClassNames.ts'
 import {
   EMPTY,
@@ -10,6 +10,7 @@ import {
   type PitchClassSet,
 } from '../../music/pitchClassSet.ts'
 import { suggestTonic } from '../../music/pitchClassSetNamer.ts'
+import { useWindowKeys } from '../../useWindowKeys.ts'
 import { chordPath } from './chordPath.ts'
 import {
   BEAD_RADIUS,
@@ -44,12 +45,6 @@ const TONIC_KEYS: Record<string, number> = {
 }
 
 const CLEAR_KEYS = new Set(['Delete', 'Backspace'])
-
-/** Whether a key event belongs to a form field rather than to the circle. */
-function isFromFormField(event: globalThis.KeyboardEvent): boolean {
-  const target = event.target as HTMLElement | null
-  return !!target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
-}
 
 /** Pointer movement (px) below which a press counts as a tap, not a drag. */
 const DRAG_THRESHOLD = 4
@@ -290,24 +285,7 @@ export function ToneCircle({
     }
   }
 
-  // the window listener is attached once and calls the latest handler
-  const keyDownRef = useRef(handleCircleKeyDown)
-  useEffect(() => {
-    keyDownRef.current = handleCircleKeyDown
-  })
-  useEffect(() => {
-    if (!windowKeys) {
-      return
-    }
-    function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
-      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || isFromFormField(event)) {
-        return
-      }
-      keyDownRef.current(event)
-    }
-    window.addEventListener('keydown', handleWindowKeyDown)
-    return () => window.removeEventListener('keydown', handleWindowKeyDown)
-  }, [windowKeys])
+  useWindowKeys(handleCircleKeyDown, windowKeys)
 
   function toggleTonic(pitchClass: number) {
     onTonicChange?.(pitchClass === tonic ? null : pitchClass)
