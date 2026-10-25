@@ -107,7 +107,8 @@ describe('App', () => {
     it('has no key by default', () => {
       render(<App />)
       expect(selectedKey()).toBeUndefined()
-      expect(screen.queryByLabelText('Relative chord name')).toBeNull()
+      // kept empty, so that the layout does not jump when a key is selected
+      expect(screen.getByLabelText('Relative chord name')).toHaveTextContent(/^$/)
     })
 
     it('marks the tonic and names the chord with a Roman numeral', async () => {

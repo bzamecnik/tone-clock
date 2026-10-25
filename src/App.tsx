@@ -71,11 +71,11 @@ function App() {
         <output className="app__chord" aria-label="Chord name">
           {chord}
         </output>
-        {key !== null && relativeChord && (
-          <span className="app__relative">
-            <output aria-label="Relative chord name">{relativeChord}</output> in {FLAT_NAMES[key]}
-          </span>
-        )}
+        {/* always present (maybe empty), so that the layout does not jump */}
+        <span className="app__relative">
+          <output aria-label="Relative chord name">{relativeChord}</output>
+          {key !== null && relativeChord && ` in ${FLAT_NAMES[key]}`}
+        </span>
         <output className="app__scale" aria-label="Scale name">
           {scale}
         </output>
