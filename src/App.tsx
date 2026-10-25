@@ -1,4 +1,5 @@
 import { ChordInput } from './components/ChordInput/ChordInput.tsx'
+import { SegmentedToggle } from './components/SegmentedToggle/SegmentedToggle.tsx'
 import { ToneCircle, type CircleOrder } from './components/ToneCircle/ToneCircle.tsx'
 import {
   DEGREE_NAMES,
@@ -137,6 +138,29 @@ function App() {
           )}
         </tbody>
       </table>
+      <div className="app__settings">
+        <SegmentedToggle
+          label="Circle order"
+          shortcut="F"
+          value={order}
+          options={[
+            { value: 'semitones', label: 'Semitones' },
+            { value: 'fifths', label: 'Fifths' },
+          ]}
+          onChange={setOrder}
+        />
+        <SegmentedToggle
+          label="Labels"
+          shortcut="L"
+          value={labels}
+          options={[
+            { value: 'notes', label: 'Notes' },
+            { value: 'degrees', label: 'Degrees' },
+          ]}
+          onChange={setLabels}
+          disabled={key === null}
+        />
+      </div>
       <ul className="app__hint">
         <li>Click a tone to toggle it, drag it to move it or off the circle to remove it.</li>
         <li>

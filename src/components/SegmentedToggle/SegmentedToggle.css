@@ -1,0 +1,56 @@
+.segmented-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.segmented-toggle__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  min-width: 5.5rem;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.segmented-toggle__buttons {
+  display: flex;
+}
+
+.segmented-toggle__buttons button {
+  padding: 0.2rem 0.7rem;
+  border: 1px solid #86b359;
+  background: #fff;
+  color: #4a6b2a;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.segmented-toggle__buttons button + button {
+  border-left: none;
+}
+
+.segmented-toggle__buttons button:first-child {
+  border-radius: 999px 0 0 999px;
+}
+
+.segmented-toggle__buttons button:last-child {
+  border-radius: 0 999px 999px 0;
+}
+
+.segmented-toggle__buttons button[aria-pressed='true'] {
+  background: #86b359;
+  color: #fff;
+}
+
+.segmented-toggle__buttons button:disabled {
+  border-color: #ddd;
+  background: #fff;
+  color: #bbb;
+  cursor: default;
+}
+
+.segmented-toggle__buttons button[aria-pressed='true']:disabled {
+  background: #eee;
+}

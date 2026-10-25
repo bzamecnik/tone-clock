@@ -147,6 +147,8 @@ src/
 - [x] circle of fifths: the F key switches the order of the beads between
       semitones and fifths (diatonic scales and their chords become
       clusters of neighbors); one rotation step is then a fifth
+- [x] toggle buttons for the circle order and the labels in the panel,
+      showing their keyboard shortcuts
 - [x] the L key swaps note names and degrees on the beads (replaces the
       Labels dropdown)
 - [x] mouse presses don't focus beads/markers (no stray focus ring); a

@@ -92,6 +92,20 @@ describe('App', () => {
       expect(beadNames().slice(0, 3)).toEqual(['C', 'Db', 'D'])
     })
 
+    it('switches with the toggle buttons too', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      const group = within(screen.getByRole('group', { name: 'Circle order' }))
+      expect(group.getByRole('button', { name: 'Semitones' })).toHaveAttribute('aria-pressed', 'true')
+      await user.click(group.getByRole('button', { name: 'Fifths' }))
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'G', 'D'])
+      expect(group.getByRole('button', { name: 'Fifths' })).toHaveAttribute('aria-pressed', 'true')
+      expect(group.getByRole('button', { name: 'Semitones' })).toHaveAttribute('aria-pressed', 'false')
+      // the f key still works after clicking a toggle button
+      await user.keyboard('f')
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'Db', 'D'])
+    })
+
     it('remembers the order', async () => {
       const user = userEvent.setup()
       const { unmount } = render(<App />)
@@ -258,6 +272,18 @@ describe('App', () => {
       // without a key, beads fall back to note names
       await selectKey(user, 'A')
       expect(screen.getByRole('button', { name: 'C' })).toHaveTextContent(/^C$/)
+    })
+
+    it('swaps the labels with the toggle buttons, enabled with a key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      const group = within(screen.getByRole('group', { name: 'Labels' }))
+      expect(group.getByRole('button', { name: 'Degrees' })).toBeDisabled()
+      await selectKey(user, 'A')
+      expect(group.getByRole('button', { name: 'Notes' })).toHaveAttribute('aria-pressed', 'true')
+      await user.click(group.getByRole('button', { name: 'Degrees' }))
+      expect(screen.getByRole('button', { name: '1' })).toHaveTextContent('1A')
+      expect(group.getByRole('button', { name: 'Degrees' })).toHaveAttribute('aria-pressed', 'true')
     })
 
     it('does not swap the labels when typing an L into the chord field', async () => {

@@ -10,6 +10,7 @@
     'top'
     'circle'
     'tones'
+    'settings'
     'hint';
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
@@ -110,21 +111,12 @@
   text-align: center;
 }
 
-/* keys drawn as small keycaps */
-.app__hint kbd {
-  display: inline-block;
-  min-width: 1.1em;
-  padding: 0 0.3em;
-  border: 1px solid #ccc;
-  border-bottom-width: 2px;
-  border-radius: 0.25em;
-  background: #fafafa;
-  color: #555;
-  /* not monospace: arrows would come out tiny */
-  font-family: inherit;
-  font-size: 0.85em;
-  line-height: 1.4;
-  text-align: center;
+.app__settings {
+  grid-area: settings;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 @media (min-width: 760px) {
@@ -133,9 +125,10 @@
       'title title'
       'circle top'
       'circle tones'
+      'circle settings'
       'circle hint';
     grid-template-columns: auto minmax(16rem, 22rem);
-    grid-template-rows: auto auto auto 1fr;
+    grid-template-rows: auto auto auto auto 1fr;
     justify-content: center;
     justify-items: start;
     align-items: start;
