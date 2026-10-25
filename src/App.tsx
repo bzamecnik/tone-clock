@@ -46,6 +46,12 @@ function parseOrder(stored: string): CircleOrder | undefined {
   return stored === 'semitones' || stored === 'fifths' ? stored : undefined
 }
 
+type Colors = 'plain' | 'key'
+
+function parseColors(stored: string): Colors | undefined {
+  return stored === 'plain' || stored === 'key' ? stored : undefined
+}
+
 function parseLabels(stored: string): Labels | undefined {
   return stored === 'notes' || stored === 'degrees' ? stored : undefined
 }
@@ -60,12 +66,15 @@ function App() {
   const [key, setKey] = useStoredState('tone-circle:key', null, parseKey, serializeKey)
   const [labels, setLabels] = useStoredState<Labels>('tone-circle:labels', 'notes', parseLabels)
   const [order, setOrder] = useStoredState<CircleOrder>('tone-circle:order', 'semitones', parseOrder)
+  const [colors, setColors] = useStoredState<Colors>('tone-circle:colors', 'key', parseColors)
 
   useWindowKeys((event) => {
     if (event.key === 'l' || event.key === 'L') {
       setLabels(labels === 'notes' ? 'degrees' : 'notes')
     } else if (event.key === 'f' || event.key === 'F') {
       setOrder(order === 'semitones' ? 'fifths' : 'semitones')
+    } else if (event.key === 'c' || event.key === 'C') {
+      setColors(colors === 'key' ? 'plain' : 'key')
     }
   })
 
@@ -107,6 +116,7 @@ function App() {
           secondaryNames={secondaryBeadNames ?? undefined}
           root={root ?? undefined}
           order={order}
+          keyColors={colors === 'key'}
           tonic={key ?? undefined}
           onTonicChange={setKey}
           windowKeys
@@ -160,6 +170,17 @@ function App() {
           onChange={setLabels}
           disabled={key === null}
         />
+        <SegmentedToggle
+          label="Colors"
+          shortcut="C"
+          value={colors}
+          options={[
+            { value: 'plain', label: 'Plain' },
+            { value: 'key', label: 'Key' },
+          ]}
+          onChange={setColors}
+          disabled={key === null}
+        />
       </div>
       <ul className="app__hint">
         <li>Click a tone to toggle it, drag it to move it or off the circle to remove it.</li>
@@ -171,6 +192,7 @@ function App() {
         </li>
         <li><kbd>L</kbd> swaps note names and degrees.</li>
         <li><kbd>F</kbd> switches to the circle of fifths and back.</li>
+        <li><kbd>C</kbd> colors the tones by how close they are to the key.</li>
         <li><kbd>Delete</kbd> clears all tones.</li>
       </ul>
     </main>

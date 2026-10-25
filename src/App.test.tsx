@@ -69,7 +69,37 @@ describe('App', () => {
   it('shows the keys in the hint as keyboard keys', () => {
     const { container } = render(<App />)
     const keys = [...container.querySelectorAll('.app__hint kbd')].map((k) => k.textContent)
-    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'F', 'Delete'])
+    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'F', 'C', 'Delete'])
+  })
+
+  describe('key colors', () => {
+    const level = (name: string) => screen.getByRole('button', { name }).getAttribute('data-level')
+
+    it('colors the beads by the key, switchable with the C key and the toggle', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      const group = within(screen.getByRole('group', { name: 'Colors' }))
+      expect(group.getByRole('button', { name: 'Key' })).toBeDisabled()
+      expect(level('D')).toBeNull()
+
+      await user.click(screen.getByRole('button', { name: 'Key C' }))
+      expect(group.getByRole('button', { name: 'Key' })).toHaveAttribute('aria-pressed', 'true')
+      expect(level('D')).toBe('3')
+      await user.keyboard('c')
+      expect(level('D')).toBeNull()
+      await user.click(group.getByRole('button', { name: 'Key' }))
+      expect(level('D')).toBe('3')
+    })
+
+    it('remembers the setting', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<App />)
+      await user.click(screen.getByRole('button', { name: 'Key C' }))
+      await user.keyboard('c')
+      unmount()
+      render(<App />)
+      expect(level('D')).toBeNull()
+    })
   })
 
   describe('circle of fifths', () => {

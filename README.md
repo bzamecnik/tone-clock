@@ -20,6 +20,9 @@ Features:
   (`1 b3 5`), also on the beads under the note names (L swaps them)
 - press F to arrange the circle in fifths, where a diatonic scale and its
   chords form clusters of neighboring beads
+- press C to color the tones by how close they are to the key (green
+  inside, yellow for the tritone 4-7, red outside); diatonic tones are
+  outlined
 - type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
   key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
 
