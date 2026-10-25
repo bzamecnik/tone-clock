@@ -140,7 +140,9 @@ src/
 - [x] with a key, beads show both labels: the chosen kind (notes or
       degrees) large, the other one small below it
 - [x] the selected notes and degrees are shown as aligned columns, ordered
-      from the tonic; the names above the circle don't jump with the key
+      from the chord root (else the tonic, else C), with degrees both in
+      the chord and in the key; the names above the circle don't jump with
+      the key
 - [x] the L key swaps note names and degrees on the beads (replaces the
       Labels dropdown)
 - [x] mouse presses don't focus beads/markers (no stray focus ring); a

@@ -27,8 +27,12 @@ function selectedTones() {
   return toneRow('Notes')
 }
 
-function selectedDegrees() {
-  return toneRow('Degrees')
+function chordDegrees() {
+  return toneRow('Degrees in the chord')
+}
+
+function keyDegrees() {
+  return toneRow('Degrees in the key')
 }
 
 describe('App', () => {
@@ -39,6 +43,16 @@ describe('App', () => {
   it('shows the app title', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: 'Tone Circle' })).toBeInTheDocument()
+  })
+
+  it('lists the tones from the root of the chord, with their degrees', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    expect(chordDegrees()).toBe('1 3 5')
+    await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'Am7{Enter}')
+    expect(selectedTones()).toBe('A C E G')
+    expect(chordDegrees()).toBe('1 b3 5 b7')
+    expect(screen.queryByRole('row', { name: 'Degrees in the key' })).toBeNull()
   })
 
   it('starts with the C major triad', () => {
@@ -152,18 +166,30 @@ describe('App', () => {
       expect(screen.queryByRole('combobox', { name: 'Key' })).toBeNull()
     })
 
-    it('lists the selected tones as scale degrees', async () => {
+    it('lists the selected tones as degrees in the key, from the chord root', async () => {
       const user = userEvent.setup()
       render(<App />)
       await selectKey(user, 'C')
-      expect(selectedDegrees()).toBe('1 3 5')
+      expect(keyDegrees()).toBe('1 3 5')
       await selectKey(user, 'A')
-      expect(selectedDegrees()).toBe('b3 5 b7')
-      // listed in ascending order from the tonic, aligned with the notes
       expect(selectedTones()).toBe('C E G')
-      await selectKey(user, 'D')
-      expect(selectedDegrees()).toBe('2 4 b7')
-      expect(selectedTones()).toBe('E G C')
+      expect(chordDegrees()).toBe('1 3 5')
+      expect(keyDegrees()).toBe('b3 5 b7')
+
+      await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'Em7{Enter}')
+      expect(selectedTones()).toBe('E G B D')
+      expect(chordDegrees()).toBe('1 b3 5 b7')
+      expect(keyDegrees()).toBe('5 b7 2 4')
+    })
+
+    it('lists sets without a chord name from the tonic', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await selectKey(user, 'E')
+      await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'C chromatic{Enter}')
+      expect(selectedTones()).toBe('E F Gb G Ab A Bb B C Db D Eb')
+      expect(screen.queryByRole('row', { name: 'Degrees in the chord' })).toBeNull()
+      expect(keyDegrees()).toBe('1 b2 2 b3 3 4 b5 5 b6 6 b7 7')
     })
 
     it('swaps note names and degrees on the beads with the L key', async () => {
@@ -215,7 +241,7 @@ describe('App', () => {
       const user = userEvent.setup()
       render(<App />)
       await user.type(input(), 'Am7{Enter}')
-      expect(selectedTones()).toBe('C E G A')
+      expect(selectedTones()).toBe('A C E G')
       expect(chordName()).toBe('Am7')
     })
 
@@ -223,7 +249,8 @@ describe('App', () => {
       const user = userEvent.setup()
       render(<App />)
       await user.type(input(), 'D dorian{Enter}')
-      expect(selectedTones()).toBe('C D E F G A B')
+      // named as G13, listed from G
+      expect(selectedTones()).toBe('G A B C D E F')
       await user.clear(input())
       await user.type(input(), 'Db F Ab B{Enter}')
       expect(chordName()).toBe('Db7')

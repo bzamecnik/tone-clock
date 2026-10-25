@@ -20,6 +20,13 @@ export function nameSet(set: PitchClassSet, names: PitchClassNames = FLAT_NAMES)
   }
 }
 
+/** Root pitch class of the chord name of a set, or null if it has none. */
+export function chordRoot(set: PitchClassSet): number | null {
+  const { canonic, root } = canonicWithRoot(set)
+  const template = CHORD_TEMPLATES[canonic]
+  return template ? mod(template.root + root, OCTAVE_SIZE) : null
+}
+
 /**
  * A sensible tonic for a set when no key is chosen yet: the root of its
  * scale name, else of its chord name, else its lowest tone (C if empty).

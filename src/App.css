@@ -89,6 +89,15 @@
   color: #666;
 }
 
+/* small row labels telling the two kinds of degrees apart */
+.app__tones th {
+  padding-right: 0.4em;
+  color: #aaa;
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-align: right;
+}
+
 .app__hint {
   grid-area: hint;
   max-width: 28rem;

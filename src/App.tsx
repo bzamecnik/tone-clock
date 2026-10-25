@@ -6,7 +6,7 @@ import {
   ROMAN_NAMES,
   relativeNames,
 } from './music/pitchClassNames.ts'
-import { nameSet } from './music/pitchClassSetNamer.ts'
+import { chordRoot, nameSet } from './music/pitchClassSetNamer.ts'
 import {
   OCTAVE_SIZE,
   fromPitchClasses,
@@ -63,8 +63,10 @@ function App() {
 
   const { chord, scale } = nameSet(tones)
   const degreeNames = key === null ? null : relativeNames(DEGREE_NAMES, key)
-  // listed from the tonic up, if any
-  const toneList = ascendingFrom(tones, key ?? 0)
+  // listed from the root of the chord, else from the tonic (or C)
+  const root = chordRoot(tones)
+  const toneList = ascendingFrom(tones, root ?? key ?? 0)
+  const chordDegreeNames = root === null ? null : relativeNames(DEGREE_NAMES, root)
   const relativeChord = key === null ? '' : nameSet(tones, relativeNames(ROMAN_NAMES, key)).chord
   // with a key, beads show both note names and degrees, the chosen one larger
   const beadNames = degreeNames && labels === 'degrees' ? degreeNames : FLAT_NAMES
@@ -103,12 +105,22 @@ function App() {
       <table className="app__tones" aria-label="Selected tones">
         <tbody>
           <tr aria-label="Notes">
+            <th scope="row" />
             {toneList.map((pc) => (
               <td key={pc}>{FLAT_NAMES[pc]}</td>
             ))}
           </tr>
+          {chordDegreeNames && (
+            <tr className="app__degrees" aria-label="Degrees in the chord">
+              <th scope="row">chord</th>
+              {toneList.map((pc) => (
+                <td key={pc}>{chordDegreeNames[pc]}</td>
+              ))}
+            </tr>
+          )}
           {degreeNames && (
-            <tr className="app__degrees" aria-label="Degrees">
+            <tr className="app__degrees" aria-label="Degrees in the key">
+              <th scope="row">key</th>
               {toneList.map((pc) => (
                 <td key={pc}>{degreeNames[pc]}</td>
               ))}
