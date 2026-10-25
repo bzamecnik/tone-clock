@@ -186,8 +186,8 @@ function App() {
           shortcut="C"
           value={colors}
           options={[
-            { value: 'plain', label: 'Plain' },
             { value: 'key', label: 'Key' },
+            { value: 'plain', label: 'Plain' },
           ]}
           onChange={setColors}
           disabled={key === null}
