@@ -105,9 +105,13 @@ So:
   piano (inverted: dark marks for the "white" keys). It encodes membership
   by position, not by color, so it works without key colors, for color
   blind people and when squinting. (A first attempt with a thin outline of
-  diatonic beads was too subtle.)
-- The **root ring** of a chord is a dark neutral color and the **chord
-  path** a translucent gray when colored, so that they don't clash with the
+  diatonic beads was too subtle.) It is muted and translucent, so that it
+  supports the beads rather than dominating them.
+- The **key markers** (triangles) take the hue of their tone's level, like
+  the beads.
+- The **root ring** of a chord is a dark shade of its bead's hue (like the
+  inactive labels), and the **chord path** a light green tint without a
+  border: neutral black and gray looked harsh and out of place among the
   colored beads.
 
 ## Naming and listing tones
