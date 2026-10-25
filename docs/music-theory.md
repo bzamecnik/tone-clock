@@ -94,6 +94,9 @@ So:
   is perceptual: all active beads share one lightness and all inactive
   beads another. The price is a somewhat muted, ochre yellow, since a
   saturated yellow can't be as dark as a green.
+- In the **dark theme** the same rule holds the other way round: inactive
+  beads are dark (with light labels) and active ones keep their lightness,
+  so the active tones are the bright ones.
 - **Labels are inverse**: white on active beads, a dark shade of the bead's
   hue on inactive ones, which is easier to read and another cue for which
   tones are active.
