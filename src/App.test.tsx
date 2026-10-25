@@ -115,6 +115,17 @@ describe('App', () => {
       expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('bIII7')
     })
 
+    it('changes the key with the up/down arrows', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.keyboard('{ArrowUp}')
+      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('0')
+      await user.keyboard('{ArrowDown}{ArrowDown}')
+      expect(screen.getByRole('combobox', { name: 'Key' })).toHaveValue('10')
+      expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('II')
+      expect(selectedTones()).toBe('C E G')
+    })
+
     it('lists the selected tones as scale degrees', async () => {
       const user = userEvent.setup()
       render(<App />)

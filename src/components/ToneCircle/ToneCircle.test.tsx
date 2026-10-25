@@ -134,6 +134,31 @@ describe('ToneCircle', () => {
     expect(pressedNames()).toEqual([])
   })
 
+  describe('key (tonic)', () => {
+    it('rotates the tonic with the up/down arrows when it can be changed', async () => {
+      const user = userEvent.setup()
+      const onTonicChange = vi.fn()
+      const { rerender } = render(<ToneCircle defaultValue={C_MAJOR} tonic={9} onTonicChange={onTonicChange} />)
+      await user.tab()
+      await user.keyboard('{ArrowUp}')
+      expect(onTonicChange).toHaveBeenLastCalledWith(10)
+      rerender(<ToneCircle defaultValue={C_MAJOR} tonic={0} onTonicChange={onTonicChange} />)
+      await user.keyboard('{ArrowDown}')
+      expect(onTonicChange).toHaveBeenLastCalledWith(11)
+      // the tones stay
+      expect(pressedNames()).toEqual(['C', 'E', 'G'])
+    })
+
+    it('picks the root of the chord as the tonic when there is none yet', async () => {
+      const user = userEvent.setup()
+      const onTonicChange = vi.fn()
+      render(<ToneCircle defaultValue={fromPitchClasses([9, 0, 4])} onTonicChange={onTonicChange} />)
+      await user.tab()
+      await user.keyboard('{ArrowDown}')
+      expect(onTonicChange).toHaveBeenLastCalledWith(9)
+    })
+  })
+
   describe('window keys', () => {
     it('handles the arrow keys anywhere on the page when enabled', async () => {
       const user = userEvent.setup()

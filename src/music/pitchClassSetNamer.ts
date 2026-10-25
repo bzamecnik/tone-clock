@@ -1,6 +1,6 @@
 import { CHORD_TEMPLATES, SCALE_TEMPLATES, type NameTemplate } from './chordNames.ts'
 import { FLAT_NAMES, type PitchClassNames } from './pitchClassNames.ts'
-import { OCTAVE_SIZE, canonicWithRoot, mod, type PitchClassSet } from './pitchClassSet.ts'
+import { OCTAVE_SIZE, canonicWithRoot, mod, toPitchClasses, type PitchClassSet } from './pitchClassSet.ts'
 
 export interface SetName {
   /** Chord name, e.g. "Am7", or "" if unknown. */
@@ -18,4 +18,17 @@ export function nameSet(set: PitchClassSet, names: PitchClassNames = FLAT_NAMES)
     chord: fill(CHORD_TEMPLATES[canonic]),
     scale: fill(SCALE_TEMPLATES[canonic]),
   }
+}
+
+/**
+ * A sensible tonic for a set when no key is chosen yet: the root of its
+ * scale name, else of its chord name, else its lowest tone (C if empty).
+ */
+export function suggestTonic(set: PitchClassSet): number {
+  const { canonic, root } = canonicWithRoot(set)
+  const template = SCALE_TEMPLATES[canonic] ?? CHORD_TEMPLATES[canonic]
+  if (template) {
+    return mod(template.root + root, OCTAVE_SIZE)
+  }
+  return toPitchClasses(set)[0] ?? 0
 }

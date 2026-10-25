@@ -16,7 +16,7 @@ Features:
 - Delete (or submitting an empty chord field) clears all tones
 - chord and scale names (e.g. "Am7", "C diatonic (major)")
 - pick a key to see Roman numeral chord names (`IVm7 in A`) and scale
-  degrees (`1 b3 5`), optionally as bead labels
+  degrees (`1 b3 5`), optionally as bead labels; ↑ ↓ change the key
 - type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
   key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
 

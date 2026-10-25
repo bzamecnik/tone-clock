@@ -79,7 +79,14 @@ function App() {
         </output>
       </div>
       <div className="app__circle">
-        <ToneCircle value={tones} onChange={setTones} names={beadNames} tonic={key ?? undefined} windowKeys />
+        <ToneCircle
+          value={tones}
+          onChange={setTones}
+          names={beadNames}
+          tonic={key ?? undefined}
+          onTonicChange={setKey}
+          windowKeys
+        />
       </div>
       <output className="app__tones" aria-label="Selected tones">
         {spell(tones, FLAT_NAMES)}
@@ -91,7 +98,7 @@ function App() {
       )}
       <p className="app__hint">
         Click a tone to toggle it, drag it to move it or off the circle to remove it. Drag around the
-        circle or press ← → to transpose. Delete clears.
+        circle or press ← → to transpose, ↑ ↓ to change the key. Delete clears.
       </p>
       <div className="app__settings">
         <label>

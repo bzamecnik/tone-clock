@@ -131,6 +131,8 @@ src/
 - [x] drop the Clear/transpose buttons (empty input, Delete/Backspace,
       dragging and arrow keys replace them); a short hint explains the
       gestures
+- [x] ↑ ↓ rotate the key (the tones stay); without a key the first press
+      picks the root of the scale or chord name
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in

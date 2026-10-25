@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { FLAT_NAMES, type PitchClassNames } from '../../music/pitchClassNames.ts'
-import { EMPTY, has, toggle, transpose, type PitchClassSet } from '../../music/pitchClassSet.ts'
+import {
+  EMPTY,
+  OCTAVE_SIZE,
+  has,
+  mod,
+  toggle,
+  transpose,
+  type PitchClassSet,
+} from '../../music/pitchClassSet.ts'
+import { suggestTonic } from '../../music/pitchClassSetNamer.ts'
 import { chordPath } from './chordPath.ts'
 import {
   BEAD_RADIUS,
@@ -17,11 +26,17 @@ import './ToneCircle.css'
 const BEADS = beadLayout()
 const VIEW_BOX = `${-VIEW_RADIUS} ${-VIEW_RADIUS} ${2 * VIEW_RADIUS} ${2 * VIEW_RADIUS}`
 
-/** Arrow keys rotate the circle: right/up clockwise (up a semitone). Delete clears it. */
+/**
+ * Arrow keys rotate the circle: right/up clockwise (up a semitone). Left and
+ * right rotate the tones; up and down rotate the tonic if it can be changed,
+ * otherwise the tones too. Delete clears the tones.
+ */
 const TRANSPOSE_KEYS: Record<string, number> = {
   ArrowRight: 1,
-  ArrowUp: 1,
   ArrowLeft: -1,
+}
+const TONIC_KEYS: Record<string, number> = {
+  ArrowUp: 1,
   ArrowDown: -1,
 }
 
@@ -64,6 +79,8 @@ export interface ToneCircleProps {
   names?: PitchClassNames
   /** Tonic of the current key, highlighted with a ring. */
   tonic?: number
+  /** Called with the new tonic (null = no key) when the user changes the key. */
+  onTonicChange?: (tonic: number | null) => void
   /**
    * Handle the circle's keys (arrows) anywhere on the page, not only when the
    * circle has focus. Keys typed into form fields are left alone.
@@ -78,6 +95,7 @@ export function ToneCircle({
   onChange,
   names = FLAT_NAMES,
   tonic,
+  onTonicChange,
   windowKeys = false,
   className,
 }: ToneCircleProps) {
@@ -165,8 +183,13 @@ export function ToneCircle({
   }
 
   function handleCircleKeyDown(event: Pick<KeyboardEvent, 'key' | 'preventDefault'>) {
-    const offset = TRANSPOSE_KEYS[event.key]
-    if (offset !== undefined) {
+    const tonicOffset = TONIC_KEYS[event.key]
+    const offset = TRANSPOSE_KEYS[event.key] ?? (onTonicChange ? undefined : tonicOffset)
+    if (tonicOffset !== undefined && onTonicChange) {
+      event.preventDefault()
+      // the first press only picks a tonic
+      onTonicChange(tonic === undefined ? suggestTonic(tones) : mod(tonic + tonicOffset, OCTAVE_SIZE))
+    } else if (offset !== undefined) {
       event.preventDefault()
       change(transpose(tones, offset))
     } else if (CLEAR_KEYS.has(event.key)) {

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { CHORD_TEMPLATES, SCALE_TEMPLATES } from './chordNames.ts'
 import { SHARP_NAMES } from './pitchClassNames.ts'
 import { EMPTY, canonic, fromPitchClasses, transpose } from './pitchClassSet.ts'
-import { nameSet } from './pitchClassSetNamer.ts'
+import { nameSet, suggestTonic } from './pitchClassSetNamer.ts'
 
 const chord = (pitchClasses: number[]) => nameSet(fromPitchClasses(pitchClasses)).chord
 const scale = (pitchClasses: number[]) => nameSet(fromPitchClasses(pitchClasses)).scale
@@ -92,5 +92,21 @@ describe('nameSet', () => {
     expect(nameSet(EMPTY)).toEqual({ chord: '', scale: '' })
     expect(nameSet(fromPitchClasses([0]))).toEqual({ chord: '', scale: '' })
     expect(nameSet(fromPitchClasses([0, 1, 2]))).toEqual({ chord: '', scale: '' })
+  })
+})
+
+describe('suggestTonic', () => {
+  it('is the root of a named scale', () => {
+    expect(suggestTonic(fromPitchClasses([0, 2, 4, 5, 7, 9, 11]))).toBe(0)
+  })
+
+  it('is the root of a named chord otherwise', () => {
+    expect(suggestTonic(fromPitchClasses([9, 0, 4, 7]))).toBe(9)
+    expect(suggestTonic(fromPitchClasses([7, 11, 2, 5]))).toBe(7)
+  })
+
+  it('is the lowest tone of an unnamed set, or C for the empty set', () => {
+    expect(suggestTonic(fromPitchClasses([2, 3, 4, 5]))).toBe(2)
+    expect(suggestTonic(EMPTY)).toBe(0)
   })
 })
