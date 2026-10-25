@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { DEGREE_NAMES, FLAT_NAMES, SHARP_NAMES, relativeNames } from '../../music/pitchClassNames.ts'
 import { fromPitchClasses } from '../../music/pitchClassSet.ts'
 import { VIEW_RADIUS, beadLayout, markerLayout, type Point } from './geometry.ts'
+import { chordPath } from './chordPath.ts'
 import { ToneCircle } from './ToneCircle.tsx'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
@@ -297,6 +298,39 @@ describe('ToneCircle', () => {
     })
   })
 
+  describe('circle of fifths', () => {
+    it('arranges the beads and key markers in fifths, clockwise', () => {
+      render(<ToneCircle order="fifths" onTonicChange={() => {}} />)
+      const fifths = ['C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F']
+      expect(beads().map((b) => b.getAttribute('aria-label'))).toEqual(fifths)
+      expect(markers().map((m) => m.getAttribute('aria-label'))).toEqual(fifths.map((n) => `Key ${n}`))
+    })
+
+    it('rotates by a fifth per step with the arrow keys', async () => {
+      const user = userEvent.setup()
+      const onTonicChange = vi.fn()
+      render(<ToneCircle defaultValue={C_MAJOR} order="fifths" tonic={0} onTonicChange={onTonicChange} />)
+      await user.tab()
+      await user.keyboard('{ArrowRight}')
+      // C major -> G major
+      expect(pressedNames()).toEqual(['G', 'D', 'B'])
+      await user.keyboard('{ArrowLeft}{ArrowLeft}')
+      expect(pressedNames()).toEqual(['C', 'A', 'F'])
+      await user.keyboard('{ArrowUp}')
+      expect(onTonicChange).toHaveBeenLastCalledWith(7)
+      await user.keyboard('{ArrowDown}')
+      expect(onTonicChange).toHaveBeenLastCalledWith(5)
+    })
+
+    it('draws the chord path in the order around the circle', () => {
+      const { container } = render(<ToneCircle value={C_MAJOR} order="fifths" />)
+      expect(container.querySelector('.tone-circle__chord')).toHaveAttribute(
+        'd',
+        chordPath(C_MAJOR, 'fifths')!.d,
+      )
+    })
+  })
+
   describe('chord path', () => {
     function chordPathElement(container: HTMLElement) {
       return container.querySelector('.tone-circle__chord')
@@ -438,6 +472,34 @@ describe('ToneCircle', () => {
         fireEvent.pointerUp(svg, markerAt(9))
         expect(onTonicChange).toHaveBeenCalledExactlyOnceWith(null)
       })
+    })
+
+    it('transposes by fifths when rotating the circle of fifths', () => {
+      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} order="fifths" />)
+      fireEvent.pointerDown(svg, client({ x: 0, y: -30 }))
+      // a quarter turn clockwise = 3 fifths up: C major -> A major
+      fireEvent.pointerMove(svg, client({ x: 30, y: 0 }))
+      fireEvent.pointerUp(svg, client({ x: 30, y: 0 }))
+      expect(pressedNames()).toEqual(['A', 'E', 'Db'])
+    })
+
+    it('moves tones and the key to the beads under the pointer on the circle of fifths', () => {
+      const onTonicChange = vi.fn()
+      const FIFTHS = beadLayout('fifths')
+      const { svg } = renderSized(
+        <ToneCircle defaultValue={C_MAJOR} order="fifths" tonic={0} onTonicChange={onTonicChange} />,
+      )
+      // drag E onto the bead next to it, counterclockwise: A
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'E' }), client(FIFTHS[4].center))
+      fireEvent.pointerMove(svg, client(FIFTHS[9].center))
+      fireEvent.pointerUp(svg, client(FIFTHS[9].center))
+      expect(pressedNames()).toEqual(['C', 'G', 'A'])
+
+      const marker = markerLayout('fifths')
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'Key C' }), client(marker[0].hitCenter))
+      fireEvent.pointerMove(svg, client(marker[7].hitCenter))
+      expect(onTonicChange).toHaveBeenLastCalledWith(7)
+      fireEvent.pointerUp(svg, client(marker[7].hitCenter))
     })
 
     it('rotates relative to the starting set and can rotate back', () => {

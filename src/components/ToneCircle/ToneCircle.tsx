@@ -19,19 +19,30 @@ import {
   clientToView,
   markerLayout,
   nearestPitchClass,
+  orderStep,
   pitchClassAt,
+  positionOf,
+  type Bead,
+  type CircleOrder,
+  type Marker,
   pointAngle,
   type Point,
 } from './geometry.ts'
 import { applyDrop, rotationSteps } from './gestures.ts'
 import './ToneCircle.css'
 
-const BEADS = beadLayout()
-const MARKERS = markerLayout()
+/** Beads and key markers of both orders, in the order around the circle. */
+const LAYOUTS = Object.fromEntries(
+  (['semitones', 'fifths'] as const).map((order) => {
+    const byPosition = <T extends { pitchClass: number }>(items: T[]) =>
+      [...items].sort((a, b) => positionOf(a.pitchClass, order) - positionOf(b.pitchClass, order))
+    return [order, { beads: byPosition(beadLayout(order)), markers: byPosition(markerLayout(order)) }]
+  }),
+) as Record<CircleOrder, { beads: Bead[]; markers: Marker[] }>
 const VIEW_BOX = `${-VIEW_RADIUS} ${-VIEW_RADIUS} ${2 * VIEW_RADIUS} ${2 * VIEW_RADIUS}`
 
 /**
- * Arrow keys rotate the circle: right/up clockwise (up a semitone). Left and
+ * Arrow keys rotate the circle by one step: right/up clockwise. Left and
  * right rotate the tones; up and down rotate the tonic if it can be changed,
  * otherwise the tones too. Delete clears the tones.
  */
@@ -138,6 +149,12 @@ export interface ToneCircleProps {
   names?: PitchClassNames
   /** Optional smaller labels shown below the main ones (e.g. scale degrees). */
   secondaryNames?: PitchClassNames
+  /**
+   * Order of the tones around the circle: chromatic ("semitones", default) or
+   * the circle of "fifths". Rotating by one step (arrow keys, dragging)
+   * transposes by the interval between neighbors.
+   */
+  order?: CircleOrder
   /** Root of the chord, outlined on its bead. */
   root?: number
   /** Tonic of the current key, marked by a triangle outside its bead. */
@@ -162,6 +179,7 @@ export function ToneCircle({
   onChange,
   names = FLAT_NAMES,
   secondaryNames,
+  order = 'semitones',
   root,
   tonic,
   onTonicChange,
@@ -173,7 +191,9 @@ export function ToneCircle({
   const svgRef = useRef<SVGSVGElement>(null)
   const isControlled = value !== undefined
   const tones = isControlled ? value : internalValue
-  const chord = chordPath(tones)
+  const chord = chordPath(tones, order)
+  const step = orderStep(order)
+  const { beads, markers } = LAYOUTS[order]
 
   function change(newTones: PitchClassSet) {
     if (newTones === tones) {
@@ -241,13 +261,13 @@ export function ToneCircle({
     } else if (drag.kind === 'marker') {
       const moved = hasMoved(drag, event)
       // the key follows the pointer around the circle
-      const current = moved && point ? nearestPitchClass(point) : drag.current
+      const current = moved && point ? nearestPitchClass(point, order) : drag.current
       if (current !== drag.current) {
         onTonicChange?.(current)
       }
       setDrag({ ...drag, moved, current })
     } else if (drag.kind === 'rotate' && point) {
-      change(transpose(drag.startTones, rotationSteps(drag.startAngle, pointAngle(point))))
+      change(transpose(drag.startTones, step * rotationSteps(drag.startAngle, pointAngle(point))))
     }
   }
 
@@ -262,7 +282,7 @@ export function ToneCircle({
       }
     } else if (drag.kind === 'bead') {
       const point = toViewPoint(event)
-      const target = drag.moved && point ? pitchClassAt(point) : drag.source
+      const target = drag.moved && point ? pitchClassAt(point, order) : drag.source
       change(applyDrop(tones, drag.source, target))
     }
   }
@@ -279,10 +299,10 @@ export function ToneCircle({
     if (tonicOffset !== undefined && onTonicChange) {
       event.preventDefault()
       // the first press only picks a tonic
-      onTonicChange(tonic === undefined ? suggestTonic(tones) : mod(tonic + tonicOffset, OCTAVE_SIZE))
+      onTonicChange(tonic === undefined ? suggestTonic(tones) : mod(tonic + step * tonicOffset, OCTAVE_SIZE))
     } else if (offset !== undefined) {
       event.preventDefault()
-      change(transpose(tones, offset))
+      change(transpose(tones, step * offset))
     } else if (CLEAR_KEYS.has(event.key)) {
       event.preventDefault()
       change(EMPTY)
@@ -356,7 +376,7 @@ export function ToneCircle({
           aria-hidden="true"
         />
       )}
-      {BEADS.map(({ pitchClass, center }) => {
+      {beads.map(({ pitchClass, center }) => {
         const active = has(tones, pitchClass)
         const name = names[pitchClass]
         const beadClasses = [
@@ -380,7 +400,7 @@ export function ToneCircle({
           </g>
         )
       })}
-      {MARKERS.map(({ pitchClass, tip, base, hitCenter, hitRadius }) => {
+      {markers.map(({ pitchClass, tip, base, hitCenter, hitRadius }) => {
         const active = pitchClass === tonic
         if (!active && !onTonicChange) {
           return null
@@ -406,7 +426,7 @@ export function ToneCircle({
       {ghost && ghost.point && (
         <g
           className={
-            pitchClassAt(ghost.point) === null
+            pitchClassAt(ghost.point, order) === null
               ? 'tone-circle__ghost tone-circle__ghost--remove'
               : 'tone-circle__ghost'
           }
