@@ -204,19 +204,18 @@ function App() {
           onChange={setTheme}
         />
       </div>
+      {/* the settings show their own keys next to the toggles */}
       <ul className="app__hint">
-        <li>Click a tone to toggle it, drag it to move it or off the circle to remove it.</li>
         <li>
-          Drag around the circle or press <kbd>←</kbd> <kbd>→</kbd> to transpose.
+          Click a tone to toggle it, drag it to move it or off the circle to remove it.{' '}
+          <kbd>Delete</kbd> clears all tones.
         </li>
         <li>
-          Click or drag a triangle, or press <kbd>↑</kbd> <kbd>↓</kbd>, to choose the key.
+          Transpose: <kbd>←</kbd> <kbd>→</kbd> or drag around the circle.
         </li>
-        <li><kbd>L</kbd> swaps note names and degrees.</li>
-        <li><kbd>F</kbd> switches to the circle of fifths and back.</li>
-        <li><kbd>C</kbd> colors the tones by how close they are to the key.</li>
-        <li><kbd>T</kbd> switches the theme: auto (as the system), light or dark.</li>
-        <li><kbd>Delete</kbd> clears all tones.</li>
+        <li>
+          Select key: <kbd>↑</kbd> <kbd>↓</kbd> or click or drag a triangle.
+        </li>
       </ul>
     </main>
   )

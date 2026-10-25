@@ -69,7 +69,7 @@ describe('App', () => {
   it('shows the keys in the hint as keyboard keys', () => {
     const { container } = render(<App />)
     const keys = [...container.querySelectorAll('.app__hint kbd')].map((k) => k.textContent)
-    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'F', 'C', 'T', 'Delete'])
+    expect(keys).toEqual(['Delete', '←', '→', '↑', '↓'])
   })
 
   describe('theme', () => {
