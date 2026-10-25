@@ -9,6 +9,7 @@ import {
   transpose,
   type PitchClassSet,
 } from '../../music/pitchClassSet.ts'
+import { isDiatonic, keyLevel } from '../../music/keyLevel.ts'
 import { suggestTonic } from '../../music/pitchClassSetNamer.ts'
 import { useWindowKeys } from '../../useWindowKeys.ts'
 import { chordPath } from './chordPath.ts'
@@ -157,6 +158,12 @@ export interface ToneCircleProps {
    * transposes by the interval between neighbors.
    */
   order?: CircleOrder
+  /**
+   * Color the beads by how "inside" the key (tonic) they are, from green
+   * (degree 2) via yellow (the tritone 4-7) to red (b6), and outline the
+   * diatonic ones. See keyLevel.
+   */
+  keyColors?: boolean
   /** Root of the chord, outlined on its bead. */
   root?: number
   /** Tonic of the current key, marked by a triangle outside its bead. */
@@ -182,6 +189,7 @@ export function ToneCircle({
   names = FLAT_NAMES,
   secondaryNames,
   order = 'semitones',
+  keyColors = false,
   root,
   tonic,
   onTonicChange,
@@ -196,6 +204,7 @@ export function ToneCircle({
   const chord = chordPath(tones, order)
   const step = orderStep(order)
   const { beads, markers } = LAYOUTS[order]
+  const colorTonic = keyColors ? tonic : undefined
 
   function change(newTones: PitchClassSet) {
     if (newTones === tones) {
@@ -354,7 +363,12 @@ export function ToneCircle({
 
   const ghost = drag?.kind === 'bead' && drag.moved && drag.point ? drag : null
   const grabbing = drag?.kind === 'rotate' || (drag?.kind === 'marker' && drag.moved)
-  const classes = ['tone-circle', grabbing && 'tone-circle--rotating', className]
+  const classes = [
+    'tone-circle',
+    grabbing && 'tone-circle--rotating',
+    colorTonic !== undefined && 'tone-circle--key-colors',
+    className,
+  ]
 
   return (
     <svg
@@ -385,6 +399,7 @@ export function ToneCircle({
           'tone-circle__bead',
           active && 'tone-circle__bead--active',
           pitchClass === root && 'tone-circle__bead--root',
+          colorTonic !== undefined && isDiatonic(pitchClass, colorTonic) && 'tone-circle__bead--diatonic',
         ]
         return (
           <g
@@ -395,6 +410,7 @@ export function ToneCircle({
             aria-label={name}
             aria-pressed={active}
             data-pitch-class={pitchClass}
+            data-level={colorTonic === undefined ? undefined : keyLevel(pitchClass, colorTonic)}
             onKeyDown={(event) => handleBeadKeyDown(event, pitchClass)}
           >
             <circle cx={center.x} cy={center.y} r={BEAD_RADIUS} />

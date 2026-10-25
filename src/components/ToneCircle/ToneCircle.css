@@ -4,6 +4,8 @@
   --tone-circle-bead-active: #86b359;
   --tone-circle-label: #fff;
   --tone-circle-tonic: #4a6b2a;
+  --tone-circle-root: #2b3320;
+  --tone-circle-chord-neutral: rgb(60 60 60 / 0.22);
   --tone-circle-focus: #2f6db5;
 
   display: block;
@@ -21,9 +23,46 @@
   fill: var(--tone-circle-bead-active);
 }
 
+/*
+ * Key colors: the hue tells the level of a tone in the key (keyLevel), from
+ * green (+3, degree 2) via yellow (0, the tritone 4-7) to red (-3, b6);
+ * lightness tells active from inactive tones, as without colors.
+ */
+.tone-circle__bead[data-level='3'] { --level-hue: 115; }
+.tone-circle__bead[data-level='2'] { --level-hue: 95; }
+.tone-circle__bead[data-level='1'] { --level-hue: 75; }
+.tone-circle__bead[data-level='0'] { --level-hue: 52; }
+.tone-circle__bead[data-level='-1'] { --level-hue: 35; }
+.tone-circle__bead[data-level='-2'] { --level-hue: 18; }
+.tone-circle__bead[data-level='-3'] { --level-hue: 0; }
+
+.tone-circle__bead[data-level] circle {
+  fill: hsl(var(--level-hue) 45% 80%);
+}
+
+.tone-circle__bead--active[data-level] circle {
+  fill: hsl(var(--level-hue) 55% 47%);
+}
+
+/* the diatonic scale: a thin outline, a cue that does not rely on hue */
+.tone-circle__bead--diatonic circle {
+  stroke: hsl(var(--level-hue) 40% 38%);
+  stroke-width: 1;
+}
+
+/* neutral, to stand out on any bead color; after the diatonic outline, which it overrides */
 .tone-circle__bead--root circle {
-  stroke: var(--tone-circle-tonic);
+  stroke: var(--tone-circle-root);
   stroke-width: 2.5;
+}
+
+/* a neutral chord path, not to compete with the colored beads */
+.tone-circle--key-colors .tone-circle__chord {
+  stroke: var(--tone-circle-chord-neutral);
+}
+
+.tone-circle--key-colors .tone-circle__chord--closed {
+  fill: var(--tone-circle-chord-neutral);
 }
 
 .tone-circle__marker {

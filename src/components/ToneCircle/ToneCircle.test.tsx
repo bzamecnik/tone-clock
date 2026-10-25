@@ -298,6 +298,31 @@ describe('ToneCircle', () => {
     })
   })
 
+  describe('key colors', () => {
+    const level = (name: string) => screen.getByRole('button', { name }).getAttribute('data-level')
+
+    it('marks each bead with its level in the key and the diatonic ones', () => {
+      const { container } = render(<ToneCircle tonic={0} keyColors />)
+      expect(container.querySelector('svg')).toHaveClass('tone-circle--key-colors')
+      expect(level('D')).toBe('3')
+      expect(level('F')).toBe('0')
+      expect(level('Ab')).toBe('-3')
+      const diatonic = beads()
+        .filter((b) => b.classList.contains('tone-circle__bead--diatonic'))
+        .map((b) => b.getAttribute('aria-label'))
+      expect(diatonic).toEqual(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
+    })
+
+    it('is off without a key or when not enabled', () => {
+      const { container, rerender } = render(<ToneCircle keyColors />)
+      expect(container.querySelector('svg')).not.toHaveClass('tone-circle--key-colors')
+      expect(level('D')).toBeNull()
+      rerender(<ToneCircle tonic={0} />)
+      expect(level('D')).toBeNull()
+      expect(container.querySelector('.tone-circle__bead--diatonic')).toBeNull()
+    })
+  })
+
   describe('circle of fifths', () => {
     it('arranges the beads and key markers in fifths, clockwise', () => {
       render(<ToneCircle order="fifths" onTonicChange={() => {}} />)
