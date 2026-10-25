@@ -31,13 +31,13 @@
  * lightness and all inactive beads another, so brightness alone tells active
  * from inactive tones (as without colors), whatever the hue.
  */
-.tone-circle__bead[data-level='3'] { --level-hue: 145; }
-.tone-circle__bead[data-level='2'] { --level-hue: 128; }
-.tone-circle__bead[data-level='1'] { --level-hue: 112; }
-.tone-circle__bead[data-level='0'] { --level-hue: 95; }
-.tone-circle__bead[data-level='-1'] { --level-hue: 65; }
-.tone-circle__bead[data-level='-2'] { --level-hue: 42; }
-.tone-circle__bead[data-level='-3'] { --level-hue: 22; }
+[data-level='3'] { --level-hue: 145; }
+[data-level='2'] { --level-hue: 128; }
+[data-level='1'] { --level-hue: 112; }
+[data-level='0'] { --level-hue: 95; }
+[data-level='-1'] { --level-hue: 65; }
+[data-level='-2'] { --level-hue: 42; }
+[data-level='-3'] { --level-hue: 22; }
 
 .tone-circle__bead[data-level] circle {
   fill: oklch(0.91 0.05 var(--level-hue));
@@ -100,6 +100,24 @@
 .tone-circle__marker--active polygon {
   fill: var(--tone-circle-tonic);
   stroke: var(--tone-circle-tonic);
+}
+
+/* with key colors, markers take the hue of their tone's level */
+.tone-circle__marker[data-level] polygon {
+  stroke: oklch(0.82 0.07 var(--level-hue));
+}
+
+.tone-circle__marker[data-level]:hover polygon {
+  stroke: oklch(0.5 0.1 var(--level-hue));
+}
+
+.tone-circle__marker--active[data-level] polygon {
+  fill: oklch(0.5 0.1 var(--level-hue));
+  stroke: oklch(0.5 0.1 var(--level-hue));
+}
+
+.tone-circle__marker[data-level]:focus-visible polygon {
+  stroke: var(--tone-circle-focus);
 }
 
 .tone-circle__marker-hit {

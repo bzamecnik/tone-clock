@@ -452,7 +452,13 @@ export function ToneCircle({
           onKeyDown: (event: KeyboardEvent) => handleMarkerKeyDown(event, pitchClass),
         }
         return (
-          <g key={pitchClass} className={className} aria-hidden={interactive ? undefined : true} {...interactive}>
+          <g
+            key={pitchClass}
+            className={className}
+            aria-hidden={interactive ? undefined : true}
+            data-level={colorTonic === undefined ? undefined : keyLevel(pitchClass, colorTonic)}
+            {...interactive}
+          >
             <circle className="tone-circle__marker-hit" cx={hitCenter.x} cy={hitCenter.y} r={hitRadius} />
             <polygon points={points} />
           </g>

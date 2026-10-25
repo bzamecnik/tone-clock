@@ -317,6 +317,15 @@ describe('ToneCircle', () => {
       expect(level('Ab')).toBe('-3')
     })
 
+    it('gives the key markers the levels of their tones', () => {
+      const { rerender } = render(<ToneCircle tonic={0} onTonicChange={() => {}} keyColors />)
+      const markerLevel = (name: string) => screen.getByRole('button', { name }).getAttribute('data-level')
+      expect(markerLevel('Key D')).toBe('3')
+      expect(markerLevel('Key Ab')).toBe('-3')
+      rerender(<ToneCircle tonic={0} onTonicChange={() => {}} />)
+      expect(markerLevel('Key D')).toBeNull()
+    })
+
     it('is off without a key or when not enabled', () => {
       const { container, rerender } = render(<ToneCircle keyColors />)
       expect(container.querySelector('svg')).not.toHaveClass('tone-circle--key-colors')
