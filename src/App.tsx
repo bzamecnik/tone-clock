@@ -16,6 +16,7 @@ import {
   type PitchClassSet,
 } from './music/pitchClassSet.ts'
 import { useStoredState } from './useStoredState.ts'
+import { useWindowKeys } from './useWindowKeys.ts'
 import './App.css'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
@@ -53,6 +54,12 @@ function App() {
   const [tones, setTones] = useStoredState('tone-circle:tones', C_MAJOR, parseTones)
   const [key, setKey] = useStoredState('tone-circle:key', null, parseKey, serializeKey)
   const [labels, setLabels] = useStoredState<Labels>('tone-circle:labels', 'notes', parseLabels)
+
+  useWindowKeys((event) => {
+    if (event.key === 'l' || event.key === 'L') {
+      setLabels(labels === 'notes' ? 'degrees' : 'notes')
+    }
+  })
 
   const { chord, scale } = nameSet(tones)
   const degreeNames = key === null ? null : relativeNames(DEGREE_NAMES, key)
@@ -109,21 +116,8 @@ function App() {
       </table>
       <p className="app__hint">
         Click a tone to toggle it, drag it to move it or off the circle to remove it. Drag around the
-        circle or press ← → to transpose. Click or drag a triangle, or press ↑ ↓, to choose the key. Delete clears.
+        circle or press ← → to transpose. Click or drag a triangle, or press ↑ ↓, to choose the key; L swaps note names and degrees. Delete clears.
       </p>
-      <div className="app__settings">
-        <label>
-          Labels
-          <select
-            value={labels}
-            disabled={key === null}
-            onChange={(e) => setLabels(parseLabels(e.target.value) ?? 'notes')}
-          >
-            <option value="notes">Notes</option>
-            <option value="degrees">Degrees</option>
-          </select>
-        </label>
-      </div>
     </main>
   )
 }

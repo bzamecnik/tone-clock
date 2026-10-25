@@ -17,8 +17,7 @@ Features:
 - chord and scale names (e.g. "Am7", "C diatonic (major)")
 - pick a key (click or drag a triangle outside the circle, or press ↑ ↓)
   to see Roman numeral chord names (`IVm7 in A`) and scale degrees
-  (`1 b3 5`), also on the beads under the note names (or the other way
-  round)
+  (`1 b3 5`), also on the beads under the note names (L swaps them)
 - type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
   key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
 

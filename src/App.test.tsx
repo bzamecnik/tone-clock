@@ -166,36 +166,45 @@ describe('App', () => {
       expect(selectedTones()).toBe('E G C')
     })
 
-    it('can label the beads by scale degrees', async () => {
+    it('swaps note names and degrees on the beads with the L key', async () => {
       const user = userEvent.setup()
       render(<App />)
-      const labels = screen.getByRole('combobox', { name: 'Labels' })
-      expect(labels).toBeDisabled()
+      expect(screen.queryByRole('combobox', { name: 'Labels' })).toBeNull()
 
       await selectKey(user, 'A')
-      expect(labels).toBeEnabled()
       // note names first, degrees as secondary labels
       expect(screen.getByRole('button', { name: 'A' })).toHaveTextContent('A1')
-      await user.selectOptions(labels, 'Degrees')
+      await user.keyboard('l')
       expect(screen.getByRole('button', { name: '1' })).toHaveTextContent('1A')
       expect(screen.getByRole('button', { name: '1' })).toHaveAttribute('aria-pressed', 'false')
       expect(screen.getByRole('button', { name: 'b3' })).toHaveAttribute('aria-pressed', 'true')
+      await user.keyboard('L')
+      expect(screen.getByRole('button', { name: 'A' })).toHaveTextContent('A1')
+      await user.keyboard('l')
 
       // without a key, beads fall back to note names
       await selectKey(user, 'A')
-      expect(screen.getByRole('button', { name: 'C' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'C' })).toHaveTextContent(/^C$/)
+    })
+
+    it('does not swap the labels when typing an L into the chord field', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await selectKey(user, 'A')
+      await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'l')
+      expect(screen.getByRole('button', { name: 'A' })).toBeInTheDocument()
     })
 
     it('remembers the key and labels', async () => {
       const user = userEvent.setup()
       const { unmount } = render(<App />)
       await selectKey(user, 'D')
-      await user.selectOptions(screen.getByRole('combobox', { name: 'Labels' }), 'Degrees')
+      await user.keyboard('l')
       unmount()
 
       render(<App />)
       expect(selectedKey()).toBe('Key D')
-      expect(screen.getByRole('combobox', { name: 'Labels' })).toHaveValue('degrees')
+      expect(screen.getByRole('button', { name: '1' })).toHaveTextContent('1D')
     })
   })
 

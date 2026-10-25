@@ -70,19 +70,3 @@
   font-size: 0.85rem;
   text-align: center;
 }
-
-.app__settings {
-  display: flex;
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.app__settings label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.app__settings select {
-  font-size: 1rem;
-}

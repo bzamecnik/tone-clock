@@ -141,6 +141,8 @@ src/
       degrees) large, the other one small below it
 - [x] the selected notes and degrees are shown as aligned columns, ordered
       from the tonic; the names above the circle don't jump with the key
+- [x] the L key swaps note names and degrees on the beads (replaces the
+      Labels dropdown)
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in
