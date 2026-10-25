@@ -5,6 +5,7 @@ import {
   VIEW_RADIUS,
   beadLayout,
   markerLayout,
+  positionOf,
   nearestPitchClass,
   clientToView,
   pitchClassAt,
@@ -43,6 +44,31 @@ describe('bead layout', () => {
       // apex lies on the same ray as the center
       expect(bead.apex.x * bead.center.y - bead.apex.y * bead.center.x).toBeCloseTo(0)
     }
+  })
+})
+
+describe('circle of fifths', () => {
+  it('maps pitch classes to positions in steps of a fifth', () => {
+    expect([0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5].map((pc) => positionOf(pc, 'fifths'))).toEqual([
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    ])
+    expect(positionOf(7, 'semitones')).toBe(7)
+  })
+
+  it('places the beads and markers at the positions of their pitch classes', () => {
+    const semitones = beadLayout()
+    const fifths = beadLayout('fifths')
+    // G is next to C, clockwise
+    expect(fifths[7].center.x).toBeCloseTo(semitones[1].center.x)
+    expect(fifths[7].center.y).toBeCloseTo(semitones[1].center.y)
+    expect(fifths[7].position).toBe(1)
+    expect(markerLayout('fifths')[5].tip.x).toBeCloseTo(markerLayout()[11].tip.x)
+  })
+
+  it('finds the pitch class at a position', () => {
+    const at = beadLayout()[1].center
+    expect(pitchClassAt(at, 'fifths')).toBe(7)
+    expect(nearestPitchClass(at, 'fifths')).toBe(7)
   })
 })
 

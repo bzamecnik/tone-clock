@@ -33,6 +33,11 @@ describe('chordPath', () => {
     expect(chordPath(fromPitchClasses([0, 3]))?.d).toBe('M 0 -61 Q 15.25 -15.25 61 0')
   })
 
+  it('connects the tones in the order of their positions on the circle of fifths', () => {
+    // C major (C E G) on the circle of fifths is drawn like C Db E (positions 0, 1, 4)
+    expect(chordPath(fromPitchClasses([0, 4, 7]), 'fifths')).toEqual(chordPath(fromPitchClasses([0, 1, 4])))
+  })
+
   it('draws a closed curved polygon for three or more tones', () => {
     const path = chordPath(fromPitchClasses([0, 4, 8]))
     expect(path?.closed).toBe(true)

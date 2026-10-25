@@ -1,6 +1,7 @@
 import { OCTAVE_SIZE, mod, toPitchClasses, type PitchClassSet } from '../../music/pitchClassSet.ts'
-import { beadLayout, type Point } from './geometry.ts'
+import { beadLayout, positionOf, type CircleOrder, type Point } from './geometry.ts'
 
+// in the chromatic order, indexed by position
 const APEXES = beadLayout().map((bead) => bead.apex)
 
 export interface ChordPath {
@@ -26,7 +27,7 @@ function formatPoint(p: Point): string {
 }
 
 /**
- * Quadratic Bézier from `from` to `to` whose control point is the midpoint of
+ * Quadratic Bézier between the beads at positions `from` and `to` whose control point is the midpoint of
  * the apexes pulled towards the center: tritones bend to the center,
  * semitones stay almost straight (as in the original ChordPath).
  */
@@ -38,19 +39,21 @@ function quadSegment(from: number, to: number): string {
   return `Q ${formatPoint(control)} ${formatPoint(b)}`
 }
 
-/** Curved polygon connecting the active pitch classes in ascending order. */
-export function chordPath(tones: PitchClassSet): ChordPath | null {
-  const pitchClasses = toPitchClasses(tones)
-  if (pitchClasses.length < 2) {
+/** Curved polygon connecting the active pitch classes clockwise around the circle. */
+export function chordPath(tones: PitchClassSet, order: CircleOrder = 'semitones'): ChordPath | null {
+  const positions = toPitchClasses(tones)
+    .map((pc) => positionOf(pc, order))
+    .sort((a, b) => a - b)
+  if (positions.length < 2) {
     return null
   }
-  const closed = pitchClasses.length >= 3
-  const parts = [`M ${formatPoint(APEXES[pitchClasses[0]])}`]
-  for (let i = 1; i < pitchClasses.length; i++) {
-    parts.push(quadSegment(pitchClasses[i - 1], pitchClasses[i]))
+  const closed = positions.length >= 3
+  const parts = [`M ${formatPoint(APEXES[positions[0]])}`]
+  for (let i = 1; i < positions.length; i++) {
+    parts.push(quadSegment(positions[i - 1], positions[i]))
   }
   if (closed) {
-    parts.push(quadSegment(pitchClasses[pitchClasses.length - 1], pitchClasses[0]), 'Z')
+    parts.push(quadSegment(positions[positions.length - 1], positions[0]), 'Z')
   }
   return { d: parts.join(' '), closed }
 }

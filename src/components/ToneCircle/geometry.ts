@@ -1,4 +1,4 @@
-import { OCTAVE_SIZE } from '../../music/pitchClassSet.ts'
+import { OCTAVE_SIZE, mod } from '../../music/pitchClassSet.ts'
 
 /**
  * Geometry of the tone circle in SVG user units. The beads follow the
@@ -26,25 +26,52 @@ export interface Point {
   y: number
 }
 
+/**
+ * Order of the pitch classes around the circle: chromatic (in semitones) or
+ * the circle of fifths, where diatonic scales form clusters of neighbors.
+ */
+export type CircleOrder = 'semitones' | 'fifths'
+
+const ORDER_STEPS: Record<CircleOrder, number> = { semitones: 1, fifths: 7 }
+
+/** Semitones between neighboring beads, clockwise. */
+export function orderStep(order: CircleOrder): number {
+  return ORDER_STEPS[order]
+}
+
+/**
+ * Position of a pitch class around the circle (0 = top, clockwise). The
+ * mapping is its own inverse (7 * 7 = 49 = 1 mod 12), so it also gives the
+ * pitch class at a position.
+ */
+export function positionOf(pitchClass: number, order: CircleOrder): number {
+  return mod(pitchClass * ORDER_STEPS[order], OCTAVE_SIZE)
+}
+
 export interface Bead {
   pitchClass: number
+  /** Position around the circle (0 = top, clockwise). */
+  position: number
   center: Point
   /** Inner edge of the bead, where chord polygon edges connect. */
   apex: Point
 }
 
-/** Angle of a pitch class in radians, clockwise from the top (y down). */
-export function pitchClassAngle(pitchClass: number): number {
-  return (pitchClass / OCTAVE_SIZE) * 2 * Math.PI - Math.PI / 2
+/** Angle of a position in radians, clockwise from the top (y down). */
+function positionAngle(position: number): number {
+  return (position / OCTAVE_SIZE) * 2 * Math.PI - Math.PI / 2
 }
 
-export function beadLayout(): Bead[] {
+/** Beads indexed by pitch class. */
+export function beadLayout(order: CircleOrder = 'semitones'): Bead[] {
   return Array.from({ length: OCTAVE_SIZE }, (_, pitchClass) => {
-    const angle = pitchClassAngle(pitchClass)
+    const position = positionOf(pitchClass, order)
+    const angle = positionAngle(position)
     const x = Math.cos(angle)
     const y = Math.sin(angle)
     return {
       pitchClass,
+      position,
       center: { x: CIRCLE_RADIUS * x, y: CIRCLE_RADIUS * y },
       apex: { x: APEX_RADIUS * x, y: APEX_RADIUS * y },
     }
@@ -59,9 +86,10 @@ export interface Marker {
   hitRadius: number
 }
 
-export function markerLayout(): Marker[] {
+/** Key markers indexed by pitch class. */
+export function markerLayout(order: CircleOrder = 'semitones'): Marker[] {
   return Array.from({ length: OCTAVE_SIZE }, (_, pitchClass) => {
-    const angle = pitchClassAngle(pitchClass)
+    const angle = positionAngle(positionOf(pitchClass, order))
     // radial (outwards) and tangential unit vectors
     const r = { x: Math.cos(angle), y: Math.sin(angle) }
     const t = { x: -r.y, y: r.x }
@@ -87,17 +115,18 @@ export function pointAngle({ x, y }: Point): number {
 }
 
 /** The pitch class in the direction of a point from the center. */
-export function nearestPitchClass(point: Point): number {
-  return Math.round((pointAngle(point) / (2 * Math.PI)) * OCTAVE_SIZE) % OCTAVE_SIZE
+export function nearestPitchClass(point: Point, order: CircleOrder = 'semitones'): number {
+  const position = Math.round((pointAngle(point) / (2 * Math.PI)) * OCTAVE_SIZE) % OCTAVE_SIZE
+  return positionOf(position, order)
 }
 
 /** The bead under a point, or null if the point is off the ring of beads. */
-export function pitchClassAt(point: Point): number | null {
+export function pitchClassAt(point: Point, order: CircleOrder = 'semitones'): number | null {
   const radius = Math.hypot(point.x, point.y)
   if (radius < CIRCLE_RADIUS - BEAD_RADIUS || radius > CIRCLE_RADIUS + BEAD_RADIUS) {
     return null
   }
-  return nearestPitchClass(point)
+  return nearestPitchClass(point, order)
 }
 
 export interface Rect {
