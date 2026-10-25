@@ -1,12 +1,36 @@
+/*
+ * Narrow screens: one centered column. Wide screens: the circle on the left
+ * as tall as the window allows, a panel with the input, names, tones and
+ * hint on the right.
+ */
 .app {
+  display: grid;
+  grid-template-areas:
+    'title'
+    'top'
+    'circle'
+    'tones'
+    'hint';
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.app__title {
+  grid-area: title;
+  justify-self: start;
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #888;
+}
+
+.app__top {
+  grid-area: top;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
-}
-
-.app h1 {
-  font-weight: 400;
+  width: 100%;
 }
 
 .app__names {
@@ -41,10 +65,12 @@
 }
 
 .app__circle {
+  grid-area: circle;
   width: min(100%, 540px);
 }
 
 .app__tones {
+  grid-area: tones;
   min-height: 1.5em;
   margin: 0.5rem 0;
   border-collapse: collapse;
@@ -64,9 +90,56 @@
 }
 
 .app__hint {
+  grid-area: hint;
   max-width: 28rem;
   margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
   color: #888;
   font-size: 0.85rem;
+  line-height: 1.5;
   text-align: center;
+}
+
+@media (min-width: 760px) {
+  .app {
+    grid-template-areas:
+      'title title'
+      'circle top'
+      'circle tones'
+      'circle hint';
+    grid-template-columns: auto minmax(16rem, 22rem);
+    grid-template-rows: auto auto auto 1fr;
+    justify-content: center;
+    justify-items: start;
+    align-items: start;
+    column-gap: 2.5rem;
+  }
+
+  .app__circle {
+    /* as large as the window height allows (minus the title and padding) */
+    width: min(calc(100vw - 22rem - 6rem), calc(100dvh - 3.5rem), 760px);
+  }
+
+  .app__top,
+  .app__names {
+    align-items: flex-start;
+  }
+
+  .app__top {
+    margin-top: 2rem;
+  }
+
+  .app__top .chord-input {
+    width: 100%;
+  }
+
+  .app__hint {
+    margin-top: 1.5rem;
+    text-align: left;
+  }
+
+  .app__hint li + li {
+    margin-top: 0.25rem;
+  }
 }

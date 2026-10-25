@@ -72,20 +72,22 @@ function App() {
 
   return (
     <main className="app">
-      <h1>Tone Circle</h1>
-      <ChordInput onSubmit={setTones} tonic={key ?? undefined} />
-      <div className="app__names">
-        <output className="app__chord" aria-label="Chord name">
-          {chord}
-        </output>
-        {/* always present (maybe empty), so that the layout does not jump */}
-        <span className="app__relative">
-          <output aria-label="Relative chord name">{relativeChord}</output>
-          {key !== null && relativeChord && ` in ${FLAT_NAMES[key]}`}
-        </span>
-        <output className="app__scale" aria-label="Scale name">
-          {scale}
-        </output>
+      <h1 className="app__title">Tone Circle</h1>
+      <div className="app__top">
+        <ChordInput onSubmit={setTones} tonic={key ?? undefined} />
+        <div className="app__names">
+          <output className="app__chord" aria-label="Chord name">
+            {chord}
+          </output>
+          {/* always present (maybe empty), so that the layout does not jump */}
+          <span className="app__relative">
+            <output aria-label="Relative chord name">{relativeChord}</output>
+            {key !== null && relativeChord && ` in ${FLAT_NAMES[key]}`}
+          </span>
+          <output className="app__scale" aria-label="Scale name">
+            {scale}
+          </output>
+        </div>
       </div>
       <div className="app__circle">
         <ToneCircle
@@ -114,10 +116,12 @@ function App() {
           )}
         </tbody>
       </table>
-      <p className="app__hint">
-        Click a tone to toggle it, drag it to move it or off the circle to remove it. Drag around the
-        circle or press ← → to transpose. Click or drag a triangle, or press ↑ ↓, to choose the key; L swaps note names and degrees. Delete clears.
-      </p>
+      <ul className="app__hint">
+        <li>Click a tone to toggle it, drag it to move it or off the circle to remove it.</li>
+        <li>Drag around the circle or press ← → to transpose.</li>
+        <li>Click or drag a triangle, or press ↑ ↓, to choose the key.</li>
+        <li>L swaps note names and degrees. Delete clears all tones.</li>
+      </ul>
     </main>
   )
 }

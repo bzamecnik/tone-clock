@@ -145,6 +145,9 @@ src/
       Labels dropdown)
 - [x] mouse presses don't focus beads/markers (no stray focus ring); a
       focused key marker follows the key when ↑ ↓ move it
+- [x] two-column layout on wide screens (circle left as tall as the
+      window, panel with input, names, tones and hint right); a small
+      title in the corner
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in
