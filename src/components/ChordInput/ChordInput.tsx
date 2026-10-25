@@ -4,7 +4,7 @@ import type { PitchClassSet } from '../../music/pitchClassSet.ts'
 import './ChordInput.css'
 
 export interface ChordInputProps {
-  /** Called with the parsed set when the user submits a valid description. */
+  /** Called with the parsed set when the user submits a valid (or empty) description. */
   onSubmit: (tones: PitchClassSet) => void
   /** Tonic of the current key, enabling Roman numerals and degrees. */
   tonic?: number

@@ -185,6 +185,13 @@ describe('App', () => {
       expect(chordName()).toBe('Fm')
     })
 
+    it('clears the tones on empty input', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), '{Enter}')
+      expect(selectedTones()).toBe('')
+    })
+
     it('reports input it does not understand and keeps the tones', async () => {
       const user = userEvent.setup()
       render(<App />)

@@ -208,7 +208,8 @@ function parseNoteList(tokens: string[]): PitchClassSet | null {
  * - a scale: "D dorian", "C harmonic minor", "A minor pentatonic",
  * - a list of notes: "C E G", "D, F#, A",
  * - in a key (tonic pitch class): Roman numeral chords ("V7", "bVII") and
- *   lists of scale degrees ("1 b3 5").
+ *   lists of scale degrees ("1 b3 5"),
+ * - empty text: the empty set.
  * Chord qualities are case-insensitive unless the case matters ("m7" vs.
  * "M7"); Roman numerals are uppercase only.
  * Returns null if the text is not understood.
@@ -216,7 +217,7 @@ function parseNoteList(tokens: string[]): PitchClassSet | null {
 export function parseTones(text: string, key: number | null = null): PitchClassSet | null {
   const trimmed = text.trim()
   if (!trimmed) {
-    return null
+    return 0
   }
   const tokens = trimmed.split(/[\s,]+/)
   return (

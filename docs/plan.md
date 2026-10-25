@@ -125,6 +125,7 @@ src/
       (`V7`) / degrees (`1 b3 5`) to set the active beads
 - [x] case-insensitive chord qualities where unambiguous (`CMAJ7`, `cDim`;
       `m7` vs. `M7` and Roman numerals stay case-sensitive)
+- [x] submitting empty input clears the tones
 
 Notes:
 - Symmetric sets get the lowest root (Db augmented, not A augmented as in

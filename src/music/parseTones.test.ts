@@ -147,9 +147,12 @@ describe('parseTones', () => {
     })
   })
 
+  it('parses empty input as the empty set', () => {
+    expect(parseTones('')).toBe(0)
+    expect(parseTones('   ', 0)).toBe(0)
+  })
+
   it('returns null for unknown input', () => {
-    expect(parseTones('')).toBeNull()
-    expect(parseTones('   ')).toBeNull()
     expect(parseTones('H')).toBeNull()
     expect(parseTones('Cxyz')).toBeNull()
     expect(parseTones('C foo scale')).toBeNull()
