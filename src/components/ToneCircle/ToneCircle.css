@@ -81,7 +81,7 @@
   stroke-width: 2;
 }
 
-/* Drawn on top of the beads, as in the original app. */
+/* Drawn below the beads (the original app drew it on top). */
 .tone-circle__chord {
   fill: none;
   stroke: var(--tone-circle-bead-active);

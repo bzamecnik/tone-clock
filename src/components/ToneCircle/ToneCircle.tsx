@@ -348,6 +348,14 @@ export function ToneCircle({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
     >
+      {/* below the beads, so that it does not cover the root outline */}
+      {chord && (
+        <path
+          className={chord.closed ? 'tone-circle__chord tone-circle__chord--closed' : 'tone-circle__chord'}
+          d={chord.d}
+          aria-hidden="true"
+        />
+      )}
       {BEADS.map(({ pitchClass, center }) => {
         const active = has(tones, pitchClass)
         const name = names[pitchClass]
@@ -395,13 +403,6 @@ export function ToneCircle({
           </g>
         )
       })}
-      {chord && (
-        <path
-          className={chord.closed ? 'tone-circle__chord tone-circle__chord--closed' : 'tone-circle__chord'}
-          d={chord.d}
-          aria-hidden="true"
-        />
-      )}
       {ghost && ghost.point && (
         <g
           className={

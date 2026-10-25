@@ -314,6 +314,13 @@ describe('ToneCircle', () => {
       expect(path).not.toHaveClass('tone-circle__chord--closed')
     })
 
+    it('is drawn below the beads, not covering the root outline', () => {
+      const { container } = render(<ToneCircle value={C_MAJOR} root={0} />)
+      const path = chordPathElement(container)!
+      const firstBead = container.querySelector('[data-pitch-class]')!
+      expect(path.compareDocumentPosition(firstBead) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
     it('is drawn as a filled polygon for three or more tones', () => {
       const { container } = render(<ToneCircle value={C_MAJOR} />)
       expect(chordPathElement(container)).toHaveClass('tone-circle__chord--closed')
