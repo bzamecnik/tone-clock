@@ -80,8 +80,8 @@
 
 /* one column per tone: the note above its degree */
 .app__tones td {
-  min-width: 2.2em;
-  padding: 0 0.15em;
+  min-width: 2em;
+  padding: 0 0.1em;
   text-align: center;
 }
 
