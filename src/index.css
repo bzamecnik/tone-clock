@@ -18,8 +18,47 @@
   --color-key: #fafafa;
   --color-key-text: #555;
 
+  color-scheme: light;
   color: var(--color-text);
   background: var(--color-background);
+}
+
+/* the theme is resolved by useTheme ("auto" follows the system) */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-text: #e3e5df;
+  --color-background: #1a1c18;
+  --color-muted: #8f928a;
+  --color-subtle: #aaada5;
+  --color-faint: #6e7169;
+  --color-accent: #86b359;
+  --color-accent-strong: #a9cf82;
+  --color-on-accent: #fff;
+  --color-control: #242721;
+  --color-disabled: #2f322c;
+  --color-disabled-border: #3b3e37;
+  --color-disabled-text: #61645c;
+  --color-error: #e5735f;
+  --color-key-border: #4b4e47;
+  --color-key: #2a2d27;
+  --color-key-text: #c9ccc4;
+}
+
+/*
+ * Dark tone circle: inactive beads dark, active ones at the same lightness as
+ * in light mode (so they stand out), labels and rings light.
+ */
+:root[data-theme='dark'] .tone-circle {
+  --tone-circle-bead: oklch(0.33 0.04 130);
+  --tone-circle-label-inactive: oklch(0.78 0.08 130);
+  --tone-circle-tonic: oklch(0.82 0.1 130);
+  --tone-circle-scale-arc: oklch(0.72 0.09 140 / 0.5);
+  --tone-circle-chord-tint: oklch(0.7 0.07 140 / 0.25);
+  --tone-circle-focus: #6ea8ff;
+  --tone-circle-level-bead: 0.33 0.05;
+  --tone-circle-level-dark: 0.8 0.09;
+  --tone-circle-level-root: 0.86 0.09;
+  --tone-circle-level-marker: 0.48 0.07;
 }
 
 body {

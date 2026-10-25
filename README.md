@@ -23,6 +23,7 @@ Features:
 - press C to color the tones by how close they are to the key (green
   inside, yellow for the tritone 4-7, red outside); arcs inside the beads
   mark the diatonic scale of the key
+- light and dark themes (T switches auto / light / dark)
 - type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
   key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
 

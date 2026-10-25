@@ -17,6 +17,7 @@ import {
   type PitchClassSet,
 } from './music/pitchClassSet.ts'
 import { useStoredState } from './useStoredState.ts'
+import { useTheme, type ThemeSetting } from './useTheme.ts'
 import { useWindowKeys } from './useWindowKeys.ts'
 import './App.css'
 
@@ -48,6 +49,12 @@ function parseOrder(stored: string): CircleOrder | undefined {
 
 type Colors = 'plain' | 'key'
 
+const THEMES: ThemeSetting[] = ['auto', 'light', 'dark']
+
+function parseTheme(stored: string): ThemeSetting | undefined {
+  return THEMES.find((theme) => theme === stored)
+}
+
 function parseColors(stored: string): Colors | undefined {
   return stored === 'plain' || stored === 'key' ? stored : undefined
 }
@@ -67,6 +74,8 @@ function App() {
   const [labels, setLabels] = useStoredState<Labels>('tone-circle:labels', 'notes', parseLabels)
   const [order, setOrder] = useStoredState<CircleOrder>('tone-circle:order', 'semitones', parseOrder)
   const [colors, setColors] = useStoredState<Colors>('tone-circle:colors', 'key', parseColors)
+  const [theme, setTheme] = useStoredState<ThemeSetting>('tone-circle:theme', 'auto', parseTheme)
+  useTheme(theme)
 
   useWindowKeys((event) => {
     if (event.key === 'l' || event.key === 'L') {
@@ -75,6 +84,8 @@ function App() {
       setOrder(order === 'semitones' ? 'fifths' : 'semitones')
     } else if (event.key === 'c' || event.key === 'C') {
       setColors(colors === 'key' ? 'plain' : 'key')
+    } else if (event.key === 't' || event.key === 'T') {
+      setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length])
     }
   })
 
@@ -181,6 +192,17 @@ function App() {
           onChange={setColors}
           disabled={key === null}
         />
+        <SegmentedToggle
+          label="Theme"
+          shortcut="T"
+          value={theme}
+          options={[
+            { value: 'auto', label: 'Auto' },
+            { value: 'light', label: 'Light' },
+            { value: 'dark', label: 'Dark' },
+          ]}
+          onChange={setTheme}
+        />
       </div>
       <ul className="app__hint">
         <li>Click a tone to toggle it, drag it to move it or off the circle to remove it.</li>
@@ -193,6 +215,7 @@ function App() {
         <li><kbd>L</kbd> swaps note names and degrees.</li>
         <li><kbd>F</kbd> switches to the circle of fifths and back.</li>
         <li><kbd>C</kbd> colors the tones by how close they are to the key.</li>
+        <li><kbd>T</kbd> switches the theme: auto (as the system), light or dark.</li>
         <li><kbd>Delete</kbd> clears all tones.</li>
       </ul>
     </main>

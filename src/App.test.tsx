@@ -69,7 +69,35 @@ describe('App', () => {
   it('shows the keys in the hint as keyboard keys', () => {
     const { container } = render(<App />)
     const keys = [...container.querySelectorAll('.app__hint kbd')].map((k) => k.textContent)
-    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'F', 'C', 'Delete'])
+    expect(keys).toEqual(['←', '→', '↑', '↓', 'L', 'F', 'C', 'T', 'Delete'])
+  })
+
+  describe('theme', () => {
+    const theme = () => document.documentElement.dataset.theme
+
+    it('switches between auto, light and dark with the toggle and the T key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      const group = within(screen.getByRole('group', { name: 'Theme' }))
+      expect(group.getByRole('button', { name: 'Auto' })).toHaveAttribute('aria-pressed', 'true')
+      await user.click(group.getByRole('button', { name: 'Dark' }))
+      expect(theme()).toBe('dark')
+      // T cycles auto -> light -> dark -> auto
+      await user.keyboard('t')
+      expect(group.getByRole('button', { name: 'Auto' })).toHaveAttribute('aria-pressed', 'true')
+      await user.keyboard('t')
+      expect(theme()).toBe('light')
+      expect(group.getByRole('button', { name: 'Light' })).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('remembers the theme', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<App />)
+      await user.click(screen.getByRole('button', { name: 'Dark' }))
+      unmount()
+      render(<App />)
+      expect(screen.getByRole('button', { name: 'Dark' })).toHaveAttribute('aria-pressed', 'true')
+    })
   })
 
   describe('key colors', () => {

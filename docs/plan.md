@@ -179,7 +179,8 @@ Notes:
 - [ ] two-finger rotation gesture on touch screens
 - [ ] alternative label sets (sharp) in the UI
 - [ ] publish the component as a reusable package
-- [ ] dark mode (light/dark switching); the key colors may suit it well
+- [x] dark mode: Auto (follows the system) / Light / Dark, switched by the
+      T key or a toggle
 
 ### 8. Desktop app
 - [ ] Tauri v2 shell around the React app (`src-tauri/`)
