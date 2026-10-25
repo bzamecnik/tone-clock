@@ -6,6 +6,7 @@
   --tone-circle-label-inactive: #5b7f38;
   --tone-circle-tonic: #4a6b2a;
   --tone-circle-scale-arc: oklch(0.55 0.09 140 / 0.55);
+  --tone-circle-chord: rgb(134 179 89 / 0.55);
   --tone-circle-chord-tint: oklch(0.7 0.07 140 / 0.3);
   --tone-circle-focus: #2f6db5;
   /* key colors: OKLCH lightness and chroma, the hue comes from the level */
@@ -161,17 +162,21 @@
   stroke-width: 2;
 }
 
-/* Drawn below the beads (the original app drew it on top). */
+/*
+ * Drawn below the beads (the original app drew it on top); translucent and
+ * without a border, so that it does not overpower the beads.
+ */
 .tone-circle__chord {
   fill: none;
-  stroke: var(--tone-circle-bead-active);
+  stroke: var(--tone-circle-chord);
   stroke-width: 1.5;
   stroke-linejoin: round;
   pointer-events: none;
 }
 
 .tone-circle__chord--closed {
-  fill: var(--tone-circle-bead-active);
+  fill: var(--tone-circle-chord);
+  stroke: none;
 }
 
 /* Pointer gestures: no scrolling or text selection while dragging. */
