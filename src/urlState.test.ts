@@ -5,24 +5,29 @@ import { formatUrlState, parseUrlState } from './urlState.ts'
 const G7 = fromPitchClasses([7, 11, 2, 5])
 
 describe('formatUrlState', () => {
-  it('lists the tones in the given order and the key by their flat names', () => {
-    expect(formatUrlState([7, 11, 2, 5], 0)).toBe('#tones=G,B,D,F&key=C')
-    expect(formatUrlState([1, 6], 10)).toBe('#tones=Db,Gb&key=Bb')
+  it('lists the tones in the given order and the key as pitch classes (0 = C)', () => {
+    expect(formatUrlState([7, 11, 2, 5], 0)).toBe('#tones=7,11,2,5&key=0')
+    expect(formatUrlState([1, 6], 10)).toBe('#tones=1,6&key=10')
   })
 
   it('leaves out the key or tones when there are none', () => {
-    expect(formatUrlState([0, 4, 7], null)).toBe('#tones=C,E,G')
-    expect(formatUrlState([], 0)).toBe('#key=C')
+    expect(formatUrlState([0, 4, 7], null)).toBe('#tones=0,4,7')
+    expect(formatUrlState([], 0)).toBe('#key=0')
     expect(formatUrlState([], null)).toBe('')
   })
 })
 
 describe('parseUrlState', () => {
   it('reads back what formatUrlState writes', () => {
-    expect(parseUrlState('#tones=G,B,D,F&key=C')).toEqual({ tones: G7, key: 0 })
-    expect(parseUrlState('#tones=C,E,G')).toEqual({ tones: fromPitchClasses([0, 4, 7]), key: null })
-    expect(parseUrlState('#key=C')).toEqual({ tones: 0, key: 0 })
+    expect(parseUrlState('#tones=7,11,2,5&key=0')).toEqual({ tones: G7, key: 0 })
+    expect(parseUrlState('#tones=0,4,7')).toEqual({ tones: fromPitchClasses([0, 4, 7]), key: null })
+    expect(parseUrlState('#key=11')).toEqual({ tones: 0, key: 11 })
     expect(parseUrlState('#tones=')).toEqual({ tones: 0, key: null })
+  })
+
+  it('reads note names too, as written by older versions', () => {
+    expect(parseUrlState('#tones=G,B,D,F&key=C')).toEqual({ tones: G7, key: 0 })
+    expect(parseUrlState('#tones=G,11,D,5&key=0')).toEqual({ tones: G7, key: 0 })
   })
 
   it('accepts sharps, any case, any order and duplicates', () => {
@@ -38,5 +43,9 @@ describe('parseUrlState', () => {
     expect(parseUrlState('#foo=bar')).toBeNull()
     expect(parseUrlState('#tones=C,X')).toBeNull()
     expect(parseUrlState('#tones=C&key=Cm')).toBeNull()
+    expect(parseUrlState('#tones=0,12')).toBeNull()
+    expect(parseUrlState('#tones=0,-1')).toBeNull()
+    expect(parseUrlState('#tones=0,1.5')).toBeNull()
+    expect(parseUrlState('#key=')).toBeNull()
   })
 })

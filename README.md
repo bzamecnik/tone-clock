@@ -26,7 +26,8 @@ it runs in the browser and can be installed as an app that works offline.
 - **Color by key**: tones of the key are green, the tritone yellow and the
   tones outside the key red.
 - **Share a link**: the address always links to the current tones and key,
-  e.g. [`#tones=G,B,D,F&key=C`](https://bzamecnik.github.io/tone-clock/#tones=G,B,D,F&key=C).
+  e.g. [`#tones=7,11,2,5&key=0`](https://bzamecnik.github.io/tone-clock/#tones=7,11,2,5&key=0)
+  (G7 in C, tones as numbers of semitones from C).
 - Light and dark theme.
 
 ## Controls

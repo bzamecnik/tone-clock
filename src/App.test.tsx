@@ -473,13 +473,13 @@ describe('App', () => {
     it('keeps the tones and key in the URL fragment', async () => {
       const user = userEvent.setup()
       render(<App />)
-      expect(location.hash).toBe('#tones=C,E,G')
+      expect(location.hash).toBe('#tones=0,4,7')
       await user.click(screen.getByRole('button', { name: 'Bb' }))
-      expect(location.hash).toBe('#tones=C,E,G,Bb')
+      expect(location.hash).toBe('#tones=0,4,7,10')
       await user.click(screen.getByRole('button', { name: 'Key F' }))
-      expect(location.hash).toBe('#tones=C,E,G,Bb&key=F')
+      expect(location.hash).toBe('#tones=0,4,7,10&key=5')
       await user.keyboard('{Delete}')
-      expect(location.hash).toBe('#key=F')
+      expect(location.hash).toBe('#key=5')
       await user.click(screen.getByRole('button', { name: 'Key F' }))
       expect(location.hash).toBe('')
       expect(location.href).not.toContain('#')
@@ -492,14 +492,14 @@ describe('App', () => {
       expect(selectedTones()).toBe('G B D F')
       expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('V7')
       // written back in the canonical form
-      expect(location.hash).toBe('#tones=G,B,D,F&key=C')
+      expect(location.hash).toBe('#tones=7,11,2,5&key=0')
     })
 
     it('ignores an invalid fragment', () => {
       history.replaceState(null, '', '#tones=X')
       render(<App />)
       expect(selectedTones()).toBe('C E G')
-      expect(location.hash).toBe('#tones=C,E,G')
+      expect(location.hash).toBe('#tones=0,4,7')
     })
 
     it('follows a link opened in the same tab', () => {
@@ -516,7 +516,7 @@ describe('App', () => {
       render(<App />)
       await user.click(screen.getByRole('button', { name: 'Copy link' }))
       expect(await navigator.clipboard.readText()).toBe(location.href)
-      expect(location.href).toMatch(/#tones=C,E,G$/)
+      expect(location.href).toMatch(/#tones=0,4,7$/)
       expect(screen.getByRole('button', { name: 'Link copied' })).toBeInTheDocument()
     })
   })

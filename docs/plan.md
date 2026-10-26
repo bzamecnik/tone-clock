@@ -194,8 +194,10 @@ Notes:
       field empty, Escape cancels; the keys control the page again
 - [x] `?` (or the Controls link) shows a dialog explaining the mouse,
       touch and keyboard controls, instead of the hints in the panel
-- [x] tones and key in the URL fragment (`#tones=G,B,D,F&key=C`), with a
-      button to copy the link
+- [x] tones and key in the URL fragment (`#tones=7,11,2,5&key=0`, pitch
+      classes; note names of older links are read too), with a button to
+      copy the link
+- [ ] idea: symbolic URL input like the chord input (`#tones=G7&key=C`)
 - [x] the right panel keeps its layout when there is no chord name or key
 - [ ] idea: embed mode, a read-only clock for an `<iframe>` on other pages
 
