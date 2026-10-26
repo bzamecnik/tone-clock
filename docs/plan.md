@@ -177,7 +177,11 @@ Notes:
 
 ### 7. Other extras
 - [ ] two-finger rotation gesture on touch screens
-- [ ] alternative label sets (sharp) in the UI
+- [ ] accidentals mode: flats or sharps by the selected key (e.g. F# in D),
+      always flats, always sharps
+- [ ] undo / redo of the changes of tones and key
+- [ ] auto-complete in the chord input (chord and scale names)
+- [ ] alternative chord names when a set has several (e.g. C6 = Am7)
 - [ ] publish the component as a reusable package
 - [x] dark mode: Auto (follows the system) / Light / Dark, switched by the
       T key or a toggle
