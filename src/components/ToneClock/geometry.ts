@@ -1,7 +1,7 @@
 import { OCTAVE_SIZE, mod } from '../../music/pitchClassSet.ts'
 
 /**
- * Geometry of the tone circle in SVG user units. The beads follow the
+ * Geometry of the tone clock in SVG user units. The beads follow the
  * proportions of the original Android ToneCircleView, scaled to a circle of
  * "radius" 100. The view box is a square centered at the origin with "radius"
  * VIEW_RADIUS, leaving room for the key markers outside the beads.

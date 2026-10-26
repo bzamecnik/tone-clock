@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tone Circle</title>
+    <title>Tone Clock</title>
     <script>
       // apply the stored theme before the first paint (see useTheme.ts)
       try {
-        const setting = localStorage.getItem('tone-circle:theme')
+        const setting = localStorage.getItem('tone-clock:theme')
         const dark =
           setting === 'dark' ||
           (setting !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)

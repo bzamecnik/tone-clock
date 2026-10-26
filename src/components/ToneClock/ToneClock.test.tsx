@@ -14,7 +14,7 @@ import {
   type Point,
 } from './geometry.ts'
 import { chordPath } from './chordPath.ts'
-import { ToneCircle } from './ToneCircle.tsx'
+import { ToneClock } from './ToneClock.tsx'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
 
@@ -25,7 +25,7 @@ function pressedNames() {
 }
 
 function beads() {
-  return within(screen.getByRole('group', { name: 'Tone circle' }))
+  return within(screen.getByRole('group', { name: 'Tone clock' }))
     .getAllByRole('button')
     .filter((b) => b.hasAttribute('data-pitch-class'))
 }
@@ -40,10 +40,10 @@ function pressedMarkers() {
     .map((m) => m.getAttribute('aria-label'))
 }
 
-describe('ToneCircle', () => {
+describe('ToneClock', () => {
   describe('layout', () => {
     it('renders 12 beads labelled C to B in clockwise order', () => {
-      render(<ToneCircle />)
+      render(<ToneClock />)
       expect(beads().map((b) => b.getAttribute('aria-label'))).toEqual([
         'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B',
       ])
@@ -53,7 +53,7 @@ describe('ToneCircle', () => {
     })
 
     it('marks the beads of the given set as pressed', () => {
-      render(<ToneCircle value={C_MAJOR} />)
+      render(<ToneClock value={C_MAJOR} />)
       const pressed = beads()
         .filter((b) => b.getAttribute('aria-pressed') === 'true')
         .map((b) => b.getAttribute('aria-label'))
@@ -62,34 +62,34 @@ describe('ToneCircle', () => {
     })
 
     it('starts empty by default', () => {
-      render(<ToneCircle />)
+      render(<ToneClock />)
       expect(beads().every((b) => b.getAttribute('aria-pressed') === 'false')).toBe(true)
     })
 
     it('accepts custom pitch class names', () => {
-      render(<ToneCircle names={SHARP_NAMES} />)
+      render(<ToneClock names={SHARP_NAMES} />)
       expect(screen.getByRole('button', { name: 'F#' })).toBeInTheDocument()
     })
 
     it('marks the root bead when a root is given', () => {
-      const { container, rerender } = render(<ToneCircle value={C_MAJOR} />)
-      expect(container.querySelector('.tone-circle__bead--root')).toBeNull()
-      rerender(<ToneCircle value={C_MAJOR} root={0} />)
-      const roots = container.querySelectorAll('.tone-circle__bead--root')
+      const { container, rerender } = render(<ToneClock value={C_MAJOR} />)
+      expect(container.querySelector('.tone-clock__bead--root')).toBeNull()
+      rerender(<ToneClock value={C_MAJOR} root={0} />)
+      const roots = container.querySelectorAll('.tone-clock__bead--root')
       expect(roots).toHaveLength(1)
       expect(roots[0]).toHaveAttribute('aria-label', 'C')
     })
 
     it('shows secondary labels below the primary ones', () => {
-      const { container } = render(<ToneCircle names={FLAT_NAMES} secondaryNames={relativeNames(DEGREE_NAMES, 9)} />)
+      const { container } = render(<ToneClock names={FLAT_NAMES} secondaryNames={relativeNames(DEGREE_NAMES, 9)} />)
       const a = screen.getByRole('button', { name: 'A' })
-      expect(a.querySelector('.tone-circle__label')).toHaveTextContent('A')
-      expect(a.querySelector('.tone-circle__secondary-label')).toHaveTextContent(/^1$/)
-      expect(container.querySelectorAll('.tone-circle__secondary-label')).toHaveLength(12)
+      expect(a.querySelector('.tone-clock__label')).toHaveTextContent('A')
+      expect(a.querySelector('.tone-clock__secondary-label')).toHaveTextContent(/^1$/)
+      expect(container.querySelectorAll('.tone-clock__secondary-label')).toHaveLength(12)
     })
 
     it('renders a square SVG centered at the origin', () => {
-      const { container } = render(<ToneCircle />)
+      const { container } = render(<ToneClock />)
       const r = VIEW_RADIUS
       expect(container.querySelector('svg')).toHaveAttribute('viewBox', `${-r} ${-r} ${2 * r} ${2 * r}`)
     })
@@ -99,7 +99,7 @@ describe('ToneCircle', () => {
     it('toggles a bead on click (uncontrolled)', async () => {
       const user = userEvent.setup()
       const onChange = vi.fn()
-      render(<ToneCircle defaultValue={C_MAJOR} onChange={onChange} />)
+      render(<ToneClock defaultValue={C_MAJOR} onChange={onChange} />)
 
       await user.click(screen.getByRole('button', { name: 'Bb' }))
       expect(pressedNames()).toEqual(['C', 'E', 'G', 'Bb'])
@@ -113,19 +113,19 @@ describe('ToneCircle', () => {
     it('reports changes but shows the given value when controlled', async () => {
       const user = userEvent.setup()
       const onChange = vi.fn()
-      const { rerender } = render(<ToneCircle value={C_MAJOR} onChange={onChange} />)
+      const { rerender } = render(<ToneClock value={C_MAJOR} onChange={onChange} />)
 
       await user.click(screen.getByRole('button', { name: 'D' }))
       expect(onChange).toHaveBeenCalledWith(fromPitchClasses([0, 2, 4, 7]))
       expect(pressedNames()).toEqual(['C', 'E', 'G'])
 
-      rerender(<ToneCircle value={fromPitchClasses([0, 2, 4, 7])} onChange={onChange} />)
+      rerender(<ToneClock value={fromPitchClasses([0, 2, 4, 7])} onChange={onChange} />)
       expect(pressedNames()).toEqual(['C', 'D', 'E', 'G'])
     })
 
     it('makes beads focusable and toggles them with Enter and Space', async () => {
       const user = userEvent.setup()
-      render(<ToneCircle />)
+      render(<ToneClock />)
 
       await user.tab()
       expect(screen.getByRole('button', { name: 'C' })).toHaveFocus()
@@ -141,7 +141,7 @@ describe('ToneCircle', () => {
     it('transposes the set with the arrow keys (rotation)', async () => {
       const user = userEvent.setup()
       const onChange = vi.fn()
-      render(<ToneCircle defaultValue={C_MAJOR} onChange={onChange} />)
+      render(<ToneClock defaultValue={C_MAJOR} onChange={onChange} />)
 
       await user.tab()
       await user.keyboard('{ArrowRight}')
@@ -156,7 +156,7 @@ describe('ToneCircle', () => {
 
   it('clears all tones with Delete or Backspace', async () => {
     const user = userEvent.setup()
-    render(<ToneCircle defaultValue={C_MAJOR} />)
+    render(<ToneClock defaultValue={C_MAJOR} />)
     await user.tab()
     await user.keyboard('{Delete}')
     expect(pressedNames()).toEqual([])
@@ -166,15 +166,15 @@ describe('ToneCircle', () => {
 
   describe('key (tonic)', () => {
     it('shows only the tonic marker when the key cannot be changed', () => {
-      const { container, rerender } = render(<ToneCircle />)
-      expect(container.querySelectorAll('.tone-circle__marker')).toHaveLength(0)
-      rerender(<ToneCircle tonic={9} />)
-      expect(container.querySelectorAll('.tone-circle__marker--active')).toHaveLength(1)
+      const { container, rerender } = render(<ToneClock />)
+      expect(container.querySelectorAll('.tone-clock__marker')).toHaveLength(0)
+      rerender(<ToneClock tonic={9} />)
+      expect(container.querySelectorAll('.tone-clock__marker--active')).toHaveLength(1)
       expect(markers()).toEqual([])
     })
 
     it('shows a toggleable key marker for every tone', () => {
-      render(<ToneCircle tonic={9} onTonicChange={() => {}} />)
+      render(<ToneClock tonic={9} onTonicChange={() => {}} />)
       expect(markers()).toHaveLength(12)
       expect(markers()[0]).toHaveAttribute('aria-label', 'Key C')
       expect(pressedMarkers()).toEqual(['Key A'])
@@ -183,11 +183,11 @@ describe('ToneCircle', () => {
     it('selects a key by clicking its marker and unselects it by clicking again', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
-      const { rerender } = render(<ToneCircle onTonicChange={onTonicChange} />)
+      const { rerender } = render(<ToneClock onTonicChange={onTonicChange} />)
       await user.click(screen.getByRole('button', { name: 'Key D' }))
       expect(onTonicChange).toHaveBeenLastCalledWith(2)
 
-      rerender(<ToneCircle tonic={2} onTonicChange={onTonicChange} />)
+      rerender(<ToneClock tonic={2} onTonicChange={onTonicChange} />)
       await user.click(screen.getByRole('button', { name: 'Key E' }))
       expect(onTonicChange).toHaveBeenLastCalledWith(4)
       await user.click(screen.getByRole('button', { name: 'Key D' }))
@@ -198,7 +198,7 @@ describe('ToneCircle', () => {
       const user = userEvent.setup()
       function Stateful() {
         const [tonic, setTonic] = useState<number | null>(0)
-        return <ToneCircle tonic={tonic ?? undefined} onTonicChange={setTonic} windowKeys />
+        return <ToneClock tonic={tonic ?? undefined} onTonicChange={setTonic} windowKeys />
       }
       render(<Stateful />)
       screen.getByRole('button', { name: 'Key C' }).focus()
@@ -212,13 +212,13 @@ describe('ToneCircle', () => {
     it('makes only the active (or first) marker a tab stop, toggled by Enter/Space', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
-      const { rerender } = render(<ToneCircle onTonicChange={onTonicChange} />)
+      const { rerender } = render(<ToneClock onTonicChange={onTonicChange} />)
       expect(markers().filter((m) => m.tabIndex === 0)).toHaveLength(1)
       screen.getByRole('button', { name: 'Key C' }).focus()
       await user.keyboard('{Enter}')
       expect(onTonicChange).toHaveBeenLastCalledWith(0)
 
-      rerender(<ToneCircle tonic={7} onTonicChange={onTonicChange} />)
+      rerender(<ToneClock tonic={7} onTonicChange={onTonicChange} />)
       expect(markers().filter((m) => m.tabIndex === 0).map((m) => m.getAttribute('aria-label'))).toEqual([
         'Key G',
       ])
@@ -230,11 +230,11 @@ describe('ToneCircle', () => {
     it('rotates the tonic with the up/down arrows when it can be changed', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
-      const { rerender } = render(<ToneCircle defaultValue={C_MAJOR} tonic={9} onTonicChange={onTonicChange} />)
+      const { rerender } = render(<ToneClock defaultValue={C_MAJOR} tonic={9} onTonicChange={onTonicChange} />)
       await user.tab()
       await user.keyboard('{ArrowUp}')
       expect(onTonicChange).toHaveBeenLastCalledWith(10)
-      rerender(<ToneCircle defaultValue={C_MAJOR} tonic={0} onTonicChange={onTonicChange} />)
+      rerender(<ToneClock defaultValue={C_MAJOR} tonic={0} onTonicChange={onTonicChange} />)
       await user.keyboard('{ArrowDown}')
       expect(onTonicChange).toHaveBeenLastCalledWith(11)
       // the tones stay
@@ -244,7 +244,7 @@ describe('ToneCircle', () => {
     it('picks the root of the chord as the tonic when there is none yet', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
-      render(<ToneCircle defaultValue={fromPitchClasses([9, 0, 4])} onTonicChange={onTonicChange} />)
+      render(<ToneClock defaultValue={fromPitchClasses([9, 0, 4])} onTonicChange={onTonicChange} />)
       await user.tab()
       await user.keyboard('{ArrowDown}')
       expect(onTonicChange).toHaveBeenLastCalledWith(9)
@@ -254,7 +254,7 @@ describe('ToneCircle', () => {
   describe('window keys', () => {
     it('handles the arrow keys anywhere on the page when enabled', async () => {
       const user = userEvent.setup()
-      render(<ToneCircle defaultValue={C_MAJOR} windowKeys />)
+      render(<ToneClock defaultValue={C_MAJOR} windowKeys />)
       await user.keyboard('{ArrowRight}')
       expect(pressedNames()).toEqual(['Db', 'F', 'Ab'])
     })
@@ -264,7 +264,7 @@ describe('ToneCircle', () => {
       render(
         <>
           <input aria-label="Text" />
-          <ToneCircle defaultValue={C_MAJOR} windowKeys />
+          <ToneClock defaultValue={C_MAJOR} windowKeys />
         </>,
       )
       await user.click(screen.getByRole('textbox'))
@@ -274,7 +274,7 @@ describe('ToneCircle', () => {
 
     it('handles a key only once when the circle has focus', async () => {
       const user = userEvent.setup()
-      render(<ToneCircle defaultValue={C_MAJOR} windowKeys />)
+      render(<ToneClock defaultValue={C_MAJOR} windowKeys />)
       await user.tab()
       await user.keyboard('{ArrowRight}')
       expect(pressedNames()).toEqual(['Db', 'F', 'Ab'])
@@ -285,7 +285,7 @@ describe('ToneCircle', () => {
       render(
         <>
           <input aria-label="Text" />
-          <ToneCircle defaultValue={C_MAJOR} tonic={0} onTonicChange={() => {}} windowKeys />
+          <ToneClock defaultValue={C_MAJOR} tonic={0} onTonicChange={() => {}} windowKeys />
         </>,
       )
       await user.click(screen.getByRole('textbox'))
@@ -300,7 +300,7 @@ describe('ToneCircle', () => {
 
     it('ignores keys outside the circle by default', async () => {
       const user = userEvent.setup()
-      render(<ToneCircle defaultValue={C_MAJOR} />)
+      render(<ToneClock defaultValue={C_MAJOR} />)
       await user.keyboard('{ArrowRight}')
       expect(pressedNames()).toEqual(['C', 'E', 'G'])
     })
@@ -310,36 +310,36 @@ describe('ToneCircle', () => {
     const level = (name: string) => screen.getByRole('button', { name }).getAttribute('data-level')
 
     it('marks each bead with its level in the key', () => {
-      const { container } = render(<ToneCircle tonic={0} keyColors />)
-      expect(container.querySelector('svg')).toHaveClass('tone-circle--key-colors')
+      const { container } = render(<ToneClock tonic={0} keyColors />)
+      expect(container.querySelector('svg')).toHaveClass('tone-clock--key-colors')
       expect(level('D')).toBe('3')
       expect(level('F')).toBe('0')
       expect(level('Ab')).toBe('-3')
     })
 
     it('gives the key markers the levels of their tones', () => {
-      const { rerender } = render(<ToneCircle tonic={0} onTonicChange={() => {}} keyColors />)
+      const { rerender } = render(<ToneClock tonic={0} onTonicChange={() => {}} keyColors />)
       const markerLevel = (name: string) => screen.getByRole('button', { name }).getAttribute('data-level')
       expect(markerLevel('Key D')).toBe('3')
       expect(markerLevel('Key Ab')).toBe('-3')
-      rerender(<ToneCircle tonic={0} onTonicChange={() => {}} />)
+      rerender(<ToneClock tonic={0} onTonicChange={() => {}} />)
       expect(markerLevel('Key D')).toBeNull()
     })
 
     it('is off without a key or when not enabled', () => {
-      const { container, rerender } = render(<ToneCircle keyColors />)
-      expect(container.querySelector('svg')).not.toHaveClass('tone-circle--key-colors')
+      const { container, rerender } = render(<ToneClock keyColors />)
+      expect(container.querySelector('svg')).not.toHaveClass('tone-clock--key-colors')
       expect(level('D')).toBeNull()
-      rerender(<ToneCircle tonic={0} />)
+      rerender(<ToneClock tonic={0} />)
       expect(level('D')).toBeNull()
     })
   })
 
   describe('scale arc', () => {
-    const arcs = (container: HTMLElement) => container.querySelectorAll('.tone-circle__scale-arc path')
+    const arcs = (container: HTMLElement) => container.querySelectorAll('.tone-clock__scale-arc path')
 
     it('marks the diatonic scale of the key with arcs inside the beads', () => {
-      const { container, rerender } = render(<ToneCircle tonic={0} />)
+      const { container, rerender } = render(<ToneClock tonic={0} />)
       // B-C, D, E-F, G, A
       expect(arcs(container)).toHaveLength(5)
       expect(arcs(container)[0]).toHaveAttribute(
@@ -347,19 +347,19 @@ describe('ToneCircle', () => {
         arcPath({ start: 2, length: 1 }, SCALE_ARC_RADIUS, SCALE_ARC_GAP_DEGREES),
       )
       // one arc on the circle of fifths: F C G D A E B
-      rerender(<ToneCircle tonic={0} order="fifths" />)
+      rerender(<ToneClock tonic={0} order="fifths" />)
       expect(arcs(container)).toHaveLength(1)
     })
 
     it('is not shown without a key', () => {
-      const { container } = render(<ToneCircle />)
+      const { container } = render(<ToneClock />)
       expect(arcs(container)).toHaveLength(0)
     })
   })
 
   describe('circle of fifths', () => {
     it('arranges the beads and key markers in fifths, clockwise', () => {
-      render(<ToneCircle order="fifths" onTonicChange={() => {}} />)
+      render(<ToneClock order="fifths" onTonicChange={() => {}} />)
       const fifths = ['C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F']
       expect(beads().map((b) => b.getAttribute('aria-label'))).toEqual(fifths)
       expect(markers().map((m) => m.getAttribute('aria-label'))).toEqual(fifths.map((n) => `Key ${n}`))
@@ -368,7 +368,7 @@ describe('ToneCircle', () => {
     it('rotates by a fifth per step with the arrow keys', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
-      render(<ToneCircle defaultValue={C_MAJOR} order="fifths" tonic={0} onTonicChange={onTonicChange} />)
+      render(<ToneClock defaultValue={C_MAJOR} order="fifths" tonic={0} onTonicChange={onTonicChange} />)
       await user.tab()
       await user.keyboard('{ArrowRight}')
       // C major -> G major
@@ -382,8 +382,8 @@ describe('ToneCircle', () => {
     })
 
     it('draws the chord path in the order around the circle', () => {
-      const { container } = render(<ToneCircle value={C_MAJOR} order="fifths" />)
-      expect(container.querySelector('.tone-circle__chord')).toHaveAttribute(
+      const { container } = render(<ToneClock value={C_MAJOR} order="fifths" />)
+      expect(container.querySelector('.tone-clock__chord')).toHaveAttribute(
         'd',
         chordPath(C_MAJOR, 'fifths')!.d,
       )
@@ -392,31 +392,31 @@ describe('ToneCircle', () => {
 
   describe('chord path', () => {
     function chordPathElement(container: HTMLElement) {
-      return container.querySelector('.tone-circle__chord')
+      return container.querySelector('.tone-clock__chord')
     }
 
     it('is not drawn for fewer than two tones', () => {
-      const { container } = render(<ToneCircle value={fromPitchClasses([2])} />)
+      const { container } = render(<ToneClock value={fromPitchClasses([2])} />)
       expect(chordPathElement(container)).toBeNull()
     })
 
     it('is drawn as an open curve for two tones', () => {
-      const { container } = render(<ToneCircle value={fromPitchClasses([0, 6])} />)
+      const { container } = render(<ToneClock value={fromPitchClasses([0, 6])} />)
       const path = chordPathElement(container)
       expect(path).toHaveAttribute('d', 'M 0 -61 Q 0 0 0 61')
-      expect(path).not.toHaveClass('tone-circle__chord--closed')
+      expect(path).not.toHaveClass('tone-clock__chord--closed')
     })
 
     it('is drawn below the beads, not covering the root outline', () => {
-      const { container } = render(<ToneCircle value={C_MAJOR} root={0} />)
+      const { container } = render(<ToneClock value={C_MAJOR} root={0} />)
       const path = chordPathElement(container)!
       const firstBead = container.querySelector('[data-pitch-class]')!
       expect(path.compareDocumentPosition(firstBead) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('is drawn as a filled polygon for three or more tones', () => {
-      const { container } = render(<ToneCircle value={C_MAJOR} />)
-      expect(chordPathElement(container)).toHaveClass('tone-circle__chord--closed')
+      const { container } = render(<ToneClock value={C_MAJOR} />)
+      expect(chordPathElement(container)).toHaveClass('tone-clock__chord--closed')
     })
   })
 
@@ -446,7 +446,7 @@ describe('ToneCircle', () => {
 
     it('moves a tone by dragging it onto another bead', () => {
       const onChange = vi.fn()
-      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} onChange={onChange} />)
+      const { svg } = renderSized(<ToneClock defaultValue={C_MAJOR} onChange={onChange} />)
 
       fireEvent.pointerDown(screen.getByRole('button', { name: 'E' }), beadAt(4))
       fireEvent.pointerMove(svg, beadAt(3))
@@ -458,7 +458,7 @@ describe('ToneCircle', () => {
     })
 
     it('clears a tone dragged off the circle', () => {
-      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} />)
+      const { svg } = renderSized(<ToneClock defaultValue={C_MAJOR} />)
 
       fireEvent.pointerDown(screen.getByRole('button', { name: 'G' }), beadAt(7))
       fireEvent.pointerMove(svg, client({ x: 0, y: 0 }))
@@ -468,8 +468,8 @@ describe('ToneCircle', () => {
     })
 
     it('shows a ghost bead following the pointer while dragging', () => {
-      const { container, svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} />)
-      const ghost = () => container.querySelector('.tone-circle__ghost')
+      const { container, svg } = renderSized(<ToneClock defaultValue={C_MAJOR} />)
+      const ghost = () => container.querySelector('.tone-clock__ghost')
 
       fireEvent.pointerDown(screen.getByRole('button', { name: 'E' }), beadAt(4))
       expect(ghost()).toBeNull()
@@ -482,7 +482,7 @@ describe('ToneCircle', () => {
 
     it('transposes by dragging around the circle inside the ring', () => {
       const onChange = vi.fn()
-      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} onChange={onChange} />)
+      const { svg } = renderSized(<ToneClock defaultValue={C_MAJOR} onChange={onChange} />)
 
       fireEvent.pointerDown(svg, client({ x: 0, y: -30 }))
       // a quarter turn clockwise = 3 semitones up: C major -> Eb major
@@ -502,7 +502,7 @@ describe('ToneCircle', () => {
       it('moves the key while dragging its marker around the circle', () => {
         const onTonicChange = vi.fn()
         const { svg } = renderSized(
-          <ToneCircle defaultValue={C_MAJOR} tonic={9} onTonicChange={onTonicChange} />,
+          <ToneClock defaultValue={C_MAJOR} tonic={9} onTonicChange={onTonicChange} />,
         )
         fireEvent.pointerDown(screen.getByRole('button', { name: 'Key A' }), markerAt(9))
         fireEvent.pointerMove(svg, markerAt(10))
@@ -517,7 +517,7 @@ describe('ToneCircle', () => {
 
       it('does not report the same key twice while dragging', () => {
         const onTonicChange = vi.fn()
-        const { svg } = renderSized(<ToneCircle tonic={9} onTonicChange={onTonicChange} />)
+        const { svg } = renderSized(<ToneClock tonic={9} onTonicChange={onTonicChange} />)
         fireEvent.pointerDown(screen.getByRole('button', { name: 'Key A' }), markerAt(9))
         fireEvent.pointerMove(svg, client({ ...MARKERS[9].hitCenter, y: MARKERS[9].hitCenter.y + 6 }))
         fireEvent.pointerUp(svg, client({ ...MARKERS[9].hitCenter, y: MARKERS[9].hitCenter.y + 6 }))
@@ -526,7 +526,7 @@ describe('ToneCircle', () => {
 
       it('toggles the key when the marker is tapped without moving', () => {
         const onTonicChange = vi.fn()
-        const { svg } = renderSized(<ToneCircle tonic={9} onTonicChange={onTonicChange} />)
+        const { svg } = renderSized(<ToneClock tonic={9} onTonicChange={onTonicChange} />)
         fireEvent.pointerDown(screen.getByRole('button', { name: 'Key A' }), markerAt(9))
         fireEvent.pointerUp(svg, markerAt(9))
         expect(onTonicChange).toHaveBeenCalledExactlyOnceWith(null)
@@ -534,7 +534,7 @@ describe('ToneCircle', () => {
     })
 
     it('transposes by fifths when rotating the circle of fifths', () => {
-      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} order="fifths" />)
+      const { svg } = renderSized(<ToneClock defaultValue={C_MAJOR} order="fifths" />)
       fireEvent.pointerDown(svg, client({ x: 0, y: -30 }))
       // a quarter turn clockwise = 3 fifths up: C major -> A major
       fireEvent.pointerMove(svg, client({ x: 30, y: 0 }))
@@ -546,7 +546,7 @@ describe('ToneCircle', () => {
       const onTonicChange = vi.fn()
       const FIFTHS = beadLayout('fifths')
       const { svg } = renderSized(
-        <ToneCircle defaultValue={C_MAJOR} order="fifths" tonic={0} onTonicChange={onTonicChange} />,
+        <ToneClock defaultValue={C_MAJOR} order="fifths" tonic={0} onTonicChange={onTonicChange} />,
       )
       // drag E onto the bead next to it, counterclockwise: A
       fireEvent.pointerDown(screen.getByRole('button', { name: 'E' }), client(FIFTHS[4].center))
@@ -562,7 +562,7 @@ describe('ToneCircle', () => {
     })
 
     it('rotates relative to the starting set and can rotate back', () => {
-      const { svg } = renderSized(<ToneCircle defaultValue={C_MAJOR} />)
+      const { svg } = renderSized(<ToneClock defaultValue={C_MAJOR} />)
 
       fireEvent.pointerDown(svg, client({ x: 0, y: -30 }))
       fireEvent.pointerMove(svg, client({ x: 30, y: 0 }))

@@ -1,4 +1,4 @@
-# Tone Circle — implementation plan
+# Tone Clock — implementation plan
 
 Goal: re-create the Android *Tone Circle* app as a reusable React component,
 then wrap it as a Rust/Tauri desktop app for macOS.
@@ -63,9 +63,9 @@ src/
     pitchClassSet.ts       pure functions on 12-bit masks
     pitchClassNames.ts     label sets (flat, sharp, roman, interval)
     pitchClassSetNamer.ts  (extra) chord/scale names
-  components/ToneCircle/
+  components/ToneClock/
     geometry.ts            bead / apex positions, hit testing
-    ToneCircle.tsx         SVG rendering + input handling
+    ToneClock.tsx         SVG rendering + input handling
     chordPath.ts           (extra) curved polygon SVG path
   App.tsx                  demo page
 ```
@@ -94,7 +94,7 @@ src/
 
 ### 3. Basic layout (static)
 - [x] `geometry.ts`: bead centers / radius for 12 positions
-- [x] `ToneCircle` renders 12 labelled beads in an SVG circle, C on top,
+- [x] `ToneClock` renders 12 labelled beads in an SVG circle, C on top,
       clockwise
 - [x] active beads drawn in the active color
 

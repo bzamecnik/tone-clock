@@ -1,4 +1,4 @@
-# Tone Circle
+# Tone Clock
 
 A small interactive tool for exploring music theory: the 12 pitch classes of
 12-tone equal temperament arranged in a circle like a 12-hour clock.
@@ -51,7 +51,7 @@ npm run build   # type-check and build for production
 ## Project layout
 
 - `src/music/` — pure, UI-independent music theory model (pitch class sets)
-- `src/components/ToneCircle/` — the tone circle React component
+- `src/components/ToneClock/` — the tone clock React component
 - `src/components/ChordInput/` — text input parsing chord/scale names
 - `docs/plan.md` — implementation plan and roadmap
 

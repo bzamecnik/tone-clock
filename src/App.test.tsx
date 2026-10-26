@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App.tsx'
 import { fromPitchClasses } from './music/pitchClassSet.ts'
 
-const STORAGE_KEY = 'tone-circle:tones'
+const STORAGE_KEY = 'tone-clock:tones'
 
 function chordName() {
   return screen.getByLabelText('Chord name').textContent
@@ -42,7 +42,7 @@ describe('App', () => {
 
   it('shows the app title', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: 'Tone Circle' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Tone Clock' })).toBeInTheDocument()
   })
 
   it('lists the tones from the root of the chord, with their degrees', async () => {
@@ -58,7 +58,7 @@ describe('App', () => {
   it('outlines the root of the chord on the circle', async () => {
     const user = userEvent.setup()
     render(<App />)
-    const root = () => document.querySelector('.tone-circle__bead--root')
+    const root = () => document.querySelector('.tone-clock__bead--root')
     expect(root()).toHaveAttribute('aria-label', 'C')
     await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'Am7{Enter}')
     expect(root()).toHaveAttribute('aria-label', 'A')
@@ -132,7 +132,7 @@ describe('App', () => {
 
   describe('circle of fifths', () => {
     const beadNames = () =>
-      within(screen.getByRole('group', { name: 'Tone circle' }))
+      within(screen.getByRole('group', { name: 'Tone clock' }))
         .getAllByRole('button')
         .filter((b) => b.hasAttribute('data-pitch-class'))
         .map((b) => b.getAttribute('aria-label'))

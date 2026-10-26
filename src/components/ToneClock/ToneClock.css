@@ -1,0 +1,203 @@
+/* Colors of the original app: HSV(90°, 0.15, 0.9) and HSV(90°, 0.5, 0.7). */
+.tone-clock {
+  --tone-clock-bead: #d4e6c3;
+  --tone-clock-bead-active: #86b359;
+  --tone-clock-label: #fff;
+  --tone-clock-label-inactive: #5b7f38;
+  --tone-clock-tonic: #4a6b2a;
+  --tone-clock-scale-arc: oklch(0.55 0.09 140 / 0.55);
+  --tone-clock-chord-tint: oklch(0.7 0.07 140 / 0.3);
+  --tone-clock-focus: #2f6db5;
+  /* hue of the plain (uncolored) greens, e.g. #86b359 */
+  --tone-clock-plain-hue: 130;
+  /* key colors: OKLCH lightness and chroma, the hue comes from the level */
+  --tone-clock-level-bead: 0.91 0.05;
+  --tone-clock-level-bead-active: 0.64 0.13;
+  --tone-clock-level-dark: 0.5 0.1;
+  --tone-clock-level-root: 0.45 0.1;
+  --tone-clock-level-marker: 0.82 0.07;
+
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tone-clock__bead circle {
+  fill: var(--tone-clock-bead);
+}
+
+.tone-clock__bead--active circle {
+  fill: var(--tone-clock-bead-active);
+}
+
+/*
+ * Key colors: the hue tells the level of a tone in the key (keyLevel), from
+ * green (+3, degree 2) via yellow (0, the tritone 4-7) to red (-3, b6).
+ * Defined in OKLCH, where lightness is perceptual: all active beads share one
+ * lightness and all inactive beads another, so brightness alone tells active
+ * from inactive tones (as without colors), whatever the hue.
+ */
+[data-level='3'] { --level-hue: 145; }
+[data-level='2'] { --level-hue: 128; }
+[data-level='1'] { --level-hue: 112; }
+[data-level='0'] { --level-hue: 95; }
+[data-level='-1'] { --level-hue: 65; }
+[data-level='-2'] { --level-hue: 42; }
+[data-level='-3'] { --level-hue: 22; }
+
+.tone-clock__bead[data-level] circle {
+  fill: oklch(var(--tone-clock-level-bead) var(--level-hue));
+}
+
+.tone-clock__bead--active[data-level] circle {
+  fill: oklch(var(--tone-clock-level-bead-active) var(--level-hue));
+}
+
+.tone-clock__bead[data-level]:not(.tone-clock__bead--active) text {
+  fill: oklch(var(--tone-clock-level-dark) var(--level-hue));
+}
+
+/* a dark shade of the bead's color, like the inactive labels */
+.tone-clock__bead--root circle {
+  stroke: var(--tone-clock-tonic);
+  stroke-width: 2.5;
+}
+
+.tone-clock__bead--root[data-level] circle {
+  stroke: oklch(var(--tone-clock-level-root) var(--level-hue));
+}
+
+/* the diatonic scale of the key; above the chord path, below the beads */
+.tone-clock__scale-arc path {
+  fill: none;
+  stroke: var(--tone-clock-scale-arc);
+}
+
+.tone-clock__marker {
+  outline: none;
+}
+
+.tone-clock__marker[role='button'] {
+  cursor: pointer;
+}
+
+.tone-clock__marker polygon {
+  fill: none;
+  /* the same lightness as with key colors, in the plain green */
+  stroke: oklch(var(--tone-clock-level-marker) var(--tone-clock-plain-hue));
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.tone-clock__marker:hover polygon,
+.tone-clock__marker:focus-visible polygon {
+  stroke: var(--tone-clock-tonic);
+}
+
+.tone-clock__marker:focus-visible polygon {
+  stroke: var(--tone-clock-focus);
+  stroke-width: 1.5;
+}
+
+.tone-clock__marker--active polygon {
+  fill: var(--tone-clock-tonic);
+  stroke: var(--tone-clock-tonic);
+}
+
+/* with key colors, markers take the hue of their tone's level */
+.tone-clock__marker[data-level] polygon {
+  stroke: oklch(var(--tone-clock-level-marker) var(--level-hue));
+}
+
+.tone-clock__marker[data-level]:hover polygon {
+  stroke: oklch(var(--tone-clock-level-dark) var(--level-hue));
+}
+
+.tone-clock__marker--active[data-level] polygon {
+  fill: oklch(var(--tone-clock-level-dark) var(--level-hue));
+  stroke: oklch(var(--tone-clock-level-dark) var(--level-hue));
+}
+
+.tone-clock__marker[data-level]:focus-visible polygon {
+  stroke: var(--tone-clock-focus);
+}
+
+.tone-clock__marker-hit {
+  fill: transparent;
+}
+
+.tone-clock__bead text {
+  fill: var(--tone-clock-label);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+/* inverse labels: dark on the light inactive beads, light on the active ones */
+.tone-clock__bead:not(.tone-clock__bead--active) text {
+  fill: var(--tone-clock-label-inactive);
+}
+
+.tone-clock__secondary-label {
+  opacity: 0.85;
+}
+
+.tone-clock__bead {
+  cursor: pointer;
+  outline: none;
+}
+
+.tone-clock__bead:focus-visible circle {
+  stroke: var(--tone-clock-focus);
+  stroke-width: 2;
+}
+
+/*
+ * Drawn below the beads (the original app drew it on top); a light
+ * translucent tint without a border, so that it does not overpower the
+ * beads, the same with and without key colors (no change when switching).
+ */
+.tone-clock__chord {
+  fill: none;
+  stroke: var(--tone-clock-chord-tint);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.tone-clock__chord--closed {
+  fill: var(--tone-clock-chord-tint);
+  stroke: none;
+}
+
+/* Pointer gestures: no scrolling or text selection while dragging. */
+.tone-clock {
+  touch-action: none;
+  cursor: grab;
+}
+
+.tone-clock--rotating,
+.tone-clock--rotating .tone-clock__marker[role='button'] {
+  cursor: grabbing;
+}
+
+.tone-clock__ghost {
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.tone-clock__ghost circle {
+  fill: var(--tone-clock-bead-active);
+}
+
+.tone-clock__ghost text {
+  fill: var(--tone-clock-label);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.tone-clock__ghost--remove {
+  opacity: 0.3;
+}

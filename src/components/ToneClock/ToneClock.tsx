@@ -35,7 +35,7 @@ import {
   type Point,
 } from './geometry.ts'
 import { applyDrop, rotationSteps } from './gestures.ts'
-import './ToneCircle.css'
+import './ToneClock.css'
 
 export type { CircleOrder } from './geometry.ts'
 
@@ -117,7 +117,7 @@ interface BeadLabelsProps {
 function BeadLabels({ center, pitchClass, names, secondaryNames }: BeadLabelsProps) {
   if (!secondaryNames) {
     return (
-      <text className="tone-circle__label" x={center.x} y={center.y} fontSize={BEAD_RADIUS} aria-hidden="true">
+      <text className="tone-clock__label" x={center.x} y={center.y} fontSize={BEAD_RADIUS} aria-hidden="true">
         {names[pitchClass]}
       </text>
     )
@@ -125,7 +125,7 @@ function BeadLabels({ center, pitchClass, names, secondaryNames }: BeadLabelsPro
   return (
     <>
       <text
-        className="tone-circle__label"
+        className="tone-clock__label"
         x={center.x}
         y={center.y - 0.2 * BEAD_RADIUS}
         fontSize={0.85 * BEAD_RADIUS}
@@ -134,7 +134,7 @@ function BeadLabels({ center, pitchClass, names, secondaryNames }: BeadLabelsPro
         {names[pitchClass]}
       </text>
       <text
-        className="tone-circle__secondary-label"
+        className="tone-clock__secondary-label"
         x={center.x}
         y={center.y + 0.5 * BEAD_RADIUS}
         fontSize={0.5 * BEAD_RADIUS}
@@ -146,7 +146,7 @@ function BeadLabels({ center, pitchClass, names, secondaryNames }: BeadLabelsPro
   )
 }
 
-export interface ToneCircleProps {
+export interface ToneClockProps {
   /** Selected pitch classes as a 12-bit mask (controlled mode). */
   value?: PitchClassSet
   /** Initially selected pitch classes (uncontrolled mode). */
@@ -189,7 +189,7 @@ export interface ToneCircleProps {
   className?: string
 }
 
-export function ToneCircle({
+export function ToneClock({
   value,
   defaultValue = EMPTY,
   onChange,
@@ -202,7 +202,7 @@ export function ToneCircle({
   onTonicChange,
   windowKeys = false,
   className,
-}: ToneCircleProps) {
+}: ToneClockProps) {
   const [internalValue, setInternalValue] = useState(defaultValue)
   const [drag, setDrag] = useState<Drag | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -375,9 +375,9 @@ export function ToneCircle({
   const ghost = drag?.kind === 'bead' && drag.moved && drag.point ? drag : null
   const grabbing = drag?.kind === 'rotate' || (drag?.kind === 'marker' && drag.moved)
   const classes = [
-    'tone-circle',
-    grabbing && 'tone-circle--rotating',
-    colorTonic !== undefined && 'tone-circle--key-colors',
+    'tone-clock',
+    grabbing && 'tone-clock--rotating',
+    colorTonic !== undefined && 'tone-clock--key-colors',
     className,
   ]
 
@@ -386,7 +386,7 @@ export function ToneCircle({
       className={classes.filter(Boolean).join(' ')}
       viewBox={VIEW_BOX}
       role="group"
-      aria-label="Tone circle"
+      aria-label="Tone clock"
       ref={svgRef}
       onKeyDown={windowKeys ? undefined : handleCircleKeyDown}
       onMouseDown={handleMouseDown}
@@ -398,13 +398,13 @@ export function ToneCircle({
       {/* below the beads, so that it does not cover the root outline */}
       {chord && (
         <path
-          className={chord.closed ? 'tone-circle__chord tone-circle__chord--closed' : 'tone-circle__chord'}
+          className={chord.closed ? 'tone-clock__chord tone-clock__chord--closed' : 'tone-clock__chord'}
           d={chord.d}
           aria-hidden="true"
         />
       )}
       {scaleArcs.length > 0 && (
-        <g className="tone-circle__scale-arc" strokeWidth={SCALE_ARC_WIDTH} aria-hidden="true">
+        <g className="tone-clock__scale-arc" strokeWidth={SCALE_ARC_WIDTH} aria-hidden="true">
           {scaleArcs.map((run) => (
             <path key={run.start} d={arcPath(run, SCALE_ARC_RADIUS, SCALE_ARC_GAP_DEGREES)} />
           ))}
@@ -414,9 +414,9 @@ export function ToneCircle({
         const active = has(tones, pitchClass)
         const name = names[pitchClass]
         const beadClasses = [
-          'tone-circle__bead',
-          active && 'tone-circle__bead--active',
-          pitchClass === root && 'tone-circle__bead--root',
+          'tone-clock__bead',
+          active && 'tone-clock__bead--active',
+          pitchClass === root && 'tone-clock__bead--root',
         ]
         return (
           <g
@@ -440,7 +440,7 @@ export function ToneCircle({
         if (!active && !onTonicChange) {
           return null
         }
-        const className = active ? 'tone-circle__marker tone-circle__marker--active' : 'tone-circle__marker'
+        const className = active ? 'tone-clock__marker tone-clock__marker--active' : 'tone-clock__marker'
         const points = [tip, ...base].map(({ x, y }) => `${x},${y}`).join(' ')
         const interactive = onTonicChange && {
           role: 'button',
@@ -459,7 +459,7 @@ export function ToneCircle({
             data-level={colorTonic === undefined ? undefined : keyLevel(pitchClass, colorTonic)}
             {...interactive}
           >
-            <circle className="tone-circle__marker-hit" cx={hitCenter.x} cy={hitCenter.y} r={hitRadius} />
+            <circle className="tone-clock__marker-hit" cx={hitCenter.x} cy={hitCenter.y} r={hitRadius} />
             <polygon points={points} />
           </g>
         )
@@ -468,8 +468,8 @@ export function ToneCircle({
         <g
           className={
             pitchClassAt(ghost.point, order) === null
-              ? 'tone-circle__ghost tone-circle__ghost--remove'
-              : 'tone-circle__ghost'
+              ? 'tone-clock__ghost tone-clock__ghost--remove'
+              : 'tone-clock__ghost'
           }
           aria-hidden="true"
         >

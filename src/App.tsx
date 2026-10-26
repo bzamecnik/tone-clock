@@ -1,6 +1,6 @@
 import { ChordInput } from './components/ChordInput/ChordInput.tsx'
 import { SegmentedToggle } from './components/SegmentedToggle/SegmentedToggle.tsx'
-import { ToneCircle, type CircleOrder } from './components/ToneCircle/ToneCircle.tsx'
+import { ToneClock, type CircleOrder } from './components/ToneClock/ToneClock.tsx'
 import {
   DEGREE_NAMES,
   FLAT_NAMES,
@@ -69,12 +69,12 @@ function ascendingFrom(tones: PitchClassSet, from = 0): number[] {
 }
 
 function App() {
-  const [tones, setTones] = useStoredState('tone-circle:tones', C_MAJOR, parseTones)
-  const [key, setKey] = useStoredState('tone-circle:key', null, parseKey, serializeKey)
-  const [labels, setLabels] = useStoredState<Labels>('tone-circle:labels', 'notes', parseLabels)
-  const [order, setOrder] = useStoredState<CircleOrder>('tone-circle:order', 'semitones', parseOrder)
-  const [colors, setColors] = useStoredState<Colors>('tone-circle:colors', 'key', parseColors)
-  const [theme, setTheme] = useStoredState<ThemeSetting>('tone-circle:theme', 'auto', parseTheme)
+  const [tones, setTones] = useStoredState('tone-clock:tones', C_MAJOR, parseTones)
+  const [key, setKey] = useStoredState('tone-clock:key', null, parseKey, serializeKey)
+  const [labels, setLabels] = useStoredState<Labels>('tone-clock:labels', 'notes', parseLabels)
+  const [order, setOrder] = useStoredState<CircleOrder>('tone-clock:order', 'semitones', parseOrder)
+  const [colors, setColors] = useStoredState<Colors>('tone-clock:colors', 'key', parseColors)
+  const [theme, setTheme] = useStoredState<ThemeSetting>('tone-clock:theme', 'auto', parseTheme)
   useTheme(theme)
 
   useWindowKeys((event) => {
@@ -102,7 +102,7 @@ function App() {
 
   return (
     <main className="app">
-      <h1 className="app__title">Tone Circle</h1>
+      <h1 className="app__title">Tone Clock</h1>
       <div className="app__top">
         <ChordInput onSubmit={setTones} tonic={key ?? undefined} />
         <div className="app__names">
@@ -120,7 +120,7 @@ function App() {
         </div>
       </div>
       <div className="app__circle">
-        <ToneCircle
+        <ToneClock
           value={tones}
           onChange={setTones}
           names={beadNames}

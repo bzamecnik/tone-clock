@@ -4,7 +4,7 @@ Guidance for Claude Code working in this repository.
 
 ## Project
 
-Tone Circle: a React (TypeScript, Vite) component showing the 12 pitch
+Tone Clock: a React (TypeScript, Vite) component showing the 12 pitch
 classes as toggleable beads on a circle. Later to be wrapped as a Tauri
 desktop app. See `README.md` and the roadmap in `docs/plan.md`.
 
@@ -29,7 +29,7 @@ Reference implementation (Java, Android), read-only:
 ## Code conventions
 
 - Keep music theory logic pure and UI-free in `src/music/`; the component in
-  `src/components/ToneCircle/` only renders and handles input.
+  `src/components/ToneClock/` only renders and handles input.
 - A pitch class set is an immutable 12-bit integer mask (bit `i` = pitch class
   `i`, 0 = C), matching the `index` of the Java `PitchClassSet`.
 - Tests live next to the code as `*.test.ts(x)` (Vitest + Testing Library).

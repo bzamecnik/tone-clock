@@ -1,8 +1,21 @@
 # Music theory behind the features
 
-Design notes explaining why some features of Tone Circle work the way they
+Design notes explaining why some features of Tone Clock work the way they
 do. The code lives in `src/music/` (pure functions) and is visualized by
-`src/components/ToneCircle/`.
+`src/components/ToneClock/`.
+
+## Why a clock
+
+Pitch classes are the integers mod 12, like the hours on a clock face:
+C = 0 sits at the top, where 12 ≡ 0 sits on a clock. Transposing a set
+is turning it around the dial and inverting it is a mirror image across an
+axis. Textbooks of pitch-class set theory draw sets on such a "clock face"
+for the same reason.
+
+The name also nods to Peter Schat's *Tone Clock* (*Toonklok*, 1980s),
+developed further by Jenny McLeod. It is a different idea though: the 12
+"hours" of Schat's clock are the 12 trichord types, not the 12 pitch
+classes. The original Android app (2013) was called *Tone Circle*.
 
 ## Two orders of the circle: semitones and fifths
 

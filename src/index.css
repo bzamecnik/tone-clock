@@ -1,6 +1,6 @@
 :root {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  /* colors of the app (the tone circle has its own --tone-circle-* ones) */
+  /* colors of the app (the tone clock has its own --tone-clock-* ones) */
   --color-text: #333;
   --color-background: #fff;
   --color-muted: #888;
@@ -45,20 +45,20 @@
 }
 
 /*
- * Dark tone circle: inactive beads dark, active ones at the same lightness as
+ * Dark tone clock: inactive beads dark, active ones at the same lightness as
  * in light mode (so they stand out), labels and rings light.
  */
-:root[data-theme='dark'] .tone-circle {
-  --tone-circle-bead: oklch(0.33 0.04 130);
-  --tone-circle-label-inactive: oklch(0.78 0.08 130);
-  --tone-circle-tonic: oklch(0.82 0.1 130);
-  --tone-circle-scale-arc: oklch(0.72 0.09 140 / 0.5);
-  --tone-circle-chord-tint: oklch(0.7 0.07 140 / 0.25);
-  --tone-circle-focus: #6ea8ff;
-  --tone-circle-level-bead: 0.33 0.05;
-  --tone-circle-level-dark: 0.8 0.09;
-  --tone-circle-level-root: 0.86 0.09;
-  --tone-circle-level-marker: 0.48 0.07;
+:root[data-theme='dark'] .tone-clock {
+  --tone-clock-bead: oklch(0.33 0.04 130);
+  --tone-clock-label-inactive: oklch(0.78 0.08 130);
+  --tone-clock-tonic: oklch(0.82 0.1 130);
+  --tone-clock-scale-arc: oklch(0.72 0.09 140 / 0.5);
+  --tone-clock-chord-tint: oklch(0.7 0.07 140 / 0.25);
+  --tone-clock-focus: #6ea8ff;
+  --tone-clock-level-bead: 0.33 0.05;
+  --tone-clock-level-dark: 0.8 0.09;
+  --tone-clock-level-root: 0.86 0.09;
+  --tone-clock-level-marker: 0.48 0.07;
 }
 
 body {
