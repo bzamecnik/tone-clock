@@ -157,6 +157,8 @@ export interface ToneClockProps {
   names?: PitchClassNames
   /** Optional smaller labels shown below the main ones (e.g. scale degrees). */
   secondaryNames?: PitchClassNames
+  /** Names of the keys (tonics), starting from C, for the key markers. */
+  keyNames?: PitchClassNames
   /**
    * Order of the tones around the circle: chromatic ("semitones", default) or
    * the circle of "fifths". Rotating by one step (arrow keys, dragging)
@@ -195,6 +197,7 @@ export function ToneClock({
   onChange,
   names = FLAT_NAMES,
   secondaryNames,
+  keyNames = FLAT_NAMES,
   order = 'semitones',
   keyColors = false,
   root,
@@ -405,7 +408,7 @@ export function ToneClock({
       )}
       {tonic !== undefined && scaleArcs.length > 0 && (
         <g className="tone-clock__scale-arc" strokeWidth={SCALE_ARC_WIDTH} aria-hidden="true">
-          <title>{`Tones of the key of ${FLAT_NAMES[tonic]} (diatonic scale)`}</title>
+          <title>{`Tones of the key of ${keyNames[tonic]} (diatonic scale)`}</title>
           {scaleArcs.map((run) => (
             <path key={run.start} d={arcPath(run, SCALE_ARC_RADIUS, SCALE_ARC_GAP_DEGREES)} />
           ))}
@@ -447,7 +450,7 @@ export function ToneClock({
           role: 'button',
           // a single tab stop; the arrow keys move the key
           tabIndex: active || (tonic === undefined && pitchClass === 0) ? 0 : -1,
-          'aria-label': `Key ${FLAT_NAMES[pitchClass]}`,
+          'aria-label': `Key ${keyNames[pitchClass]}`,
           'aria-pressed': active,
           'data-tonic': pitchClass,
           onKeyDown: (event: KeyboardEvent) => handleMarkerKeyDown(event, pitchClass),
@@ -460,7 +463,7 @@ export function ToneClock({
             data-level={colorTonic === undefined ? undefined : keyLevel(pitchClass, colorTonic)}
             {...interactive}
           >
-            {interactive && <title>{`${active ? 'Unselect' : 'Select'} the key of ${FLAT_NAMES[pitchClass]}`}</title>}
+            {interactive && <title>{`${active ? 'Unselect' : 'Select'} the key of ${keyNames[pitchClass]}`}</title>}
             <circle className="tone-clock__marker-hit" cx={hitCenter.x} cy={hitCenter.y} r={hitRadius} />
             <polygon points={points} />
           </g>

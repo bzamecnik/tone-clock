@@ -187,6 +187,18 @@ describe('ToneClock', () => {
       expect(tooltip('Key A')).toHaveTextContent(/^Unselect the key of A$/)
     })
 
+    it('names the keys by the given key names (flats by default)', () => {
+      const { container, rerender } = render(<ToneClock tonic={6} onTonicChange={() => {}} />)
+      expect(pressedMarkers()).toEqual(['Key Gb'])
+      rerender(<ToneClock tonic={6} onTonicChange={() => {}} keyNames={SHARP_NAMES} />)
+      expect(pressedMarkers()).toEqual(['Key F#'])
+      const marker = screen.getByRole('button', { name: 'Key F#' })
+      expect(marker.querySelector('title')).toHaveTextContent(/^Unselect the key of F#$/)
+      expect(container.querySelector('.tone-clock__scale-arc > title')).toHaveTextContent(
+        'Tones of the key of F# (diatonic scale)',
+      )
+    })
+
     it('selects a key by clicking its marker and unselects it by clicking again', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
