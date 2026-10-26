@@ -1,4 +1,5 @@
 .chord-input {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -47,8 +48,12 @@
   outline-color: var(--color-error);
 }
 
+/* in the gap below the field, so that the layout does not jump */
 .chord-input__error {
-  margin: 0.25rem 0 0;
-  font-size: 0.9rem;
+  position: absolute;
+  top: calc(100% + 0.2rem);
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1;
   color: var(--color-error);
 }

@@ -265,6 +265,19 @@ describe('App', () => {
     expect(scaleName()).toBe('C diatonic (major)')
   })
 
+  it('keeps the rows of the tone table in place, unlabeled while empty', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<App />)
+    const labels = () => [...container.querySelectorAll('.app__tones th')].map((th) => th.textContent)
+    expect(labels()).toEqual(['', 'chord', ''])
+    await user.click(screen.getByRole('button', { name: 'Key C' }))
+    expect(labels()).toEqual(['', 'chord', 'key'])
+    await user.keyboard('{Delete}')
+    expect(labels()).toEqual(['', '', ''])
+    // the empty rows are left out of the accessibility tree
+    expect(screen.queryByRole('row', { name: 'Degrees in the key' })).toBeNull()
+  })
+
   describe('key', () => {
     /** Clicks the key marker (toggles the key) */
     function selectKey(user: ReturnType<typeof userEvent.setup>, key: string) {

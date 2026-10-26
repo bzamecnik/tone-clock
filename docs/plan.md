@@ -191,7 +191,7 @@ Notes:
       touch and keyboard controls, instead of the hints in the panel
 - [x] tones and key in the URL fragment (`#tones=G,B,D,F&key=C`), with a
       button to copy the link
-- [ ] the right panel keeps its layout when there is no chord name or key
+- [x] the right panel keeps its layout when there is no chord name or key
 - [ ] idea: embed mode, a read-only clock for an `<iframe>` on other pages
 
 ### 9. Desktop app

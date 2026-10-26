@@ -8,6 +8,7 @@ import {
   FLAT_NAMES,
   ROMAN_NAMES,
   relativeNames,
+  type PitchClassNames,
 } from './music/pitchClassNames.ts'
 import { chordRoot, nameSet } from './music/pitchClassSetNamer.ts'
 import {
@@ -70,6 +71,27 @@ function parseLabels(stored: string): Labels | undefined {
 /** Pitch classes of a set in ascending order from `from` (C by default). */
 function ascendingFrom(tones: PitchClassSet, from = 0): number[] {
   return toPitchClasses(transpose(tones, -from)).map((pc) => mod(pc + from, OCTAVE_SIZE))
+}
+
+/** A row of degrees of the tones; empty (unlabeled, hidden) without names or tones. */
+function DegreeRow({
+  label,
+  ariaLabel,
+  tones,
+  names,
+}: {
+  label: string
+  ariaLabel: string
+  tones: number[]
+  names: PitchClassNames | null
+}) {
+  const empty = names === null || tones.length === 0
+  return (
+    <tr className="app__degrees" aria-label={ariaLabel} aria-hidden={empty || undefined}>
+      <th scope="row">{empty ? '' : label}</th>
+      {!empty && tones.map((pc) => <td key={pc}>{names[pc]}</td>)}
+    </tr>
+  )
 }
 
 function App() {
@@ -165,22 +187,9 @@ function App() {
               <td key={pc}>{FLAT_NAMES[pc]}</td>
             ))}
           </tr>
-          {chordDegreeNames && (
-            <tr className="app__degrees" aria-label="Degrees in the chord">
-              <th scope="row">chord</th>
-              {toneList.map((pc) => (
-                <td key={pc}>{chordDegreeNames[pc]}</td>
-              ))}
-            </tr>
-          )}
-          {degreeNames && (
-            <tr className="app__degrees" aria-label="Degrees in the key">
-              <th scope="row">key</th>
-              {toneList.map((pc) => (
-                <td key={pc}>{degreeNames[pc]}</td>
-              ))}
-            </tr>
-          )}
+          {/* always present (maybe empty), so that the layout does not jump */}
+          <DegreeRow label="chord" ariaLabel="Degrees in the chord" tones={toneList} names={chordDegreeNames} />
+          <DegreeRow label="key" ariaLabel="Degrees in the key" tones={toneList} names={degreeNames} />
         </tbody>
       </table>
       <div className="app__settings">

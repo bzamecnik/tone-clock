@@ -35,7 +35,7 @@
 }
 
 .app__names {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,11 +72,16 @@
 
 .app__tones {
   grid-area: tones;
-  min-height: 1.5em;
   margin: 0.5rem 0;
   border-collapse: collapse;
   font-size: 1.25rem;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
+}
+
+/* rows as tall when empty, so that the layout does not jump */
+.app__tones tr {
+  height: 1.2em;
 }
 
 /* one column per tone: the note above its degree */
