@@ -41,9 +41,18 @@ describe('App', () => {
     history.replaceState(null, '', location.pathname)
   })
 
-  it('shows the app title', () => {
+  it('shows the app title, linking to the home page', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: 'Tone Clock' })).toBeInTheDocument()
+    const title = screen.getByRole('heading', { name: 'Tone Clock' })
+    expect(within(title).getByRole('link')).toHaveAttribute('href', 'https://bzamecnik.github.io/tone-clock/')
+  })
+
+  it('links to the source code', () => {
+    render(<App />)
+    expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute(
+      'href',
+      'https://github.com/bzamecnik/tone-clock',
+    )
   })
 
   it('lists the tones from the root of the chord, with their degrees', async () => {
@@ -85,7 +94,7 @@ describe('App', () => {
     it('opens from a single hint line, which leaves the explanations to the dialog', async () => {
       const user = userEvent.setup()
       const { container } = render(<App />)
-      expect(container.querySelector('.app__hint')).toHaveTextContent(/^Controls\s*\?\s*Copy link$/)
+      expect(container.querySelector('.app__hint')).toHaveTextContent(/^Controls\s*\?\s*Copy link\s*GitHub$/)
       await user.click(screen.getByRole('button', { name: 'Controls' }))
       expect(dialog()).toBeInTheDocument()
     })

@@ -28,6 +28,9 @@ import './App.css'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
 
+const HOME_URL = 'https://bzamecnik.github.io/tone-clock/'
+const REPOSITORY_URL = 'https://github.com/bzamecnik/tone-clock'
+
 type Labels = 'notes' | 'degrees'
 
 function parseTones(stored: string): PitchClassSet | undefined {
@@ -148,7 +151,9 @@ function App() {
 
   return (
     <main className="app">
-      <h1 className="app__title">Tone Clock</h1>
+      <h1 className="app__title">
+        <a href={HOME_URL}>Tone Clock</a>
+      </h1>
       <div className="app__top">
         <ChordInput onSubmit={setTones} tonic={key ?? undefined} windowKeys={!showHelp} />
         <div className="app__names">
@@ -239,13 +244,18 @@ function App() {
       </div>
       {/* the controls are explained in the dialog, the keys also at the toggles */}
       <p className="app__hint">
-        <button type="button" className="app__help" onClick={() => setShowHelp(true)}>
-          Controls
-        </button>{' '}
-        <kbd aria-hidden="true">?</kbd>
-        <button type="button" className="app__help app__copy-link" onClick={copyLink}>
+        <span>
+          <button type="button" className="app__link" onClick={() => setShowHelp(true)}>
+            Controls
+          </button>{' '}
+          <kbd aria-hidden="true">?</kbd>
+        </span>
+        <button type="button" className="app__link" onClick={copyLink}>
           {linkCopied ? 'Link copied' : 'Copy link'}
         </button>
+        <a className="app__link" href={REPOSITORY_URL}>
+          GitHub
+        </a>
       </p>
       {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
     </main>
