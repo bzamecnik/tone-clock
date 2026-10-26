@@ -3,7 +3,7 @@ import { CHORD_TEMPLATES, SCALE_TEMPLATES } from './chordNames.ts'
 import { ROMAN_NAMES, relativeNames } from './pitchClassNames.ts'
 import { fromPitchClasses, transpose } from './pitchClassSet.ts'
 import { nameSet } from './pitchClassSetNamer.ts'
-import { parseTones } from './parseTones.ts'
+import { parseNote, parseTones } from './parseTones.ts'
 
 const set = fromPitchClasses
 
@@ -157,5 +157,22 @@ describe('parseTones', () => {
     expect(parseTones('Cxyz')).toBeNull()
     expect(parseTones('C foo scale')).toBeNull()
     expect(parseTones('C E X')).toBeNull()
+  })
+})
+
+describe('parseNote', () => {
+  it('parses a single note name with accidentals to a pitch class', () => {
+    expect(parseNote('C')).toBe(0)
+    expect(parseNote('bb')).toBe(10)
+    expect(parseNote('F#')).toBe(6)
+    expect(parseNote('Cb')).toBe(11)
+    expect(parseNote('E♯')).toBe(5)
+  })
+
+  it('returns null for anything else', () => {
+    expect(parseNote('')).toBeNull()
+    expect(parseNote('H')).toBeNull()
+    expect(parseNote('Cm')).toBeNull()
+    expect(parseNote(' C')).toBeNull()
   })
 })

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App.tsx'
@@ -38,6 +38,7 @@ function keyDegrees() {
 describe('App', () => {
   beforeEach(() => {
     localStorage.clear()
+    history.replaceState(null, '', location.pathname)
   })
 
   it('shows the app title', () => {
@@ -84,7 +85,7 @@ describe('App', () => {
     it('opens from a single hint line, which leaves the explanations to the dialog', async () => {
       const user = userEvent.setup()
       const { container } = render(<App />)
-      expect(container.querySelector('.app__hint')).toHaveTextContent(/^Controls\s*\?$/)
+      expect(container.querySelector('.app__hint')).toHaveTextContent(/^Controls\s*\?\s*Copy link$/)
       await user.click(screen.getByRole('button', { name: 'Controls' }))
       expect(dialog()).toBeInTheDocument()
     })
@@ -389,6 +390,53 @@ describe('App', () => {
       render(<App />)
       expect(selectedKey()).toBe('Key D')
       expect(screen.getByRole('button', { name: '1' })).toHaveTextContent('1D')
+    })
+  })
+
+  describe('link', () => {
+    it('keeps the tones and key in the URL fragment', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      expect(location.hash).toBe('#tones=C,E,G')
+      await user.click(screen.getByRole('button', { name: 'Bb' }))
+      expect(location.hash).toBe('#tones=C,E,G,Bb')
+      await user.click(screen.getByRole('button', { name: 'Key F' }))
+      expect(location.hash).toBe('#tones=C,E,G,Bb&key=F')
+    })
+
+    it('opens the tones and key of a link rather than the stored ones', () => {
+      localStorage.setItem(STORAGE_KEY, String(fromPitchClasses([0, 3, 7])))
+      history.replaceState(null, '', '#tones=g,b,d,f&key=C')
+      render(<App />)
+      expect(selectedTones()).toBe('G B D F')
+      expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('V7')
+      // written back in the canonical form
+      expect(location.hash).toBe('#tones=G,B,D,F&key=C')
+    })
+
+    it('ignores an invalid fragment', () => {
+      history.replaceState(null, '', '#tones=X')
+      render(<App />)
+      expect(selectedTones()).toBe('C E G')
+      expect(location.hash).toBe('#tones=C,E,G')
+    })
+
+    it('follows a link opened in the same tab', () => {
+      render(<App />)
+      act(() => {
+        history.replaceState(null, '', '#tones=A,C,E')
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      })
+      expect(chordName()).toBe('Am')
+    })
+
+    it('copies the link with a button', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.click(screen.getByRole('button', { name: 'Copy link' }))
+      expect(await navigator.clipboard.readText()).toBe(location.href)
+      expect(location.href).toMatch(/#tones=C,E,G$/)
+      expect(screen.getByRole('button', { name: 'Link copied' })).toBeInTheDocument()
     })
   })
 

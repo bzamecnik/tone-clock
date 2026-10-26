@@ -190,6 +190,12 @@ function parseDegreeList(tokens: string[], key: number): PitchClassSet | null {
   return fromPitchClasses(pitchClasses)
 }
 
+/** Pitch class of a single note name ("C", "Bb", "f#"), or null. */
+export function parseNote(text: string): number | null {
+  const match = NOTE.exec(text)
+  return match ? noteToPitchClass(match[1], match[2]) : null
+}
+
 function parseNoteList(tokens: string[]): PitchClassSet | null {
   const pitchClasses: number[] = []
   for (const token of tokens) {

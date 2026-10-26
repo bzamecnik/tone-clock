@@ -20,6 +20,8 @@ import {
 } from './music/pitchClassSet.ts'
 import { useStoredState } from './useStoredState.ts'
 import { useTheme, type ThemeSetting } from './useTheme.ts'
+import { formatUrlState } from './urlState.ts'
+import { useUrlState } from './useUrlState.ts'
 import { useWindowKeys } from './useWindowKeys.ts'
 import './App.css'
 
@@ -79,6 +81,7 @@ function App() {
   const [theme, setTheme] = useStoredState<ThemeSetting>('tone-clock:theme', 'auto', parseTheme)
   useTheme(theme)
   const [showHelp, setShowHelp] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   useWindowKeys((event) => {
     if (event.key === '?') {
@@ -101,11 +104,25 @@ function App() {
   // listed from the root of the chord, else from the tonic (or C)
   const root = chordRoot(tones)
   const toneList = ascendingFrom(tones, root ?? key ?? 0)
+  useUrlState(formatUrlState(toneList, key), (state) => {
+    setTones(state.tones)
+    setKey(state.key)
+  })
   const chordDegreeNames = root === null ? null : relativeNames(DEGREE_NAMES, root)
   const relativeChord = key === null ? '' : nameSet(tones, relativeNames(ROMAN_NAMES, key)).chord
   // with a key, beads show both note names and degrees, the chosen one larger
   const beadNames = degreeNames && labels === 'degrees' ? degreeNames : FLAT_NAMES
   const secondaryBeadNames = degreeNames && (labels === 'degrees' ? FLAT_NAMES : degreeNames)
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(location.href)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    } catch {
+      // clipboard unavailable: the link is still in the address bar
+    }
+  }
 
   return (
     <main className="app">
@@ -217,6 +234,9 @@ function App() {
           Controls
         </button>{' '}
         <kbd aria-hidden="true">?</kbd>
+        <button type="button" className="app__help app__copy-link" onClick={copyLink}>
+          {linkCopied ? 'Link copied' : 'Copy link'}
+        </button>
       </p>
       {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
     </main>

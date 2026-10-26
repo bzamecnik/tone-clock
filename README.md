@@ -23,6 +23,8 @@ it runs in the browser and can be installed as an app that works offline.
   7 neighboring tones.
 - **Color by key**: tones of the key are green, the tritone yellow and the
   tones outside the key red.
+- **Share a link**: the address always links to the current tones and key,
+  e.g. [`#tones=G,B,D,F&key=C`](https://bzamecnik.github.io/tone-clock/#tones=G,B,D,F&key=C).
 - Light and dark theme.
 
 ## Controls
@@ -32,6 +34,7 @@ it runs in the browser and can be installed as an app that works offline.
 | add or remove a tone | click a bead | Tab to it, then Enter or Space |
 | move a tone | drag it onto another bead | |
 | remove a tone | drag it off the circle | |
+| type a chord, scale or notes | click the text field | / |
 | clear all tones | | Delete |
 | transpose | drag around the circle (off the beads) | ← → |
 | choose a key | click or drag a triangle outside the circle | ↑ ↓ |
@@ -39,6 +42,7 @@ it runs in the browser and can be installed as an app that works offline.
 | note names / degrees on the beads | Labels toggle | L |
 | key colors / plain | Colors toggle | C |
 | theme | Theme toggle | T |
+| show all controls | Controls link | ? |
 
 The music theory behind the features (why a clock, the circle of fifths, key
 colors, how tones are named) is explained in
