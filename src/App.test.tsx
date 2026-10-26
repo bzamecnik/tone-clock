@@ -168,6 +168,59 @@ describe('App', () => {
     })
   })
 
+  describe('accidentals', () => {
+    const input = () => screen.getByRole('textbox', { name: 'Chord, scale or notes' })
+    const group = () => within(screen.getByRole('group', { name: 'Accidentals' }))
+    const relativeChord = () => screen.getByLabelText('Relative chord name').parentElement?.textContent
+
+    it('spells the notes by the key, as in C without a key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      expect(group().getByRole('button', { name: 'Key' })).toHaveAttribute('aria-pressed', 'true')
+      await user.type(input(), 'C chromatic{Enter}')
+      expect(selectedTones()).toBe('C C# D Eb E F F# G Ab A Bb B')
+
+      await user.click(screen.getByRole('button', { name: 'Key D' }))
+      await user.type(input(), 'Bm7{Enter}')
+      expect(selectedTones()).toBe('B D F# A')
+      expect(chordName()).toBe('Bm7')
+      expect(screen.getByRole('button', { name: 'C#' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Key F#' })).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Key Eb' }))
+      await user.type(input(), 'V7{Enter}')
+      expect(selectedTones()).toBe('Bb D F Ab')
+      expect(relativeChord()).toBe('V7 in Eb')
+    })
+
+    it('switches to all flats and all sharps with the A key and the toggle', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.click(screen.getByRole('button', { name: 'Key D' }))
+      await user.type(input(), 'F#m{Enter}')
+      await user.keyboard('a')
+      expect(group().getByRole('button', { name: 'Flats' })).toHaveAttribute('aria-pressed', 'true')
+      expect(selectedTones()).toBe('Gb A Db')
+      expect(chordName()).toBe('Gbm')
+      expect(screen.getByRole('button', { name: 'Key Gb' })).toBeInTheDocument()
+      await user.keyboard('A')
+      expect(selectedTones()).toBe('F# A C#')
+      await user.keyboard('a')
+      expect(group().getByRole('button', { name: 'Key' })).toHaveAttribute('aria-pressed', 'true')
+      await user.click(group().getByRole('button', { name: 'Sharps' }))
+      expect(screen.getByRole('button', { name: 'A#' })).toBeInTheDocument()
+    })
+
+    it('remembers the setting', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<App />)
+      await user.keyboard('a')
+      unmount()
+      render(<App />)
+      expect(group().getByRole('button', { name: 'Flats' })).toHaveAttribute('aria-pressed', 'true')
+    })
+  })
+
   describe('circle of fifths', () => {
     const beadNames = () =>
       within(screen.getByRole('group', { name: 'Tone clock' }))
@@ -178,14 +231,14 @@ describe('App', () => {
     it('switches between semitones and fifths with the F key', async () => {
       const user = userEvent.setup()
       render(<App />)
-      expect(beadNames().slice(0, 3)).toEqual(['C', 'Db', 'D'])
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'C#', 'D'])
       await user.keyboard('f')
       expect(beadNames().slice(0, 3)).toEqual(['C', 'G', 'D'])
       // one step is a fifth now
       await user.keyboard('{ArrowRight}')
       expect(selectedTones()).toBe('G B D')
       await user.keyboard('F')
-      expect(beadNames().slice(0, 3)).toEqual(['C', 'Db', 'D'])
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'C#', 'D'])
     })
 
     it('switches with the toggle buttons too', async () => {
@@ -199,7 +252,7 @@ describe('App', () => {
       expect(group.getByRole('button', { name: 'Semitones' })).toHaveAttribute('aria-pressed', 'false')
       // the f key still works after clicking a toggle button
       await user.keyboard('f')
-      expect(beadNames().slice(0, 3)).toEqual(['C', 'Db', 'D'])
+      expect(beadNames().slice(0, 3)).toEqual(['C', 'C#', 'D'])
     })
 
     it('remembers the order', async () => {
@@ -235,7 +288,7 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App />)
     await user.keyboard('{ArrowRight}')
-    expect(selectedTones()).toBe('Db F Ab')
+    expect(selectedTones()).toBe('C# F Ab')
     await user.keyboard('{Delete}')
     expect(selectedTones()).toBe('')
   })
@@ -315,7 +368,8 @@ describe('App', () => {
       // C major in A (minor) is bIII
       expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('bIII')
 
-      await user.click(screen.getByRole('button', { name: 'Bb' }))
+      // spelled A# (#1) in A
+      await user.click(screen.getByRole('button', { name: 'A#' }))
       expect(screen.getByLabelText('Relative chord name')).toHaveTextContent('bIII7')
     })
 
@@ -356,7 +410,7 @@ describe('App', () => {
       render(<App />)
       await selectKey(user, 'E')
       await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'C chromatic{Enter}')
-      expect(selectedTones()).toBe('E F Gb G Ab A Bb B C Db D Eb')
+      expect(selectedTones()).toBe('E F F# G G# A A# B C C# D D#')
       expect(screen.queryByRole('row', { name: 'Degrees in the chord' })).toBeNull()
       expect(keyDegrees()).toBe('1 b2 2 b3 3 4 b5 5 b6 6 b7 7')
     })
@@ -486,7 +540,8 @@ describe('App', () => {
       expect(selectedTones()).toBe('G A B C D E F')
       await user.clear(input())
       await user.type(input(), 'Db F Ab B{Enter}')
-      expect(chordName()).toBe('Db7')
+      // spelled as in C without a key
+      expect(chordName()).toBe('C#7')
     })
 
     it('understands Roman numerals and degrees in the selected key', async () => {

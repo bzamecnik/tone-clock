@@ -5,9 +5,11 @@ import { HelpDialog } from './components/HelpDialog/HelpDialog.tsx'
 import { ToneClock, type CircleOrder } from './components/ToneClock/ToneClock.tsx'
 import {
   DEGREE_NAMES,
-  FLAT_NAMES,
   ROMAN_NAMES,
+  keyNames,
+  noteNames,
   relativeNames,
+  type Accidentals,
   type PitchClassNames,
 } from './music/pitchClassNames.ts'
 import { chordRoot, nameSet } from './music/pitchClassSetNamer.ts'
@@ -67,6 +69,12 @@ function parseColors(stored: string): Colors | undefined {
   return stored === 'plain' || stored === 'key' ? stored : undefined
 }
 
+const ACCIDENTALS: Accidentals[] = ['key', 'flats', 'sharps']
+
+function parseAccidentals(stored: string): Accidentals | undefined {
+  return ACCIDENTALS.find((accidentals) => accidentals === stored)
+}
+
 function parseLabels(stored: string): Labels | undefined {
   return stored === 'notes' || stored === 'degrees' ? stored : undefined
 }
@@ -101,6 +109,11 @@ function App() {
   const [tones, setTones] = useStoredState('tone-clock:tones', C_MAJOR, parseTones)
   const [key, setKey] = useStoredState('tone-clock:key', null, parseKey, serializeKey)
   const [labels, setLabels] = useStoredState<Labels>('tone-clock:labels', 'notes', parseLabels)
+  const [accidentals, setAccidentals] = useStoredState<Accidentals>(
+    'tone-clock:accidentals',
+    'key',
+    parseAccidentals,
+  )
   const [order, setOrder] = useStoredState<CircleOrder>('tone-clock:order', 'semitones', parseOrder)
   const [colors, setColors] = useStoredState<Colors>('tone-clock:colors', 'key', parseColors)
   const [theme, setTheme] = useStoredState<ThemeSetting>('tone-clock:theme', 'auto', parseTheme)
@@ -115,6 +128,8 @@ function App() {
       // the dialog is modal: the other keys wait until it is closed
     } else if (event.key === 'l' || event.key === 'L') {
       setLabels(labels === 'notes' ? 'degrees' : 'notes')
+    } else if (event.key === 'a' || event.key === 'A') {
+      setAccidentals(ACCIDENTALS[(ACCIDENTALS.indexOf(accidentals) + 1) % ACCIDENTALS.length])
     } else if (event.key === 'f' || event.key === 'F') {
       setOrder(order === 'semitones' ? 'fifths' : 'semitones')
     } else if (event.key === 'c' || event.key === 'C') {
@@ -124,7 +139,9 @@ function App() {
     }
   })
 
-  const { chord, scale } = nameSet(tones)
+  const names = noteNames(accidentals, key)
+  const tonicNames = keyNames(accidentals)
+  const { chord, scale } = nameSet(tones, names)
   const degreeNames = key === null ? null : relativeNames(DEGREE_NAMES, key)
   // listed from the root of the chord, else from the tonic (or C)
   const root = chordRoot(tones)
@@ -136,8 +153,8 @@ function App() {
   const chordDegreeNames = root === null ? null : relativeNames(DEGREE_NAMES, root)
   const relativeChord = key === null ? '' : nameSet(tones, relativeNames(ROMAN_NAMES, key)).chord
   // with a key, beads show both note names and degrees, the chosen one larger
-  const beadNames = degreeNames && labels === 'degrees' ? degreeNames : FLAT_NAMES
-  const secondaryBeadNames = degreeNames && (labels === 'degrees' ? FLAT_NAMES : degreeNames)
+  const beadNames = degreeNames && labels === 'degrees' ? degreeNames : names
+  const secondaryBeadNames = degreeNames && (labels === 'degrees' ? names : degreeNames)
 
   async function copyLink() {
     try {
@@ -163,7 +180,7 @@ function App() {
           {/* always present (maybe empty), so that the layout does not jump */}
           <span className="app__relative">
             <output aria-label="Relative chord name">{relativeChord}</output>
-            {key !== null && relativeChord && ` in ${FLAT_NAMES[key]}`}
+            {key !== null && relativeChord && ` in ${tonicNames[key]}`}
           </span>
           <output className="app__scale" aria-label="Scale name">
             {scale}
@@ -176,6 +193,7 @@ function App() {
           onChange={setTones}
           names={beadNames}
           secondaryNames={secondaryBeadNames ?? undefined}
+          keyNames={tonicNames}
           root={root ?? undefined}
           order={order}
           keyColors={colors === 'key'}
@@ -189,7 +207,7 @@ function App() {
           <tr aria-label="Notes">
             <th scope="row" />
             {toneList.map((pc) => (
-              <td key={pc}>{FLAT_NAMES[pc]}</td>
+              <td key={pc}>{names[pc]}</td>
             ))}
           </tr>
           {/* always present (maybe empty), so that the layout does not jump */}
@@ -218,6 +236,17 @@ function App() {
           ]}
           onChange={setLabels}
           disabled={key === null}
+        />
+        <SegmentedToggle
+          label="Accidentals"
+          shortcut="A"
+          value={accidentals}
+          options={[
+            { value: 'key', label: 'Key' },
+            { value: 'flats', label: 'Flats' },
+            { value: 'sharps', label: 'Sharps' },
+          ]}
+          onChange={setAccidentals}
         />
         <SegmentedToggle
           label="Colors"

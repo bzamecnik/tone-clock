@@ -177,8 +177,9 @@ Notes:
 
 ### 7. Other extras
 - [ ] two-finger rotation gesture on touch screens
-- [ ] accidentals mode: flats or sharps by the selected key (e.g. F# in D),
-      always flats, always sharps
+- [x] accidentals mode: flats or sharps by the selected key (e.g. F# in D),
+      always flats, always sharps; switched by the A key or a toggle
+- [ ] spell chords and scales by their root (E G# B in C, not E Ab B)
 - [ ] undo / redo of the changes of tones and key
 - [ ] auto-complete in the chord input (chord and scale names)
 - [ ] alternative chord names when a set has several (e.g. C6 = Am7)

@@ -17,7 +17,7 @@ describe('HelpDialog', () => {
     render(<HelpDialog onClose={() => {}} />)
     expect(dialog()).toHaveAttribute('open')
     const keys = [...screen.getByRole('table', { name: 'Keyboard' }).querySelectorAll('kbd')].map((k) => k.textContent)
-    expect(keys).toEqual(expect.arrayContaining(['/', 'Esc', 'Delete', '←', '→', '↑', '↓', 'F', 'L', 'C', 'T', '?']))
+    expect(keys).toEqual(expect.arrayContaining(['/', 'Esc', 'Delete', '←', '→', '↑', '↓', 'F', 'L', 'A', 'C', 'T', '?']))
   })
 
   it('closes with the close button, Escape or a click outside', async () => {

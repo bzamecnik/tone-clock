@@ -21,6 +21,8 @@ it runs in the browser and can be installed as an app that works offline.
   change. A major chord looks the same from every root.
 - **Switch to the circle of fifths**, where a major scale is a single arc of
   7 neighboring tones.
+- **Spell notes by the key** (F# in D, Bb in F), or always with flats or
+  sharps.
 - **Color by key**: tones of the key are green, the tritone yellow and the
   tones outside the key red.
 - **Share a link**: the address always links to the current tones and key,
@@ -40,6 +42,7 @@ it runs in the browser and can be installed as an app that works offline.
 | choose a key | click or drag a triangle outside the circle | ↑ ↓ |
 | circle of fifths | Circle order toggle | F |
 | note names / degrees on the beads | Labels toggle | L |
+| accidentals: by key / flats / sharps | Accidentals toggle | A |
 | key colors / plain | Colors toggle | C |
 | theme | Theme toggle | T |
 | show all controls | Controls link | ? |

@@ -21,6 +21,7 @@ const SHORTCUTS: [keys: string[], action: string][] = [
   [['↑', '↓'], 'select the key'],
   [['F'], 'circle order: semitones / fifths'],
   [['L'], 'labels: notes / degrees'],
+  [['A'], 'accidentals: key / flats / sharps'],
   [['C'], 'colors: key / plain'],
   [['T'], 'theme: auto / light / dark'],
   [['Tab', 'Space'], 'move to a tone and toggle it'],
