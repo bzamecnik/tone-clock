@@ -135,10 +135,18 @@
 
 .app__settings {
   grid-area: settings;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 0.5rem 0.6rem;
   margin-top: 1rem;
+}
+
+/* one row per toggle, its label and buttons in the shared columns, so that
+   the buttons line up after the widest label */
+.app__settings .segmented-toggle {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
 }
 
 @media (min-width: 760px) {
