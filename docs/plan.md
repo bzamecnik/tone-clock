@@ -187,7 +187,8 @@ Notes:
 ### 8. Polish before the release
 - [x] `/` focuses the chord input; Enter applies the chord and leaves the
       field empty, Escape cancels; the keys control the page again
-- [ ] `?` shows a dialog with the keyboard shortcuts
+- [x] `?` (or the Controls link) shows a dialog explaining the mouse,
+      touch and keyboard controls, instead of the hints in the panel
 - [ ] tones and key in the URL fragment (`#tones=G,B,D,F&key=C`), with a
       button to copy the link
 - [ ] the right panel keeps its layout when there is no chord name or key

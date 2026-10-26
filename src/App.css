@@ -103,12 +103,25 @@
   grid-area: hint;
   max-width: 28rem;
   margin: 0.5rem 0 0;
-  padding: 0;
-  list-style: none;
   color: var(--color-muted);
   font-size: 0.85rem;
   line-height: 1.5;
   text-align: center;
+}
+
+.app__help {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.app__help:hover {
+  color: var(--color-accent-strong);
 }
 
 .app__settings {
@@ -156,9 +169,5 @@
   .app__hint {
     margin-top: 1.5rem;
     text-align: left;
-  }
-
-  .app__hint li + li {
-    margin-top: 0.25rem;
   }
 }

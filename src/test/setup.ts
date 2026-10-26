@@ -5,3 +5,11 @@ import { afterEach } from 'vitest'
 afterEach(() => {
   cleanup()
 })
+
+// jsdom lacks modal dialogs: open them in place
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+  this.open = true
+}
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+  this.open = false
+}

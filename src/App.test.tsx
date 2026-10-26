@@ -66,10 +66,38 @@ describe('App', () => {
     expect(root()).toBeNull()
   })
 
-  it('shows the keys in the hint as keyboard keys', () => {
-    const { container } = render(<App />)
-    const keys = [...container.querySelectorAll('.app__hint kbd')].map((k) => k.textContent)
-    expect(keys).toEqual(['Delete', '←', '→', '↑', '↓'])
+  describe('help dialog', () => {
+    const dialog = () => screen.queryByRole('dialog', { name: 'Controls' })
+
+    it('opens and closes with the ? key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      expect(dialog()).toBeNull()
+      await user.keyboard('?')
+      expect(dialog()).toBeInTheDocument()
+      await user.keyboard('?')
+      expect(dialog()).toBeNull()
+      await user.keyboard('?{Escape}')
+      expect(dialog()).toBeNull()
+    })
+
+    it('opens from a single hint line, which leaves the explanations to the dialog', async () => {
+      const user = userEvent.setup()
+      const { container } = render(<App />)
+      expect(container.querySelector('.app__hint')).toHaveTextContent(/^Controls\s*\?$/)
+      await user.click(screen.getByRole('button', { name: 'Controls' }))
+      expect(dialog()).toBeInTheDocument()
+    })
+
+    it('keeps the other keys from changing the page while open', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.keyboard('?f{ArrowRight}/')
+      await user.keyboard('{Escape}')
+      expect(selectedTones()).toBe('C E G')
+      expect(screen.getByRole('button', { name: 'Semitones' })).toHaveAttribute('aria-pressed', 'true')
+      expect(screen.getByRole('textbox', { name: 'Chord, scale or notes' })).not.toHaveFocus()
+    })
   })
 
   describe('theme', () => {
@@ -187,11 +215,10 @@ describe('App', () => {
     expect(selectedTones()).toBe('C E G Bb')
   })
 
-  it('has no toolbar buttons, but explains the gestures', () => {
+  it('has no toolbar buttons', () => {
     render(<App />)
     expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull()
     expect(screen.queryByRole('button', { name: /Transpose/ })).toBeNull()
-    expect(screen.getByText(/drag around/i)).toBeInTheDocument()
   })
 
   it('transposes and clears with keys without focusing the circle', async () => {

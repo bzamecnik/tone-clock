@@ -1,0 +1,74 @@
+.help-dialog {
+  padding: 0;
+  border: 1px solid var(--color-key-border);
+  border-radius: 0.75rem;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.help-dialog::backdrop {
+  background: rgb(0 0 0 / 0.35);
+}
+
+.help-dialog__content {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem;
+}
+
+.help-dialog h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-accent-strong);
+}
+
+.help-dialog table {
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.help-dialog table + table {
+  margin-top: 0.75rem;
+}
+
+.help-dialog caption {
+  padding-bottom: 0.25rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+/* the key or gesture column as wide in both tables */
+.help-dialog th {
+  width: 12rem;
+}
+
+.help-dialog th {
+  padding: 0.2rem 0.75rem 0.2rem 0;
+  font-weight: 400;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.help-dialog td {
+  padding: 0.2rem 0;
+  color: var(--color-subtle);
+}
+
+.help-dialog__close {
+  align-self: flex-end;
+  margin-top: 0.75rem;
+  padding: 0.3rem 1rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  background: var(--color-control);
+  color: var(--color-accent-strong);
+  font: inherit;
+  cursor: pointer;
+}
+
+.help-dialog__close:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}

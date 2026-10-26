@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { ChordInput } from './components/ChordInput/ChordInput.tsx'
 import { SegmentedToggle } from './components/SegmentedToggle/SegmentedToggle.tsx'
+import { HelpDialog } from './components/HelpDialog/HelpDialog.tsx'
 import { ToneClock, type CircleOrder } from './components/ToneClock/ToneClock.tsx'
 import {
   DEGREE_NAMES,
@@ -76,9 +78,14 @@ function App() {
   const [colors, setColors] = useStoredState<Colors>('tone-clock:colors', 'key', parseColors)
   const [theme, setTheme] = useStoredState<ThemeSetting>('tone-clock:theme', 'auto', parseTheme)
   useTheme(theme)
+  const [showHelp, setShowHelp] = useState(false)
 
   useWindowKeys((event) => {
-    if (event.key === 'l' || event.key === 'L') {
+    if (event.key === '?') {
+      setShowHelp(!showHelp)
+    } else if (showHelp) {
+      // the dialog is modal: the other keys wait until it is closed
+    } else if (event.key === 'l' || event.key === 'L') {
       setLabels(labels === 'notes' ? 'degrees' : 'notes')
     } else if (event.key === 'f' || event.key === 'F') {
       setOrder(order === 'semitones' ? 'fifths' : 'semitones')
@@ -104,7 +111,7 @@ function App() {
     <main className="app">
       <h1 className="app__title">Tone Clock</h1>
       <div className="app__top">
-        <ChordInput onSubmit={setTones} tonic={key ?? undefined} windowKeys />
+        <ChordInput onSubmit={setTones} tonic={key ?? undefined} windowKeys={!showHelp} />
         <div className="app__names">
           <output className="app__chord" aria-label="Chord name">
             {chord}
@@ -130,7 +137,7 @@ function App() {
           keyColors={colors === 'key'}
           tonic={key ?? undefined}
           onTonicChange={setKey}
-          windowKeys
+          windowKeys={!showHelp}
         />
       </div>
       <table className="app__tones" aria-label="Selected tones">
@@ -204,19 +211,14 @@ function App() {
           onChange={setTheme}
         />
       </div>
-      {/* the settings show their own keys next to the toggles */}
-      <ul className="app__hint">
-        <li>
-          Click a tone to toggle it, drag it to move it or off the circle to remove it.{' '}
-          <kbd>Delete</kbd> clears all tones.
-        </li>
-        <li>
-          Transpose: <kbd>←</kbd> <kbd>→</kbd> or drag around the circle.
-        </li>
-        <li>
-          Select key: <kbd>↑</kbd> <kbd>↓</kbd> or click or drag a triangle.
-        </li>
-      </ul>
+      {/* the controls are explained in the dialog, the keys also at the toggles */}
+      <p className="app__hint">
+        <button type="button" className="app__help" onClick={() => setShowHelp(true)}>
+          Controls
+        </button>{' '}
+        <kbd aria-hidden="true">?</kbd>
+      </p>
+      {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
     </main>
   )
 }
