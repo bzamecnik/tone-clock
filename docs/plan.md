@@ -184,7 +184,16 @@ Notes:
 - [x] CI (lint, tests, build) and deployment on GitHub Pages
 - [x] installable web app (PWA) working offline
 
-### 8. Desktop app
+### 8. Polish before the release
+- [x] `/` focuses the chord input; Enter applies the chord and leaves the
+      field empty, Escape cancels; the keys control the page again
+- [ ] `?` shows a dialog with the keyboard shortcuts
+- [ ] tones and key in the URL fragment (`#tones=G,B,D,F&key=C`), with a
+      button to copy the link
+- [ ] the right panel keeps its layout when there is no chord name or key
+- [ ] idea: embed mode, a read-only clock for an `<iframe>` on other pages
+
+### 9. Desktop app
 - [ ] Tauri v2 shell around the React app (`src-tauri/`)
 - [ ] macOS build, app icon from the original
 - [ ] native persistence / menu (e.g. copy set as text)

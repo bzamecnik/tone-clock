@@ -1,6 +1,7 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { parseTones } from '../../music/parseTones.ts'
 import type { PitchClassSet } from '../../music/pitchClassSet.ts'
+import { useWindowKeys } from '../../useWindowKeys.ts'
 import './ChordInput.css'
 
 export interface ChordInputProps {
@@ -8,13 +9,33 @@ export interface ChordInputProps {
   onSubmit: (tones: PitchClassSet) => void
   /** Tonic of the current key, enabling Roman numerals and degrees. */
   tonic?: number
+  /** Focus the field with the / key pressed anywhere on the page. */
+  windowKeys?: boolean
 }
 
-/** Text field to set the tones by typing a chord, scale or notes. */
-export function ChordInput({ onSubmit, tonic }: ChordInputProps) {
+/**
+ * Text field to set the tones by typing a chord, scale or notes. Like a
+ * command line: a valid entry is applied and the field left empty, Escape
+ * cancels, so that the keys control the page again.
+ */
+export function ChordInput({ onSubmit, tonic, windowKeys = false }: ChordInputProps) {
   const [text, setText] = useState('')
   const [invalid, setInvalid] = useState(false)
   const errorId = useId()
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useWindowKeys((event) => {
+    if (event.key === '/') {
+      event.preventDefault()
+      inputRef.current?.focus()
+    }
+  }, windowKeys)
+
+  function leave() {
+    setText('')
+    setInvalid(false)
+    inputRef.current?.blur()
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -22,6 +43,13 @@ export function ChordInput({ onSubmit, tonic }: ChordInputProps) {
     setInvalid(tones === null)
     if (tones !== null) {
       onSubmit(tones)
+      leave()
+    }
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      leave()
     }
   }
 
@@ -30,6 +58,7 @@ export function ChordInput({ onSubmit, tonic }: ChordInputProps) {
   return (
     <form className="chord-input" onSubmit={handleSubmit}>
       <input
+        ref={inputRef}
         type="text"
         aria-label="Chord, scale or notes"
         placeholder={placeholder}
@@ -38,6 +67,7 @@ export function ChordInput({ onSubmit, tonic }: ChordInputProps) {
         aria-describedby={invalid ? errorId : undefined}
         autoComplete="off"
         spellCheck={false}
+        onKeyDown={handleKeyDown}
         onChange={(event) => {
           setText(event.target.value)
           setInvalid(false)

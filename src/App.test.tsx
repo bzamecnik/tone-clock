@@ -398,6 +398,18 @@ describe('App', () => {
       expect(chordName()).toBe('Fm')
     })
 
+    it('is focused with the / key and gives the keys back to the page after Enter', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.keyboard('/Am{Enter}')
+      expect(chordName()).toBe('Am')
+      await user.keyboard('{ArrowRight}')
+      expect(chordName()).toBe('Bbm')
+      // Escape cancels the typed chord
+      await user.keyboard('/G7{Escape}{ArrowRight}')
+      expect(chordName()).toBe('Bm')
+    })
+
     it('clears the tones on empty input', async () => {
       const user = userEvent.setup()
       render(<App />)

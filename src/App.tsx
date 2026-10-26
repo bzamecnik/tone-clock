@@ -104,7 +104,7 @@ function App() {
     <main className="app">
       <h1 className="app__title">Tone Clock</h1>
       <div className="app__top">
-        <ChordInput onSubmit={setTones} tonic={key ?? undefined} />
+        <ChordInput onSubmit={setTones} tonic={key ?? undefined} windowKeys />
         <div className="app__names">
           <output className="app__chord" aria-label="Chord name">
             {chord}
