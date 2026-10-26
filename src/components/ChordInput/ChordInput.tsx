@@ -57,22 +57,25 @@ export function ChordInput({ onSubmit, tonic, windowKeys = false }: ChordInputPr
 
   return (
     <form className="chord-input" onSubmit={handleSubmit}>
-      <input
-        ref={inputRef}
-        type="text"
-        aria-label="Chord, scale or notes"
-        placeholder={placeholder}
-        value={text}
-        aria-invalid={invalid}
-        aria-describedby={invalid ? errorId : undefined}
-        autoComplete="off"
-        spellCheck={false}
-        onKeyDown={handleKeyDown}
-        onChange={(event) => {
-          setText(event.target.value)
-          setInvalid(false)
-        }}
-      />
+      <span className="chord-input__field">
+        <input
+          ref={inputRef}
+          type="text"
+          aria-label="Chord, scale or notes"
+          placeholder={placeholder}
+          value={text}
+          aria-invalid={invalid}
+          aria-describedby={invalid ? errorId : undefined}
+          autoComplete="off"
+          spellCheck={false}
+          onKeyDown={handleKeyDown}
+          onChange={(event) => {
+            setText(event.target.value)
+            setInvalid(false)
+          }}
+        />
+        {windowKeys && <kbd aria-hidden="true">/</kbd>}
+      </span>
       {invalid && (
         <p id={errorId} className="chord-input__error" role="alert">
           Unknown chord, scale or notes

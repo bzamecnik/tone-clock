@@ -55,4 +55,13 @@ describe('ChordInput', () => {
     await user.keyboard('/')
     expect(input()).not.toHaveFocus()
   })
+
+  it('hints the / key inside the field (hidden by CSS while typing)', () => {
+    const { container, rerender } = render(<ChordInput onSubmit={() => {}} />)
+    expect(container.querySelector('kbd')).toBeNull()
+    rerender(<ChordInput onSubmit={() => {}} windowKeys />)
+    // right after the input, so that CSS can hide it on focus or with text
+    expect(input().nextElementSibling).toHaveTextContent('/')
+    expect(input().nextElementSibling?.tagName).toBe('KBD')
+  })
 })

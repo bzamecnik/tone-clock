@@ -5,10 +5,16 @@
   width: min(100%, 320px);
 }
 
+.chord-input__field {
+  position: relative;
+  width: 100%;
+}
+
 .chord-input input {
   box-sizing: border-box;
   width: 100%;
-  padding: 0.45rem 0.9rem;
+  /* room for the key hint on both sides, so the text stays centered */
+  padding: 0.45rem 2.2rem;
   border: 1px solid var(--color-accent);
   border-radius: 999px;
   background: var(--color-control);
@@ -20,6 +26,20 @@
 .chord-input input:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
+}
+
+/* the key focusing the field, shown until it is focused or has text */
+.chord-input kbd {
+  position: absolute;
+  top: 50%;
+  right: 0.9rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.chord-input input:focus + kbd,
+.chord-input input:not(:placeholder-shown) + kbd {
+  display: none;
 }
 
 .chord-input input[aria-invalid='true'] {
