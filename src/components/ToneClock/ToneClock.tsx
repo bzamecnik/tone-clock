@@ -403,8 +403,9 @@ export function ToneClock({
           aria-hidden="true"
         />
       )}
-      {scaleArcs.length > 0 && (
+      {tonic !== undefined && scaleArcs.length > 0 && (
         <g className="tone-clock__scale-arc" strokeWidth={SCALE_ARC_WIDTH} aria-hidden="true">
+          <title>{`Tones of the key of ${FLAT_NAMES[tonic]} (diatonic scale)`}</title>
           {scaleArcs.map((run) => (
             <path key={run.start} d={arcPath(run, SCALE_ARC_RADIUS, SCALE_ARC_GAP_DEGREES)} />
           ))}
@@ -459,6 +460,7 @@ export function ToneClock({
             data-level={colorTonic === undefined ? undefined : keyLevel(pitchClass, colorTonic)}
             {...interactive}
           >
+            {interactive && <title>{`${active ? 'Unselect' : 'Select'} the key of ${FLAT_NAMES[pitchClass]}`}</title>}
             <circle className="tone-clock__marker-hit" cx={hitCenter.x} cy={hitCenter.y} r={hitRadius} />
             <polygon points={points} />
           </g>

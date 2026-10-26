@@ -180,6 +180,13 @@ describe('ToneClock', () => {
       expect(pressedMarkers()).toEqual(['Key A'])
     })
 
+    it('tells what clicking a marker does in a tooltip', () => {
+      render(<ToneClock tonic={9} onTonicChange={() => {}} />)
+      const tooltip = (name: string) => screen.getByRole('button', { name }).querySelector('title')
+      expect(tooltip('Key C')).toHaveTextContent(/^Select the key of C$/)
+      expect(tooltip('Key A')).toHaveTextContent(/^Unselect the key of A$/)
+    })
+
     it('selects a key by clicking its marker and unselects it by clicking again', async () => {
       const user = userEvent.setup()
       const onTonicChange = vi.fn()
@@ -354,6 +361,13 @@ describe('ToneClock', () => {
     it('is not shown without a key', () => {
       const { container } = render(<ToneClock />)
       expect(arcs(container)).toHaveLength(0)
+    })
+
+    it('explains itself in a tooltip', () => {
+      const { container } = render(<ToneClock tonic={2} />)
+      expect(container.querySelector('.tone-clock__scale-arc > title')).toHaveTextContent(
+        'Tones of the key of D (diatonic scale)',
+      )
     })
   })
 
