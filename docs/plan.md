@@ -181,6 +181,7 @@ Notes:
 - [ ] publish the component as a reusable package
 - [x] dark mode: Auto (follows the system) / Light / Dark, switched by the
       T key or a toggle
+- [x] CI (lint, tests, build) and deployment on GitHub Pages
 
 ### 8. Desktop app
 - [ ] Tauri v2 shell around the React app (`src-tauri/`)
