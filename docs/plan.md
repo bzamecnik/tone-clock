@@ -182,6 +182,7 @@ Notes:
 - [x] dark mode: Auto (follows the system) / Light / Dark, switched by the
       T key or a toggle
 - [x] CI (lint, tests, build) and deployment on GitHub Pages
+- [x] installable web app (PWA) working offline
 
 ### 8. Desktop app
 - [ ] Tauri v2 shell around the React app (`src-tauri/`)
