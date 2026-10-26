@@ -163,3 +163,53 @@ When there is no key, the first ↑/↓ press picks one: the root of the scale
 name if any, else of the chord name, else the lowest tone. A scale is
 preferred because e.g. the full C diatonic set is also named as a G13 chord,
 but C is the more natural key.
+
+## Spelling the notes: accidentals
+
+Each black key has two names (C# = Db), and which one musicians expect
+depends on the key: in D major it is F#, never Gb. The app offers three
+settings: **by the key** (default), **always flats** and **always sharps**.
+The last two are fixed 12-name tables; spelling by the key works as follows.
+
+### The key's own name
+
+A major key is named by its usual key signature: flats for F Bb Eb Ab Db,
+sharps for G D A E B. Db (5 flats) wins over C# (7 sharps) and B (5 sharps)
+over Cb (7 flats). The only tie is 6 accidentals, F# major vs. Gb major;
+F# is used.
+
+### Diatonic tones: the key signature
+
+The seven tones of the key use each letter once, so their accidentals are
+those of the key signature: D E F# G A B C# in D, Eb F G Ab Bb C D in Eb.
+In F# major this means E# rather than F, as written in sheet music.
+
+### Chromatic tones: the common alterations
+
+The other five tones have no single correct name; it depends on their
+function. A common convention, also seen in the chromatic scale of C in pop
+and jazz (C# Eb F# Ab Bb), is:
+
+- **#1 and #4** (raised): leading tones to 2 and 5, as in the secondary
+  dominants V/ii (A7 in C, with C#) and V/V (D7 in C, with F#),
+- **b3, b6 and b7** (lowered): borrowed from the parallel minor (modal
+  mixture), as in bIII, bVI and bVII (Eb, Ab and Bb in C).
+
+These are written relative to the letters of the key: in G, b3 = Bb and
+b7 = F; in Bb, #4 = E. When such an alteration lands on a white key, the
+natural name is used instead of E#, B#, Cb, Fb or a double accidental: in E
+#1 = F (not E#), in Ab b3 = B and b6 = E (not Cb, Fb), in Db b6 = A (not
+Bbb). As a result, flat keys (except F, with its F#) use only flats, while
+sharp keys borrow some flats (Bb and Eb in G).
+
+Without a key, the notes are spelled as in C.
+
+### Limitations
+
+This is a key-based spelling, not a chord-based one. A chord is ideally
+spelled from its own root by its intervals: an E major chord in C is
+E G# B, and Db major (the Neapolitan chord) is Db F Ab, while the key
+spelling gives E Ab B and C# F Ab. Likewise heptatonic scales other than
+the major one (e.g. harmonic minor) would need each letter once. The scale
+degree labels keep their own names (`b2`, `b5`), which may differ from the
+note spelling (`#1`, `#4`).
