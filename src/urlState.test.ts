@@ -10,9 +10,10 @@ describe('formatUrlState', () => {
     expect(formatUrlState([1, 6], 10)).toBe('#tones=Db,Gb&key=Bb')
   })
 
-  it('leaves out the key when there is none', () => {
+  it('leaves out the key or tones when there are none', () => {
     expect(formatUrlState([0, 4, 7], null)).toBe('#tones=C,E,G')
-    expect(formatUrlState([], null)).toBe('#tones=')
+    expect(formatUrlState([], 0)).toBe('#key=C')
+    expect(formatUrlState([], null)).toBe('')
   })
 })
 
@@ -20,6 +21,7 @@ describe('parseUrlState', () => {
   it('reads back what formatUrlState writes', () => {
     expect(parseUrlState('#tones=G,B,D,F&key=C')).toEqual({ tones: G7, key: 0 })
     expect(parseUrlState('#tones=C,E,G')).toEqual({ tones: fromPitchClasses([0, 4, 7]), key: null })
+    expect(parseUrlState('#key=C')).toEqual({ tones: 0, key: 0 })
     expect(parseUrlState('#tones=')).toEqual({ tones: 0, key: null })
   })
 
@@ -30,10 +32,10 @@ describe('parseUrlState', () => {
     })
   })
 
-  it('rejects fragments without tones or with unknown names', () => {
+  it('rejects fragments without tones and key or with unknown names', () => {
     expect(parseUrlState('')).toBeNull()
     expect(parseUrlState('#')).toBeNull()
-    expect(parseUrlState('#key=C')).toBeNull()
+    expect(parseUrlState('#foo=bar')).toBeNull()
     expect(parseUrlState('#tones=C,X')).toBeNull()
     expect(parseUrlState('#tones=C&key=Cm')).toBeNull()
   })

@@ -415,6 +415,11 @@ describe('App', () => {
       expect(location.hash).toBe('#tones=C,E,G,Bb')
       await user.click(screen.getByRole('button', { name: 'Key F' }))
       expect(location.hash).toBe('#tones=C,E,G,Bb&key=F')
+      await user.keyboard('{Delete}')
+      expect(location.hash).toBe('#key=F')
+      await user.click(screen.getByRole('button', { name: 'Key F' }))
+      expect(location.hash).toBe('')
+      expect(location.href).not.toContain('#')
     })
 
     it('opens the tones and key of a link rather than the stored ones', () => {

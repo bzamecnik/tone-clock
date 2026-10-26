@@ -12,21 +12,30 @@ export interface UrlState {
   key: number | null
 }
 
-/** The fragment for the tones (pitch classes, listed in this order) and key. */
+/**
+ * The fragment for the tones (pitch classes, listed in this order) and key,
+ * each left out when empty; no tones and no key give no fragment at all.
+ */
 export function formatUrlState(tones: readonly number[], key: number | null): string {
-  const names = tones.map((pc) => FLAT_NAMES[pc]).join(',')
-  return key === null ? `#tones=${names}` : `#tones=${names}&key=${FLAT_NAMES[key]}`
+  const params = [
+    tones.length > 0 && `tones=${tones.map((pc) => FLAT_NAMES[pc]).join(',')}`,
+    key !== null && `key=${FLAT_NAMES[key]}`,
+  ].filter(Boolean)
+  return params.length > 0 ? `#${params.join('&')}` : ''
 }
 
-/** Reads a fragment written by formatUrlState (also with sharps), or null if it is not one. */
+/**
+ * Reads a fragment written by formatUrlState (also with sharps), or null if
+ * it is not one, e.g. empty.
+ */
 export function parseUrlState(hash: string): UrlState | null {
   const params = new URLSearchParams(hash.replace(/^#/, ''))
   const names = params.get('tones')
-  if (names === null) {
+  const keyName = params.get('key')
+  if (names === null && keyName === null) {
     return null
   }
-  const pitchClasses = names === '' ? [] : names.split(',').map(parseNote)
-  const keyName = params.get('key')
+  const pitchClasses = names ? names.split(',').map(parseNote) : []
   const key = keyName === null ? null : parseNote(keyName)
   if (pitchClasses.includes(null) || (keyName !== null && key === null)) {
     return null

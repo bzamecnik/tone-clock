@@ -30,7 +30,8 @@ export function useUrlState(hash: string, onLink: (state: UrlState) => void) {
   // again with the new hash
   useEffect(() => {
     if (location.hash !== hash) {
-      history.replaceState(history.state, '', hash)
+      // an empty hash would keep the old fragment: drop it with the path
+      history.replaceState(history.state, '', hash || location.pathname + location.search)
     }
   }, [hash])
 }
