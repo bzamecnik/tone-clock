@@ -1,39 +1,53 @@
 # Tone Clock
 
-A small interactive tool for exploring music theory: the 12 pitch classes of
-12-tone equal temperament arranged in a circle like a 12-hour clock.
+An interactive tool for exploring chords, scales and keys: the 12 tones of
+the octave are arranged around a circle like the hours on a clock. What tone
+o'clock is it?
 
-Each of the 12 "beads" (C, Db, D, … B, clockwise from the top) is an on/off
-button, so any subset of pitch classes — a single tone, an interval, a chord,
-a scale — can be drawn on the circle. Because pitch classes form the cyclic
-group Z12, transposition corresponds to rotating the circle.
+**Try it: [bzamecnik.github.io/tone-clock](https://bzamecnik.github.io/tone-clock/)**:
+it runs in the browser and can be installed as an app that works offline.
 
-Features:
+<img src="docs/screenshot.png" width="800" alt="Tone Clock showing the G7 chord, named V7 in the key of C, with the tones colored by how close they are to the key">
 
-- click a bead to toggle a tone; drag a tone onto another bead to move it,
-  or off the circle to remove it
-- drag around the circle (off the beads) or use the ← → keys to transpose
-- Delete (or submitting an empty chord field) clears all tones
-- chord and scale names (e.g. "Am7", "C diatonic (major)")
-- pick a key (click or drag a triangle outside the circle, or press ↑ ↓)
-  to see Roman numeral chord names (`IVm7 in A`) and scale degrees
-  (`1 b3 5`), also on the beads under the note names (L swaps them)
-- press F to arrange the circle in fifths, where a diatonic scale forms an
-  arc of neighboring beads
-- press C to color the tones by how close they are to the key (green
-  inside, yellow for the tritone 4-7, red outside); arcs inside the beads
-  mark the diatonic scale of the key
-- light and dark themes (T switches auto / light / dark)
-- type a chord (`F#m7b5`), scale (`D dorian`), notes (`C E G`) or, in a
-  key, Roman numerals (`V7`) or degrees (`1 b3 5`) to set the tones
+## What it does
 
-The music theory behind the features (circle of fifths, key colors, how
-tones are named and listed) is explained in
+- **Pick tones** on the circle and see what they are called: a chord (`Am7`),
+  a scale (`C diatonic (major)`) or just a set of notes.
+- **Type** a chord, scale or notes (`F#m7b5`, `D dorian`, `C E G`) to show
+  them on the circle.
+- **Choose a key** to see chords as Roman numerals (`IVm7 in A`) and tones
+  as scale degrees (`1 b3 5`). Then you can also type `V7` or `1 b3 5`.
+- **Transpose** by turning the circle: shapes stay the same, only the names
+  change. A major chord looks the same from every root.
+- **Switch to the circle of fifths**, where a major scale is a single arc of
+  7 neighboring tones.
+- **Color by key**: tones of the key are green, the tritone yellow and the
+  tones outside the key red.
+- Light and dark theme.
+
+## Controls
+
+| To | Mouse / touch | Keyboard |
+| --- | --- | --- |
+| add or remove a tone | click a bead | Tab to it, then Enter or Space |
+| move a tone | drag it onto another bead | |
+| remove a tone | drag it off the circle | |
+| clear all tones | | Delete |
+| transpose | drag around the circle (off the beads) | ← → |
+| choose a key | click or drag a triangle outside the circle | ↑ ↓ |
+| circle of fifths | Circle order toggle | F |
+| note names / degrees on the beads | Labels toggle | L |
+| key colors / plain | Colors toggle | C |
+| theme | Theme toggle | T |
+
+The music theory behind the features (why a clock, the circle of fifths, key
+colors, how tones are named) is explained in
 [docs/music-theory.md](docs/music-theory.md).
 
-This is a re-creation of the Android app *Tone Circle* (2013), originally
-written in Java, first as a React component for the web, later as a
-Rust/Tauri/React desktop app for macOS.
+## History
+
+Tone Clock is a re-creation of the Android app *Tone Circle* (2013),
+originally written in Java, now as a React web app with many new features.
 
 ![original app icon](docs/original-icon.png)
 
@@ -43,17 +57,28 @@ Requirements: Node.js 20+.
 
 ```sh
 npm install
-npm run dev     # start the dev server at http://localhost:5173
-npm test        # run unit tests (Vitest) in watch mode
-npm run build   # type-check and build for production
+npm run dev            # start the dev server at http://localhost:5173
+npm test               # run unit tests (Vitest) in watch mode
+npm run lint           # lint (oxlint)
+npm run build          # type-check and build for production into dist/
+npm run preview        # serve the production build locally
 ```
 
-## Project layout
+Each push to `main` is tested and deployed on GitHub Pages
+(`.github/workflows/`); pull requests and other branches are tested.
 
-- `src/music/` — pure, UI-independent music theory model (pitch class sets)
+### Project layout
+
+- `src/music/` — pure, UI-independent music theory model (pitch class sets,
+  names, keys)
 - `src/components/ToneClock/` — the tone clock React component
 - `src/components/ChordInput/` — text input parsing chord/scale names
 - `docs/plan.md` — implementation plan and roadmap
+
+## Credits
+
+- Ideas and guidance: Bohumír Zámečník
+- Most of the implementation: Claude Code (Opus 5.5)
 
 ## License
 
