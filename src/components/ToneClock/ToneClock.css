@@ -190,7 +190,19 @@
 
 .tone-clock__voice {
   fill: var(--tone-clock-bead-active);
-  opacity: 0.8;
+  fill-opacity: 0.8;
+}
+
+.tone-clock__voice[data-level] {
+  fill: oklch(var(--tone-clock-level-bead-active) var(--level-hue));
+}
+
+/* while the voices move, the beads they leave and reach fade (crossfade) */
+.tone-clock--transition .tone-clock__bead circle,
+.tone-clock--transition .tone-clock__bead text {
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
 }
 
 .tone-clock__ghost {

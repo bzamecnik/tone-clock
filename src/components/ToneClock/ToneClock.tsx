@@ -226,7 +226,7 @@ export function ToneClock({
       ? transitionFrame(transition.voices, easeInOut(Math.max(transition.progress, 0)), order)
       : null
   const chord = frame ? frame.path : chordPath(tones, order)
-  const lit = (pitchClass: number) => (frame ? frame.held.includes(pitchClass) : has(tones, pitchClass))
+  const lit = (pitchClass: number) => (frame ? frame.lit.includes(pitchClass) : has(tones, pitchClass))
   const step = orderStep(order)
   const { beads, markers } = LAYOUTS[order]
   const colorTonic = keyColors ? tonic : undefined
@@ -396,6 +396,7 @@ export function ToneClock({
     'tone-clock',
     grabbing && 'tone-clock--rotating',
     colorTonic !== undefined && 'tone-clock--key-colors',
+    frame && 'tone-clock--transition',
     className,
   ]
 
@@ -485,9 +486,17 @@ export function ToneClock({
         )
       })}
       {frame && frame.moving.length > 0 && (
-        <g className="tone-clock__voices" aria-hidden="true">
-          {frame.moving.map((point, index) => (
-            <circle key={index} className="tone-clock__voice" cx={point.x} cy={point.y} r={BEAD_RADIUS} />
+        <g className="tone-clock__voices" opacity={frame.opacity} aria-hidden="true">
+          {frame.moving.map(({ center, to }, index) => (
+            <circle
+              key={index}
+              className="tone-clock__voice"
+              cx={center.x}
+              cy={center.y}
+              r={BEAD_RADIUS}
+              // colored like the bead it moves to
+              data-level={colorTonic === undefined ? undefined : keyLevel(to, colorTonic)}
+            />
           ))}
         </g>
       )}

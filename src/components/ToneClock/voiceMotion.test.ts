@@ -56,9 +56,23 @@ describe('voicePoint', () => {
 describe('transitionFrame', () => {
   it('holds the common tones and moves the other voices', () => {
     const frame = transitionFrame(voiceLeading(C, AM), 0.5, 'semitones')
-    expect(frame.held).toEqual([0, 4])
+    expect(frame.lit).toEqual([0, 4])
     expect(frame.moving).toHaveLength(1)
-    expectClose(frame.moving[0], circlePoint(8, CIRCLE_RADIUS))
+    expectClose(frame.moving[0].center, circlePoint(8, CIRCLE_RADIUS))
+    expect(frame.moving[0].to).toBe(9)
+  })
+
+  it('lights the targets before the voices arrive, crossfading', () => {
+    expect(transitionFrame(voiceLeading(C, AM), 0.9, 'semitones').lit).toEqual([0, 4, 9])
+  })
+
+  it('fades the moving voices in as they leave and out as they arrive', () => {
+    const opacity = (t: number) => transitionFrame(voiceLeading(C, AM), t, 'semitones').opacity
+    expect(opacity(0)).toBe(0)
+    expect(opacity(0.1)).toBeCloseTo(0.5)
+    expect(opacity(0.5)).toBe(1)
+    expect(opacity(0.875)).toBeCloseTo(0.5)
+    expect(opacity(1)).toBe(0)
   })
 
   it('morphs the chord path from one chord to the next', () => {

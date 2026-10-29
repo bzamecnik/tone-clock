@@ -30,25 +30,38 @@ export function voicePoint(voice: Voice, t: number, order: CircleOrder, radius: 
   return { x: start.x + (end.x - start.x) * t, y: start.y + (end.y - start.y) * t }
 }
 
+/**
+ * Time (0..1) from which the moving voices light their target beads, so
+ * that the beads fade in while the voices fade out on arrival.
+ */
+export const ARRIVAL = 0.75
+/** Time over which the moving voices fade in as they leave. */
+const DEPARTURE = 0.2
+
 export interface TransitionFrame {
-  /** Pitch classes of the voices staying in place (common tones). */
-  held: number[]
-  /** Centers of the moving voices. */
-  moving: Point[]
+  /** Pitch classes of the lit beads: the held voices (common tones), and the targets on arrival. */
+  lit: number[]
+  /** The moving voices: where they are and the pitch class they move to. */
+  moving: { center: Point; to: number }[]
+  /** Opacity of the moving voices (0..1): fading in as they leave, out as they arrive. */
+  opacity: number
   /** Chord path through the voices, ordered around the circle. */
   path: ChordPath | null
 }
 
 /** A frame of the motion of the voices from one chord to the next at time `t` (0..1). */
 export function transitionFrame(voices: readonly Voice[], t: number, order: CircleOrder): TransitionFrame {
-  const held = [...new Set(voices.filter((voice) => voice.motion === 0).map((voice) => voice.from))]
+  const lit = voices
+    .filter((voice) => voice.motion === 0 || t >= ARRIVAL)
+    .map((voice) => voice.to)
+  const opacity = Math.min(t / DEPARTURE, (1 - t) / (1 - ARRIVAL), 1)
   const moving = voices
     .filter((voice) => voice.motion !== 0)
-    .map((voice) => voicePoint(voice, t, order, CIRCLE_RADIUS))
+    .map((voice) => ({ center: voicePoint(voice, t, order, CIRCLE_RADIUS), to: voice.to }))
   const vertices = voices
     .map((voice) => voicePoint(voice, t, order, APEX_RADIUS))
     .sort((a, b) => angleKey(a) - angleKey(b))
-  return { held, moving, path: curvedPolygon(vertices) }
+  return { lit: [...new Set(lit)].sort((a, b) => a - b), moving, opacity, path: curvedPolygon(vertices) }
 }
 
 /** Angle of a point for sorting, rounded so that noise does not move a point at the top to the end. */

@@ -618,6 +618,11 @@ describe('ToneClock', () => {
       expect(pressedNames()).toEqual(['C', 'E', 'A'])
     })
 
+    it('colors the moving voices like the beads they move to', () => {
+      render(<ToneClock value={A_MINOR} transition={{ voices, progress: 0.5 }} keyColors tonic={0} />)
+      expect(movingVoices()[0]).toHaveAttribute('data-level', beads()[9].getAttribute('data-level'))
+    })
+
     it('morphs the chord path', () => {
       render(<ToneClock value={A_MINOR} transition={{ voices, progress: 0.5 }} />)
       expect(document.querySelector('.tone-clock__chord')).toHaveAttribute(
