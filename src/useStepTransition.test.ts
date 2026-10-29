@@ -47,6 +47,9 @@ describe('useStepTransition', () => {
     rerender({ step: 1, tones: AM })
     rerender({ step: 1, tones: C7 })
     expect(result.current).toBeUndefined()
+    // and does not come back with the same tones again
+    rerender({ step: 1, tones: AM })
+    expect(result.current).toBeUndefined()
   })
 
   it('does not animate with no duration (reduced motion)', () => {

@@ -19,35 +19,33 @@ export function useStepTransition(
   tones: PitchClassSet,
   durationMs: number,
 ): StepTransition | undefined {
-  const [transition, setTransition] = useState<(StepTransition & { to: PitchClassSet }) | null>(null)
-  // the tones of the last render, i.e. of the previous step when it changes
-  const lastTones = useRef(tones)
+  const [transition, setTransition] = useState<StepTransition | null>(null)
+  // the step and tones of the last render, i.e. of the previous step when it changes
+  const last = useRef({ step, tones })
 
   useEffect(() => {
-    const from = lastTones.current
-    if (from === tones || durationMs <= 0) {
+    const from = last.current
+    last.current = { step, tones }
+    if (from.step === step || from.tones === tones || durationMs <= 0) {
       return
     }
-    const voices = voiceLeading(from, tones)
+    const voices = voiceLeading(from.tones, tones)
     const start = performance.now()
     let frame = 0
     const tick = () => {
       const progress = Math.min((performance.now() - start) / durationMs, 1)
-      setTransition(progress < 1 ? { voices, progress, to: tones } : null)
+      setTransition(progress < 1 ? { voices, progress } : null)
       if (progress < 1) {
         frame = requestAnimationFrame(tick)
       }
     }
     tick()
-    return () => cancelAnimationFrame(frame)
-    // only a change of the step starts a transition
-  }, [step])
+    // also when the tones are edited during the transition
+    return () => {
+      cancelAnimationFrame(frame)
+      setTransition(null)
+    }
+  }, [step, tones, durationMs])
 
-  useEffect(() => {
-    lastTones.current = tones
-  })
-
-  return transition && transition.to === tones
-    ? { voices: transition.voices, progress: transition.progress }
-    : undefined
+  return transition ?? undefined
 }
