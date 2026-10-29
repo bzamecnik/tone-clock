@@ -37,6 +37,7 @@ import { useStoredState } from './useStoredState.ts'
 import { useTheme, type ThemeSetting } from './useTheme.ts'
 import { formatUrlState } from './urlState.ts'
 import { BEATS_RANGE, TEMPO_RANGE, stepDuration, usePlayback } from './usePlayback.ts'
+import { useStepTransition } from './useStepTransition.ts'
 import { useUrlState } from './useUrlState.ts'
 import { useWindowKeys } from './useWindowKeys.ts'
 import './App.css'
@@ -118,6 +119,13 @@ function parseIntegerIn({ min, max }: { min: number; max: number }) {
 const parseTempo = parseIntegerIn(TEMPO_RANGE)
 const parseBeats = parseIntegerIn(BEATS_RANGE)
 
+/** Longest duration of the motion of the voices between two steps. */
+const TRANSITION_MS = 600
+
+function prefersReducedMotion(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 /** Short description of a step: its chord or scale name, else its notes, or N.C. (no chord). */
 function stepName(tones: PitchClassSet, names: PitchClassNames): string {
   const { chord, scale } = nameSet(tones, names)
@@ -174,14 +182,20 @@ function App() {
   const [playing, setPlaying] = useState(false)
   const [tempo, setTempo] = useStoredState('tone-clock:tempo', 120, parseTempo)
   const [beats, setBeats] = useStoredState('tone-clock:beats', 4, parseBeats)
+  const stepMs = stepDuration(tempo, beats)
   usePlayback(
     playing,
-    stepDuration(tempo, beats),
+    stepMs,
     () => setSequence((sequence) => selectStep(sequence, sequence.current + 1)),
     sequence.current,
   )
   // the clock shows and edits the current step; editing pauses the playback
   const tones = currentTones(sequence)
+  const transition = useStepTransition(
+    sequence.current,
+    tones,
+    prefersReducedMotion() ? 0 : Math.min(TRANSITION_MS, stepMs / 3),
+  )
   const setTones = (tones: PitchClassSet) => {
     setPlaying(false)
     setSequence((sequence) => replaceStep(sequence, tones))
@@ -308,6 +322,7 @@ function App() {
           tonic={key ?? undefined}
           onTonicChange={setKey}
           windowKeys={!showHelp}
+          transition={transition}
         />
       </div>
       <table className="app__tones" aria-label="Selected tones">

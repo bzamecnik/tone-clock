@@ -662,6 +662,19 @@ describe('App', () => {
       expect(currentStep()).toBe('Step 1: C')
     })
 
+    it('moves the voices on the clock between the steps', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      const movingVoices = () => document.querySelectorAll('.tone-clock__voice')
+      expect(movingVoices()).toHaveLength(0)
+      await user.keyboard('.')
+      // G moves to A, C and E stay
+      expect(movingVoices()).toHaveLength(1)
+      act(() => vi.advanceTimersByTime(1000))
+      expect(movingVoices()).toHaveLength(0)
+    })
+
     it('plays and pauses with the Space key', async () => {
       const user = setup()
       render(<App />)
