@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { PitchClassSet } from './music/pitchClassSet.ts'
 import { voiceLeading, type Voice } from './music/voiceLeading.ts'
 
@@ -23,7 +23,8 @@ export function useStepTransition(
   // the step and tones of the last render, i.e. of the previous step when it changes
   const last = useRef({ step, tones })
 
-  useEffect(() => {
+  // before the paint, so that the new chord is not shown for a frame before the transition starts
+  useLayoutEffect(() => {
     const from = last.current
     last.current = { step, tones }
     if (from.step === step || from.tones === tones || durationMs <= 0) {
