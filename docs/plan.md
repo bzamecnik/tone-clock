@@ -346,6 +346,14 @@ Later:
 - reorder steps by dragging, undo / redo, choosing an alternative voice
   leading by hand for an ambiguous transition
 - import of a progression from a lead sheet or MIDI
+- keep the chord name typed for a step (a set has one name in the namer:
+  D G C E is named C(add2), though typed as D9sus4-5 in a progression)
+- better voicings: voice leading with registers (bass, doubled tones),
+  researched on real progressions and piano voicings as test data, e.g.
+  *Midnight in a Perfect World* (DJ Shadow, after Pekka Pohjola) in Bb:
+  `Gm | F(add2) | Ebmaj7 | D9sus4 | Dm11`
+  (`VIm | V(add2) | IVM7 | III9sus4 | IIIm11`), voiced
+  G D G Bb – F C G A C – Eb Bb G Bb D – D G C E – D A D G C E F
 
 Both ways of entering a sequence are supported (the whole sequence as text,
 and step by step with the clock), to see which one works better.
