@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChordInput } from './components/ChordInput/ChordInput.tsx'
 import { SegmentedToggle } from './components/SegmentedToggle/SegmentedToggle.tsx'
 import { HelpDialog } from './components/HelpDialog/HelpDialog.tsx'
+import { PlaybackControls } from './components/PlaybackControls/PlaybackControls.tsx'
 import { SequenceStrip } from './components/SequenceStrip/SequenceStrip.tsx'
 import { ToneClock, type CircleOrder } from './components/ToneClock/ToneClock.tsx'
 import {
@@ -35,6 +36,7 @@ import {
 import { useStoredState } from './useStoredState.ts'
 import { useTheme, type ThemeSetting } from './useTheme.ts'
 import { formatUrlState } from './urlState.ts'
+import { BEATS_RANGE, TEMPO_RANGE, stepDuration, usePlayback } from './usePlayback.ts'
 import { useUrlState } from './useUrlState.ts'
 import { useWindowKeys } from './useWindowKeys.ts'
 import './App.css'
@@ -105,6 +107,17 @@ function parseSequenceView(stored: string): SequenceView | undefined {
   return stored === 'hidden' || stored === 'shown' ? stored : undefined
 }
 
+/** A whole number within the range, or undefined. */
+function parseIntegerIn({ min, max }: { min: number; max: number }) {
+  return (stored: string): number | undefined => {
+    const number = Number(stored)
+    return /^\d+$/.test(stored) && number >= min && number <= max ? number : undefined
+  }
+}
+
+const parseTempo = parseIntegerIn(TEMPO_RANGE)
+const parseBeats = parseIntegerIn(BEATS_RANGE)
+
 /** Short description of a step: its chord or scale name, else its notes, or N.C. (no chord). */
 function stepName(tones: PitchClassSet, names: PitchClassNames): string {
   const { chord, scale } = nameSet(tones, names)
@@ -158,9 +171,21 @@ function App() {
     parseSequence,
     serializeSequence,
   )
-  // the clock shows and edits the current step
+  const [playing, setPlaying] = useState(false)
+  const [tempo, setTempo] = useStoredState('tone-clock:tempo', 120, parseTempo)
+  const [beats, setBeats] = useStoredState('tone-clock:beats', 4, parseBeats)
+  usePlayback(
+    playing,
+    stepDuration(tempo, beats),
+    () => setSequence((sequence) => selectStep(sequence, sequence.current + 1)),
+    sequence.current,
+  )
+  // the clock shows and edits the current step; editing pauses the playback
   const tones = currentTones(sequence)
-  const setTones = (tones: PitchClassSet) => setSequence((sequence) => replaceStep(sequence, tones))
+  const setTones = (tones: PitchClassSet) => {
+    setPlaying(false)
+    setSequence((sequence) => replaceStep(sequence, tones))
+  }
   const [key, setKey] = useStoredState('tone-clock:key', null, parseKey, serializeKey)
   const [labels, setLabels] = useStoredState<Labels>('tone-clock:labels', 'notes', parseLabels)
   const [accidentals, setAccidentals] = useStoredState<Accidentals>(
@@ -197,6 +222,9 @@ function App() {
       setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length])
     } else if (event.key === 's' || event.key === 'S') {
       setSequenceView(sequenceView === 'hidden' ? 'shown' : 'hidden')
+    } else if (sequenceView === 'shown' && event.key === ' ') {
+      event.preventDefault()
+      setPlaying(!playing)
     } else if (sequenceView === 'shown') {
       const edit = SEQUENCE_KEYS[event.key]
       if (edit) {
@@ -378,6 +406,14 @@ function App() {
       </p>
       {sequenceView === 'shown' && (
         <div className="app__sequence">
+          <PlaybackControls
+            playing={playing}
+            onPlayingChange={setPlaying}
+            tempo={tempo}
+            onTempoChange={setTempo}
+            beats={beats}
+            onBeatsChange={setBeats}
+          />
           <SequenceStrip
             steps={steps}
             current={sequence.current}

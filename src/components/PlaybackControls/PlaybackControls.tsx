@@ -1,8 +1,6 @@
 import { useState } from 'react'
+import { BEATS_RANGE, TEMPO_RANGE } from '../../usePlayback.ts'
 import './PlaybackControls.css'
-
-export const TEMPO_RANGE = { min: 20, max: 300 }
-export const BEATS_RANGE = { min: 1, max: 16 }
 
 export interface PlaybackControlsProps {
   playing: boolean

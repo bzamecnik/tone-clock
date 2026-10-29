@@ -25,6 +25,7 @@ const SHORTCUTS: [keys: string[], action: string][] = [
   [['C'], 'colors: key / plain'],
   [['T'], 'theme: auto / light / dark'],
   [['S'], 'chord sequence: hidden / shown'],
+  [['Space'], 'play / pause the sequence'],
   [['+', '−'], 'add a step after the current one / remove it'],
   [[',', '.'], 'previous / next step'],
   [['Home'], 'first step'],

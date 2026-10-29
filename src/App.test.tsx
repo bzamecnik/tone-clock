@@ -1,6 +1,6 @@
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
 import { fromPitchClasses } from './music/pitchClassSet.ts'
 
@@ -628,6 +628,70 @@ describe('App', () => {
       await user.type(input(), 'C | Am{Enter}')
       await user.click(screen.getByRole('button', { name: 'Clear sequence' }))
       expect(stepNames()).toEqual(['Step 1: C'])
+    })
+  })
+
+  describe('playback', () => {
+    const input = () => screen.getByRole('textbox', { name: 'Chord, scale or notes' })
+    const strip = () => screen.getByRole('list', { name: 'Chord sequence' })
+    const currentStep = () => within(strip()).getByRole('button', { current: 'step' }).getAttribute('aria-label')
+
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const setup = () => userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+
+    it('plays the steps in a loop, each lasting the beats at the tempo', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am | F{Enter}')
+      // 120 BPM, 4 beats per chord: 2 s per step
+      expect(screen.getByRole('spinbutton', { name: 'Tempo (BPM)' })).toHaveValue(120)
+      await user.click(screen.getByRole('button', { name: 'Play' }))
+      act(() => vi.advanceTimersByTime(2000))
+      expect(currentStep()).toBe('Step 2: Am')
+      expect(chordName()).toBe('Am')
+      act(() => vi.advanceTimersByTime(4000))
+      expect(currentStep()).toBe('Step 1: C')
+      await user.click(screen.getByRole('button', { name: 'Pause' }))
+      act(() => vi.advanceTimersByTime(4000))
+      expect(currentStep()).toBe('Step 1: C')
+    })
+
+    it('plays and pauses with the Space key', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.keyboard(' ')
+      expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+      await user.keyboard(' ')
+      expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+    })
+
+    it('pauses when the tones are edited', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.keyboard(' ')
+      await user.click(screen.getByRole('button', { name: 'Bb' }))
+      expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+      expect(currentStep()).toBe('Step 1: C7')
+    })
+
+    it('remembers the tempo and beats', async () => {
+      const user = setup()
+      const { unmount } = render(<App />)
+      await user.keyboard('s')
+      const beats = screen.getByRole('spinbutton', { name: 'Beats per chord' })
+      await user.clear(beats)
+      await user.type(beats, '2')
+      unmount()
+      render(<App />)
+      expect(screen.getByRole('spinbutton', { name: 'Beats per chord' })).toHaveValue(2)
     })
   })
 
