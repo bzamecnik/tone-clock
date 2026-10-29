@@ -41,6 +41,15 @@ describe('parseTones', () => {
       expect(parseTones('Cm6')).toBe(set([0, 3, 7, 9]))
       expect(parseTones('Cadd9')).toBe(set([0, 2, 4, 7]))
       expect(parseTones('C5')).toBe(set([0, 7]))
+      expect(parseTones('F(add2)')).toBe(set([5, 7, 9, 0]))
+      expect(parseTones('Fadd2')).toBe(set([5, 7, 9, 0]))
+      expect(parseTones('F(add9)')).toBe(set([5, 7, 9, 0]))
+      expect(parseTones('EbM9')).toBe(set([3, 5, 7, 10, 2]))
+      expect(parseTones('Ebmaj9')).toBe(set([3, 5, 7, 10, 2]))
+      // with and without the fifth
+      expect(parseTones('D9sus4')).toBe(set([2, 4, 7, 9, 0]))
+      expect(parseTones('D9sus')).toBe(set([2, 4, 7, 9, 0]))
+      expect(parseTones('D9sus4-5')).toBe(set([2, 4, 7, 0]))
     })
 
     it('ignores surrounding whitespace and accepts lowercase roots', () => {

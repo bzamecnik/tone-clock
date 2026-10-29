@@ -38,6 +38,9 @@ export const CHORD_TEMPLATES: Readonly<Record<number, NameTemplate>> = {
   693: { name: 'Xm11', root: 2 },
   1387: { name: 'X13', root: 8 },
   661: { name: 'X6,9', root: 0 },
+  // also X9sus4 without the fifth on the 2nd: C(add2) = D9sus4-5
+  149: { name: 'X(add2)', root: 0 },
+  299: { name: 'XM9', root: 1 },
 }
 
 export const SCALE_TEMPLATES: Readonly<Record<number, NameTemplate>> = {

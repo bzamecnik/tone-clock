@@ -48,6 +48,8 @@ describe('nameSet', () => {
     expect(chord([0, 2, 4, 5, 7, 9, 10])).toBe('C13')
     expect(chord([0, 2, 4, 7, 9])).toBe('C6,9')
     expect(chord([0, 2, 5, 7])).toBe('C2,4')
+    expect(chord([0, 2, 4, 7])).toBe('C(add2)')
+    expect(chord([0, 2, 4, 7, 11])).toBe('CM9')
   })
 
   it('names incomplete chords (dyads)', () => {
