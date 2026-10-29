@@ -21,6 +21,7 @@ import {
   transpose,
   type PitchClassSet,
 } from './music/pitchClassSet.ts'
+import { currentTones, replaceStep, singleStep, type Sequence } from './music/sequence.ts'
 import { useStoredState } from './useStoredState.ts'
 import { useTheme, type ThemeSetting } from './useTheme.ts'
 import { formatUrlState } from './urlState.ts'
@@ -35,9 +36,22 @@ const REPOSITORY_URL = 'https://github.com/bzamecnik/tone-clock'
 
 type Labels = 'notes' | 'degrees'
 
-function parseTones(stored: string): PitchClassSet | undefined {
-  const tones = Number(stored)
-  return /^\d+$/.test(stored) && tones <= 0xfff ? tones : undefined
+/**
+ * The chord sequence stored as its steps (12-bit masks) and the current
+ * step: "145,529;1". A single step is just its mask, as stored before there
+ * were sequences.
+ */
+function parseSequence(stored: string): Sequence | undefined {
+  const match = /^(\d+(?:,\d+)*)(?:;(\d+))?$/.exec(stored)
+  const steps = match ? match[1].split(',').map(Number) : []
+  const current = Number(match?.[2] ?? 0)
+  return match && steps.every((tones) => tones <= 0xfff) && current < steps.length
+    ? { steps, current }
+    : undefined
+}
+
+function serializeSequence({ steps, current }: Sequence): string {
+  return steps.length === 1 ? String(steps[0]) : `${steps.join(',')};${current}`
 }
 
 /** Key = tonic pitch class, or null for no key. Stored as "" or "0".."11". */
@@ -106,7 +120,15 @@ function DegreeRow({
 }
 
 function App() {
-  const [tones, setTones] = useStoredState('tone-clock:tones', C_MAJOR, parseTones)
+  const [sequence, setSequence] = useStoredState(
+    'tone-clock:tones',
+    singleStep(C_MAJOR),
+    parseSequence,
+    serializeSequence,
+  )
+  // the clock shows and edits the current step
+  const tones = currentTones(sequence)
+  const setTones = (tones: PitchClassSet) => setSequence((sequence) => replaceStep(sequence, tones))
   const [key, setKey] = useStoredState('tone-clock:key', null, parseKey, serializeKey)
   const [labels, setLabels] = useStoredState<Labels>('tone-clock:labels', 'notes', parseLabels)
   const [accidentals, setAccidentals] = useStoredState<Accidentals>(

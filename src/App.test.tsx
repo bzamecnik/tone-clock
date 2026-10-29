@@ -304,10 +304,19 @@ describe('App', () => {
     expect(selectedTones()).toBe('C E G Bb')
   })
 
-  it('falls back to the default for invalid stored data', () => {
-    localStorage.setItem(STORAGE_KEY, 'garbage')
+  it('remembers a chord sequence and its current step', () => {
+    localStorage.setItem(STORAGE_KEY, `${fromPitchClasses([0, 4, 7])},${fromPitchClasses([9, 0, 4])};1`)
     render(<App />)
-    expect(selectedTones()).toBe('C E G')
+    expect(selectedTones()).toBe('A C E')
+  })
+
+  it('falls back to the default for invalid stored data', () => {
+    for (const garbage of ['garbage', '4096', '145,529;2']) {
+      localStorage.setItem(STORAGE_KEY, garbage)
+      const { unmount } = render(<App />)
+      expect(selectedTones()).toBe('C E G')
+      unmount()
+    }
   })
 
   it('names the selected chord and scale', async () => {
