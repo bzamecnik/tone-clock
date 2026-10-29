@@ -530,6 +530,107 @@ describe('App', () => {
     })
   })
 
+  describe('chord sequence', () => {
+    const input = () => screen.getByRole('textbox', { name: 'Chord, scale or notes' })
+    const strip = () => screen.queryByRole('list', { name: 'Chord sequence' })
+    const stepNames = () =>
+      within(strip()!)
+        .getAllByRole('button')
+        .map((step) => step.getAttribute('aria-label'))
+    const currentStep = () => within(strip()!).getByRole('button', { current: 'step' }).getAttribute('aria-label')
+
+    it('is hidden until shown by the S key or the toggle', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      expect(strip()).toBeNull()
+      await user.keyboard('s')
+      expect(stepNames()).toEqual(['Step 1: C'])
+      await user.click(screen.getByRole('button', { name: 'Hidden' }))
+      expect(strip()).toBeNull()
+      await user.click(screen.getByRole('button', { name: 'Shown' }))
+      expect(strip()).not.toBeNull()
+    })
+
+    it('is entered as text and shown', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am | F | G7{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: Am', 'Step 3: F', 'Step 4: G7'])
+      expect(currentStep()).toBe('Step 1: C')
+    })
+
+    it('names the steps by Roman numerals in a key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.click(screen.getByRole('button', { name: 'Key C' }))
+      await user.type(input(), 'C | Am{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C, I', 'Step 2: Am, VIm'])
+    })
+
+    it('shows the current step on the clock, which edits it', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.click(within(strip()!).getByRole('button', { name: 'Step 2: Am' }))
+      expect(chordName()).toBe('Am')
+      await user.click(screen.getByRole('button', { name: 'G' }))
+      expect(chordName()).toBe('Am7')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: Am7'])
+      // a single chord typed replaces the current step
+      await user.type(input(), 'Dm{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: Dm'])
+    })
+
+    it('adds a copy of the current step and removes steps by keys', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.keyboard('s+')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: C'])
+      expect(currentStep()).toBe('Step 2: C')
+      await user.keyboard('{ArrowRight}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: C#'])
+      await user.keyboard('-')
+      expect(stepNames()).toEqual(['Step 1: C'])
+    })
+
+    it('moves between the steps by keys, wrapping around', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am | F{Enter}')
+      await user.keyboard('.')
+      expect(currentStep()).toBe('Step 2: Am')
+      await user.keyboard('..')
+      expect(currentStep()).toBe('Step 1: C')
+      await user.keyboard(',')
+      expect(currentStep()).toBe('Step 3: F')
+      await user.keyboard('{Home}')
+      expect(currentStep()).toBe('Step 1: C')
+    })
+
+    it('ignores the sequence keys while the strip is hidden', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.keyboard('+')
+      await user.keyboard('s')
+      expect(stepNames()).toEqual(['Step 1: C'])
+    })
+
+    it('names empty steps and sets without a chord name', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | N.C. | C Db D{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: N.C.', 'Step 3: C C# D'])
+    })
+
+    it('clears the sequence to the current step', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.click(screen.getByRole('button', { name: 'Clear sequence' }))
+      expect(stepNames()).toEqual(['Step 1: C'])
+    })
+  })
+
   describe('typing a chord', () => {
     const input = () => screen.getByRole('textbox', { name: 'Chord, scale or notes' })
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChordInput } from './components/ChordInput/ChordInput.tsx'
 import { SegmentedToggle } from './components/SegmentedToggle/SegmentedToggle.tsx'
 import { HelpDialog } from './components/HelpDialog/HelpDialog.tsx'
+import { SequenceStrip } from './components/SequenceStrip/SequenceStrip.tsx'
 import { ToneClock, type CircleOrder } from './components/ToneClock/ToneClock.tsx'
 import {
   DEGREE_NAMES,
@@ -21,7 +22,16 @@ import {
   transpose,
   type PitchClassSet,
 } from './music/pitchClassSet.ts'
-import { currentTones, replaceStep, singleStep, type Sequence } from './music/sequence.ts'
+import {
+  clearSequence,
+  currentTones,
+  insertStep,
+  removeStep,
+  replaceStep,
+  selectStep,
+  singleStep,
+  type Sequence,
+} from './music/sequence.ts'
 import { useStoredState } from './useStoredState.ts'
 import { useTheme, type ThemeSetting } from './useTheme.ts'
 import { formatUrlState } from './urlState.ts'
@@ -89,6 +99,18 @@ function parseAccidentals(stored: string): Accidentals | undefined {
   return ACCIDENTALS.find((accidentals) => accidentals === stored)
 }
 
+type SequenceView = 'hidden' | 'shown'
+
+function parseSequenceView(stored: string): SequenceView | undefined {
+  return stored === 'hidden' || stored === 'shown' ? stored : undefined
+}
+
+/** Short description of a step: its chord or scale name, else its notes, or N.C. (no chord). */
+function stepName(tones: PitchClassSet, names: PitchClassNames): string {
+  const { chord, scale } = nameSet(tones, names)
+  return chord || scale || toPitchClasses(tones).map((pc) => names[pc]).join(' ') || 'N.C.'
+}
+
 function parseLabels(stored: string): Labels | undefined {
   return stored === 'notes' || stored === 'degrees' ? stored : undefined
 }
@@ -119,6 +141,16 @@ function DegreeRow({
   )
 }
 
+/** Keys editing the sequence while it is shown. */
+const SEQUENCE_KEYS: Record<string, (sequence: Sequence) => Sequence> = {
+  '+': (sequence) => insertStep(sequence),
+  '=': (sequence) => insertStep(sequence),
+  '-': removeStep,
+  ',': (sequence) => selectStep(sequence, sequence.current - 1),
+  '.': (sequence) => selectStep(sequence, sequence.current + 1),
+  Home: (sequence) => selectStep(sequence, 0),
+}
+
 function App() {
   const [sequence, setSequence] = useStoredState(
     'tone-clock:tones',
@@ -139,6 +171,11 @@ function App() {
   const [order, setOrder] = useStoredState<CircleOrder>('tone-clock:order', 'semitones', parseOrder)
   const [colors, setColors] = useStoredState<Colors>('tone-clock:colors', 'key', parseColors)
   const [theme, setTheme] = useStoredState<ThemeSetting>('tone-clock:theme', 'auto', parseTheme)
+  const [sequenceView, setSequenceView] = useStoredState<SequenceView>(
+    'tone-clock:sequence',
+    'hidden',
+    parseSequenceView,
+  )
   useTheme(theme)
   const [showHelp, setShowHelp] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
@@ -158,6 +195,14 @@ function App() {
       setColors(colors === 'key' ? 'plain' : 'key')
     } else if (event.key === 't' || event.key === 'T') {
       setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length])
+    } else if (event.key === 's' || event.key === 'S') {
+      setSequenceView(sequenceView === 'hidden' ? 'shown' : 'hidden')
+    } else if (sequenceView === 'shown') {
+      const edit = SEQUENCE_KEYS[event.key]
+      if (edit) {
+        event.preventDefault()
+        setSequence(edit)
+      }
     }
   })
 
@@ -177,6 +222,11 @@ function App() {
   // with a key, beads show both note names and degrees, the chosen one larger
   const beadNames = degreeNames && labels === 'degrees' ? degreeNames : names
   const secondaryBeadNames = degreeNames && (labels === 'degrees' ? names : degreeNames)
+  const romanNames = key === null ? null : relativeNames(ROMAN_NAMES, key)
+  const steps = sequence.steps.map((step) => ({
+    name: stepName(step, names),
+    relative: (romanNames && nameSet(step, romanNames).chord) || undefined,
+  }))
 
   async function copyLink() {
     try {
@@ -189,12 +239,20 @@ function App() {
   }
 
   return (
-    <main className="app">
+    <main className={sequenceView === 'shown' ? 'app app--sequence' : 'app'}>
       <h1 className="app__title">
         <a href={HOME_URL}>Tone Clock</a>
       </h1>
       <div className="app__top">
-        <ChordInput onSubmit={setTones} tonic={key ?? undefined} windowKeys={!showHelp} />
+        <ChordInput
+          onSubmit={setTones}
+          onSubmitSequence={(steps) => {
+            setSequence({ steps, current: 0 })
+            setSequenceView('shown')
+          }}
+          tonic={key ?? undefined}
+          windowKeys={!showHelp}
+        />
         <div className="app__names">
           <output className="app__chord" aria-label="Chord name">
             {chord}
@@ -282,6 +340,16 @@ function App() {
           disabled={key === null}
         />
         <SegmentedToggle
+          label="Sequence"
+          shortcut="S"
+          value={sequenceView}
+          options={[
+            { value: 'hidden', label: 'Hidden' },
+            { value: 'shown', label: 'Shown' },
+          ]}
+          onChange={setSequenceView}
+        />
+        <SegmentedToggle
           label="Theme"
           shortcut="T"
           value={theme}
@@ -308,6 +376,18 @@ function App() {
           GitHub
         </a>
       </p>
+      {sequenceView === 'shown' && (
+        <div className="app__sequence">
+          <SequenceStrip
+            steps={steps}
+            current={sequence.current}
+            onSelect={(index) => setSequence(selectStep(sequence, index))}
+            onAdd={() => setSequence(insertStep(sequence))}
+            onRemove={() => setSequence(removeStep(sequence))}
+            onClear={() => setSequence(clearSequence(sequence))}
+          />
+        </div>
+      )}
       {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
     </main>
   )

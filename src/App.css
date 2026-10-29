@@ -1,7 +1,7 @@
 /*
  * Narrow screens: one centered column. Wide screens: the circle on the left
  * as tall as the window allows, a panel with the input, names, tones and
- * hint on the right.
+ * hint on the right, and the chord sequence (if shown) below both.
  */
 .app {
   display: grid;
@@ -9,6 +9,7 @@
     'title'
     'top'
     'circle'
+    'sequence'
     'tones'
     'settings'
     'hint';
@@ -77,6 +78,12 @@
 .app__circle {
   grid-area: circle;
   width: min(100%, 540px);
+}
+
+.app__sequence {
+  grid-area: sequence;
+  max-width: 100%;
+  margin: 0.5rem 0;
 }
 
 .app__tones {
@@ -166,9 +173,10 @@
       'circle top'
       'circle tones'
       'circle settings'
-      'circle hint';
+      'circle hint'
+      'sequence sequence';
     grid-template-columns: auto minmax(16rem, 22rem);
-    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-rows: auto auto auto auto 1fr auto;
     justify-content: center;
     justify-items: start;
     align-items: start;
@@ -178,6 +186,16 @@
   .app__circle {
     /* as large as the window height allows (minus the title and padding) */
     width: min(calc(100vw - 22rem - 6rem), calc(100dvh - 3.5rem), 760px);
+  }
+
+  /* smaller, leaving room for the sequence below */
+  .app--sequence .app__circle {
+    width: min(calc(100vw - 22rem - 6rem), calc(100dvh - 3.5rem - 5rem), 760px);
+  }
+
+  .app__sequence {
+    justify-self: center;
+    margin: 0.5rem 0 0;
   }
 
   .app__top,
