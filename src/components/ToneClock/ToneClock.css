@@ -183,6 +183,16 @@
   cursor: grabbing;
 }
 
+/* voices moving between chords, over the beads they pass */
+.tone-clock__voices {
+  pointer-events: none;
+}
+
+.tone-clock__voice {
+  fill: var(--tone-clock-bead-active);
+  opacity: 0.8;
+}
+
 .tone-clock__ghost {
   pointer-events: none;
   opacity: 0.75;
