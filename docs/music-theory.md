@@ -264,8 +264,8 @@ pairs can be tried.
 
 Pitch classes leave some choices open. A tritone is 6 semitones both up and
 down. Symmetric chords have several equally good voice leadings: from C
-augmented (C E G#) to Db augmented all voices can move up by a semitone,
-or all down by three. And real music doesn't always lead the voices
+augmented (C E G#) to D augmented (D F# A#) all voices can move up by a
+whole tone, or all down by one (to A#, D, F#). And real music doesn't always lead the voices
 minimally (a bass often leaps by fourths and fifths). The guess is meant to
 show the smoothest path between the chords, not the only one.
 

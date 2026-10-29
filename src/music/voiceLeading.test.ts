@@ -65,6 +65,11 @@ describe('voice leading', () => {
     expect(voiceLeading(fromPitchClasses([0]), C)).toEqual([voice(0, -5), voice(0, 0), voice(0, 4)])
   })
 
+  it('breaks a tie of symmetric chords downwards', () => {
+    // C E G# -> D F# A#: all up or all down a whole tone
+    expect(voiceLeading(CAUG, transpose(CAUG, 2))).toEqual([voice(0, -2), voice(4, -2), voice(8, -2)])
+  })
+
   it('breaks a tritone tie downwards', () => {
     expect(voiceLeading(fromPitchClasses([0]), fromPitchClasses([6]))).toEqual([voice(0, -6)])
   })
