@@ -236,9 +236,11 @@ sequence back as text gives the copy-paste and URL form.
 match the tones of one chord to the next one so that
 1. the voices do not cross (the matching keeps the cyclic order around the
    circle),
-2. the total motion is minimal (sum of the semitone distances, L1),
-3. ties are broken by a smaller largest step, then by fewer moving voices,
-   then deterministically (e.g. downwards for a tritone).
+2. as few voices as possible: as many as the larger chord has tones (no
+   needless doubling, which could otherwise "cheat" on the motion),
+3. the total motion is minimal (sum of the semitone distances, L1),
+4. ties are broken by a smaller sum of squares (smaller leaps), then
+   downwards (e.g. a tritone, or G7 → C with D → C rather than D → E).
 
 For chords of the same size this is a cyclic rotation of the matching: try
 each of the *n* rotations, each voice moves by the signed shortest interval
@@ -303,35 +305,39 @@ clock (just the chord path) per chip, so that the shapes can be compared at
 a glance.
 
 **Keys** (free ones; ← → ↑ ↓ and Delete stay for the current step):
-Space play/pause, `,` `.` previous/next step, Home first step, `+` / Insert
-add a step, Shift+Delete delete the step, S show the strip.
+Space play/pause, `,` `.` previous/next step, Home first step, `+` add a
+step, `-` remove the step (Shift+Delete would also clear the tones through
+the clock's Delete key), S show the strip.
 
 **Persistence.** The sequence in `localStorage` and in the URL as pitch
 classes, steps separated by `|`: `#seq=0,4,7|9,0,4|5,9,0|7,11,2&key=0`
 (a single step stays `#tones=…`).
 
 #### Steps
-- [ ] sequence model: steps + current step, insert / remove / replace /
+- [x] sequence model: steps + current step, insert / remove / replace /
       move / transpose (pure, `src/music/sequence.ts`)
-- [ ] voice leading of chords of the same size: non-crossing, minimal
+- [x] voice leading of chords of the same size: non-crossing, minimal
       motion, deterministic ties (`src/music/voiceLeading.ts`)
-- [ ] voice leading of different sizes (split / merge voices) and of empty
+- [x] voice leading of different sizes (split / merge voices) and of empty
       steps
-- [ ] parse and format a sequence as text (`C | Am | F | G`, Roman
-      numerals in a key); the chord input accepts a whole sequence
-- [ ] sequence strip with chord chips; the clock edits the current step;
+- [x] parse a sequence as text (`C | Am | F | G`, `C Am F G`, Roman
+      numerals in a key, `N.C.`); the chord input accepts a whole sequence
+- [ ] format a sequence as text, e.g. to copy it
+- [x] sequence strip with chord chips; the clock edits the current step;
       add, delete, select and clear steps
-- [ ] optional strip (S toggle), the clock shrinks to make room
-- [ ] playback: play/pause, previous/next/first step, tempo and beats per
+- [x] optional strip (S toggle), the clock shrinks to make room
+- [x] playback: play/pause, previous/next/first step, tempo and beats per
       chord, keyboard shortcuts
-- [ ] animated transitions: moving voices and a morphing chord path,
-      reduced motion respected
-- [ ] the sequence in `localStorage` and the URL
+- [x] animated transitions: moving voices and a morphing chord path,
+      crossfading beads, reduced motion respected
+- [x] the sequence in `localStorage` and the URL
 - [ ] voice-leading preview on the clock: faint arrows from the current
       chord to the next one
 - [ ] piano roll (mod 12) view of the strip with voice lines and chord
       names above, in the circle order and the key colors
-- [ ] explain minimal, crossing-free voice leading in `docs/music-theory.md`
+- [x] explain minimal, crossing-free voice leading in `docs/music-theory.md`
+- [ ] move steps (e.g. by dragging the chips) and transpose the whole
+      sequence
 
 Later:
 - sound (Web Audio): the voices give real registers, so the voice leading

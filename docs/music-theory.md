@@ -213,3 +213,66 @@ spelling gives E Ab B and C# F Ab. Likewise heptatonic scales other than
 the major one (e.g. harmonic minor) would need each letter once. The scale
 degree labels keep their own names (`b2`, `b5`), which may differ from the
 note spelling (`#1`, `#4`).
+
+## Voice leading between chords
+
+In a chord progression, each tone of a chord moves on to a tone of the next
+chord, as the voices of a choir do: this is **voice leading**. Good voice
+leading keeps the common tones and moves the other voices by small steps,
+which is why progressions like I – VIm – IV – V sound smooth: C E G →
+A C E only moves G up to A. Tone Clock animates these motions between the
+steps of a chord sequence (`voiceLeading` in `src/music/voiceLeading.ts`).
+
+### Guessing the voices from pitch classes
+
+A step is only a set of pitch classes, without octaves or an order of the
+voices, so the voice leading has to be guessed. It is the one that
+1. **does not cross the voices**: going around the circle, the voices keep
+   their order (a lower voice does not jump over a higher one),
+2. uses **as few voices as possible**, i.e. as many as the larger chord has
+   tones,
+3. **moves as little as possible** in total, counted in semitones (each
+   voice by up to a tritone, up or down),
+4. among equal ones, prefers smaller leaps (a smaller sum of squares), then
+   motion downwards.
+
+The first and third rules belong together: Dmitri Tymoczko showed (*The
+Geometry of Musical Chords*, 2006; *A Geometry of Music*, 2011) that among
+the voice leadings between two chords of the same size, a minimal one can
+always be found without crossings. So the non-crossing ones are enough to
+search, and there are few of them: with the tones of both chords sorted
+around the circle, a crossing-free voice leading pairs them in order,
+only rotated (C E G → A C E pairs C → C, E → E, G → A; the other
+rotations pair C → A, E → C, G → E or C → E, E → A, G → C).
+
+### Chords of different sizes
+
+When a triad moves to a seventh chord, one voice has to split in two; the
+other way around two voices merge into one. This is how a dominant seventh
+resolves: G7 → C moves B up to C, D down to C (two voices merge), F down to
+E and holds G. Without the second rule, splitting and merging could "cheat"
+even between chords of the same size: C Db F → C E F could merge Db into C
+and split F into E and F (2 semitones) instead of moving Db up to E (3
+semitones), which is not how voices move.
+
+The search runs like dynamic time warping over the two sorted lists of
+tones, lifted to pitches (each list repeated in every octave) and closed
+into a cycle around the circle. The chords are small, so all starting
+pairs can be tried.
+
+### Ambiguity
+
+Pitch classes leave some choices open. A tritone is 6 semitones both up and
+down. Symmetric chords have several equally good voice leadings: from C
+augmented (C E G#) to Db augmented all voices can move up by a semitone,
+or all down by three. And real music doesn't always lead the voices
+minimally (a bass often leaps by fourths and fifths). The guess is meant to
+show the smoothest path between the chords, not the only one.
+
+### Animation on the circle
+
+In the semitone order, a voice moves along the circle by its motion, e.g.
+B → C through the top. In the order of fifths the same voice leading would
+jump far around the circle (a semitone is 5 or 7 beads away), so the voices
+move straight across the circle there: the motion is still the voice
+leading in semitones, only drawn differently.
