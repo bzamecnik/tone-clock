@@ -255,8 +255,14 @@ function App() {
   // listed from the root of the chord, else from the tonic (or C)
   const root = chordRoot(tones)
   const toneList = ascendingFrom(tones, root ?? key ?? 0)
-  useUrlState(formatUrlState(toneList, key), (state) => {
-    setTones(state.tones)
+  // the steps of a sequence listed likewise
+  const urlSteps = sequence.steps.map((step) => ascendingFrom(step, chordRoot(step) ?? key ?? 0))
+  useUrlState(formatUrlState(urlSteps, key), (state) => {
+    setPlaying(false)
+    setSequence({ steps: state.steps, current: 0 })
+    if (state.steps.length > 1) {
+      setSequenceView('shown')
+    }
     setKey(state.key)
   })
   const chordDegreeNames = root === null ? null : relativeNames(DEGREE_NAMES, root)

@@ -520,6 +520,25 @@ describe('App', () => {
       expect(chordName()).toBe('Am')
     })
 
+    it('keeps a chord sequence in the URL fragment', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'C | Am | G7{Enter}')
+      expect(location.hash).toBe('#seq=0,4,7|9,0,4|7,11,2,5')
+    })
+
+    it('opens a chord sequence from a link, showing it', () => {
+      history.replaceState(null, '', '#seq=2,5,9,0|7,11,2,5|0,4,7,11&key=0')
+      render(<App />)
+      const steps = within(screen.getByRole('list', { name: 'Chord sequence' })).getAllByRole('button')
+      expect(steps.map((step) => step.getAttribute('aria-label'))).toEqual([
+        'Step 1: Dm7, IIm7',
+        'Step 2: G7, V7',
+        'Step 3: CM7, IM7',
+      ])
+      expect(chordName()).toBe('Dm7')
+    })
+
     it('copies the link with a button', async () => {
       const user = userEvent.setup()
       render(<App />)
