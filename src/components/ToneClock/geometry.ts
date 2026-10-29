@@ -70,6 +70,12 @@ function positionAngle(position: number): number {
   return (position / OCTAVE_SIZE) * 2 * Math.PI - Math.PI / 2
 }
 
+/** Point at a (possibly fractional) position around the circle, at the radius. */
+export function circlePoint(position: number, radius: number): Point {
+  const angle = positionAngle(position)
+  return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) }
+}
+
 /** Beads indexed by pitch class. */
 export function beadLayout(order: CircleOrder = 'semitones'): Bead[] {
   return Array.from({ length: OCTAVE_SIZE }, (_, pitchClass) => {
