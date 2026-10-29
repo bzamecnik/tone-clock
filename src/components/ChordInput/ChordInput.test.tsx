@@ -64,4 +64,29 @@ describe('ChordInput', () => {
     expect(input().nextElementSibling).toHaveTextContent('/')
     expect(input().nextElementSibling?.tagName).toBe('KBD')
   })
+
+  it('submits a sequence of chords separated by bar lines or spaces', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    const onSubmitSequence = vi.fn()
+    render(<ChordInput onSubmit={onSubmit} onSubmitSequence={onSubmitSequence} />)
+    await user.type(input(), 'C | Am{Enter}')
+    expect(onSubmitSequence).toHaveBeenLastCalledWith([fromPitchClasses([0, 4, 7]), fromPitchClasses([9, 0, 4])])
+    expect(input()).toHaveValue('')
+    await user.type(input(), 'Dm G7{Enter}')
+    expect(onSubmitSequence).toHaveBeenLastCalledWith([fromPitchClasses([2, 5, 9]), fromPitchClasses([7, 11, 2, 5])])
+    // a single chord or a list of notes is still one set of tones
+    await user.type(input(), 'C E G{Enter}')
+    expect(onSubmit).toHaveBeenCalledWith(fromPitchClasses([0, 4, 7]))
+    expect(onSubmitSequence).toHaveBeenCalledTimes(2)
+  })
+
+  it('rejects a sequence without onSubmitSequence', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<ChordInput onSubmit={onSubmit} />)
+    await user.type(input(), 'C | Am{Enter}')
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(input()).toHaveAttribute('aria-invalid', 'true')
+  })
 })
