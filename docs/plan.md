@@ -201,7 +201,164 @@ Notes:
 - [x] the right panel keeps its layout when there is no chord name or key
 - [ ] idea: embed mode, a read-only clock for an `<iframe>` on other pages
 
-### 9. Desktop app
+### 9. Chord sequences and voice leading
+
+Goal: a short loop of chords (a progression) with silent playback. Between
+the chords, the active beads move along the circle as voices, so that the
+clock shows the voice leading and not only the chords.
+
+#### Design notes
+
+**Model.** A sequence is a list of steps, each a pitch class set (12-bit
+mask), plus one current step. All steps have the same length and the
+sequence loops. The key stays global: one key for the whole sequence, so each
+step also gets its Roman numeral (`I vi IV V`). Pure functions in
+`src/music/sequence.ts`: insert, remove, replace, move and transpose steps.
+
+**The clock edits the current step.** Today's app is a sequence of one step,
+and everything that changes the tones (beads, dragging, the chord input,
+← →) changes the current step. So the existing UI keeps working without a
+sequence mode. Extra actions:
+- add a step after the current one (a copy of it, so that it can be edited
+  into the next chord), delete the current step, clear the sequence;
+- select a step by clicking it in the strip or by keys;
+- later: reorder steps by dragging, transpose the whole sequence.
+
+**Text input of a whole sequence.** `|` separates the steps, like bar lines
+in a lead sheet: `C | Am | F | G`, `Dm7 | G7 | Cmaj7` or, in a key,
+`I | vi | IV | V`. Spaces and commas are taken (note lists `C E G`,
+`D, F#, A`), so the input first tries the whole text as one set (replacing
+the current step) and only then as a sequence: text with `|`, or text whose
+words are all valid chords but not a note list (`C Am F G`). Formatting a
+sequence back as text gives the copy-paste and URL form.
+
+**Voice leading.** Only pitch classes are known, so the voices are guessed:
+match the tones of one chord to the next one so that
+1. the voices do not cross (the matching keeps the cyclic order around the
+   circle),
+2. as few voices as possible: as many as the larger chord has tones (no
+   needless doubling, which could otherwise "cheat" on the motion),
+3. the total motion is minimal (sum of the semitone distances, L1),
+4. ties are broken by a smaller sum of squares (smaller leaps), then
+   downwards (e.g. a tritone, or G7 → C with D → C rather than D → E).
+
+For chords of the same size this is a cyclic rotation of the matching: try
+each of the *n* rotations, each voice moves by the signed shortest interval
+consistent with the others (Tymoczko: minimal voice leadings between sets of
+equal size can always be taken crossing-free). For different sizes, voices
+split (C → G7: one voice doubles) or merge, found by a cyclic DTW-like
+alignment of the two sorted lists (each tone used at least once, monotone
+around the circle), minimizing over the starting rotation — tiny sizes, so
+brute force over rotations is fine. An empty step makes the voices fade
+out/in. The result is a list of voices `{ from, to, motion }` with `motion`
+in semitones (−6..6, 0 = a common tone). The loop also connects the last
+step back to the first.
+
+Examples for tests: C → Am holds C and E, G → A (+2); C → F holds C,
+E → F (+1), G → A (+2); C → Cm: E → Eb (−1); G7 → C: B → C, D → C (merge),
+F → E, G holds; C → Caug: G → G#; augmented chords a semitone apart are a
+symmetric tie (resolved deterministically).
+
+**Animation.** The `ToneClock` stays controlled: it gets an optional
+`transition = { voices, progress }` (0..1) and draws a moving dot per voice
+along the circle, while the chord path morphs (its vertices interpolated
+along the arcs, a split vertex starting as a double point). At progress 1
+the beads of the next chord are active. Geometry needs fractional positions
+on the circle (`pointAt(position)`). The voice leading is always computed in
+semitones; in the fifths order the voices follow the same motion, only
+animated differently: a semitone step is 5 positions apart there, so the dot
+skips across the circle (e.g. straight through the inside) instead of
+travelling along it. `prefers-reduced-motion` switches the steps without
+animation.
+
+**Playback.** Play/pause, previous/next step, first step, loop always on.
+Tempo as BPM with a number of beats per chord (e.g. 90 BPM, 4 beats), so
+that sound can be added later; the transition takes a short part of the
+step (~300 ms, at its start). The timing is a pure function of the elapsed
+time (`stepAt(time)`, `transitionProgress(time)`), driven by
+`requestAnimationFrame` in a `usePlayback` hook (fake timers in tests).
+Editing pauses the playback; clicking a step jumps to it.
+
+**Layout.** The sequence is optional: a Sequence toggle (S) shows a strip
+below the clock and the panel, spanning both columns; the clock gets smaller
+to make room (its height is the window minus the strip). Without the strip
+the app looks as today.
+
+```
++----------------------------+-----------------+
+|                            | [chord input  ] |
+|          clock             |  Am7  vi7 in C  |
+|                            |  tones, toggles |
++----------------------------+-----------------+
+| > || |< >|  90 BPM x4   [ C | Am | F | G ] + |
++----------------------------------------------+
+```
+
+**Strip representation.** First chord names: a chip per step with the
+chord name (and Roman numeral in a key), the current one highlighted, the
+playing one marked. Then a piano roll modulo 12 with the chord names as
+annotations above the columns: 12 rows by the steps, active cells filled,
+the voices drawn as lines between the columns, i.e. a voice-leading diagram.
+The rows follow the circle order (semitones or fifths, starting from the
+key) and the cells the key colors, like the beads. Another idea: a tiny
+clock (just the chord path) per chip, so that the shapes can be compared at
+a glance.
+
+**Keys** (free ones; ← → ↑ ↓ and Delete stay for the current step):
+Space play/pause, `,` `.` previous/next step, Home first step, `+` add a
+step, `-` remove the step (Shift+Delete would also clear the tones through
+the clock's Delete key), S show the strip.
+
+**Persistence.** The sequence in `localStorage` and in the URL as pitch
+classes, steps separated by `|`: `#seq=0,4,7|9,0,4|5,9,0|7,11,2&key=0`
+(a single step stays `#tones=…`).
+
+#### Steps
+- [x] sequence model: steps + current step, insert / remove / replace /
+      move / transpose (pure, `src/music/sequence.ts`)
+- [x] voice leading of chords of the same size: non-crossing, minimal
+      motion, deterministic ties (`src/music/voiceLeading.ts`)
+- [x] voice leading of different sizes (split / merge voices) and of empty
+      steps
+- [x] parse a sequence as text (`C | Am | F | G`, `C Am F G`, Roman
+      numerals in a key, `N.C.`); the chord input accepts a whole sequence
+- [ ] format a sequence as text, e.g. to copy it
+- [x] sequence strip with chord chips; the clock edits the current step;
+      add, delete, select and clear steps
+- [x] optional strip (S toggle), the clock shrinks to make room
+- [x] playback: play/pause, previous/next/first step, tempo and beats per
+      chord, keyboard shortcuts
+- [x] animated transitions: moving voices and a morphing chord path,
+      crossfading beads, reduced motion respected
+- [x] the sequence in `localStorage` and the URL
+- [ ] voice-leading preview on the clock: faint arrows from the current
+      chord to the next one
+- [ ] piano roll (mod 12) view of the strip with voice lines and chord
+      names above, in the circle order and the key colors
+- [x] explain minimal, crossing-free voice leading in `docs/music-theory.md`
+- [ ] move steps (e.g. by dragging the chips) and transpose the whole
+      sequence
+
+Later:
+- sound (Web Audio): the voices give real registers, so the voice leading
+  becomes an actual voicing (keep the voices in a range as they drift)
+- steps of different lengths, key changes within the sequence
+- reorder steps by dragging, undo / redo, choosing an alternative voice
+  leading by hand for an ambiguous transition
+- import of a progression from a lead sheet or MIDI
+- keep the chord name typed for a step (a set has one name in the namer:
+  D G C E is named C(add2), though typed as D9sus4-5 in a progression)
+- better voicings: voice leading with registers (bass, doubled tones),
+  researched on real progressions and piano voicings as test data, e.g.
+  *Midnight in a Perfect World* (DJ Shadow, after Pekka Pohjola) in Bb:
+  `Gm | F(add2) | Ebmaj7 | D9sus4 | Dm11`
+  (`VIm | V(add2) | IVM7 | III9sus4 | IIIm11`), voiced
+  G D G Bb – F C G A C – Eb Bb G Bb D – D G C E – D A D G C E F
+
+Both ways of entering a sequence are supported (the whole sequence as text,
+and step by step with the clock), to see which one works better.
+
+### 10. Desktop app
 - [ ] Tauri v2 shell around the React app (`src-tauri/`)
 - [ ] macOS build, app icon from the original
 - [ ] native persistence / menu (e.g. copy set as text)

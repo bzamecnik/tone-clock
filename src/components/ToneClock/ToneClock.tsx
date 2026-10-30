@@ -11,6 +11,7 @@ import {
 } from '../../music/pitchClassSet.ts'
 import { isDiatonic, keyLevel } from '../../music/keyLevel.ts'
 import { suggestTonic } from '../../music/pitchClassSetNamer.ts'
+import type { Voice } from '../../music/voiceLeading.ts'
 import { useWindowKeys } from '../../useWindowKeys.ts'
 import { chordPath } from './chordPath.ts'
 import {
@@ -35,6 +36,7 @@ import {
   type Point,
 } from './geometry.ts'
 import { applyDrop, rotationSteps } from './gestures.ts'
+import { easeInOut, transitionFrame } from './voiceMotion.ts'
 import './ToneClock.css'
 
 export type { CircleOrder } from './geometry.ts'
@@ -188,6 +190,13 @@ export interface ToneClockProps {
    * circle has focus. Keys typed into form fields are left alone.
    */
   windowKeys?: boolean
+  /**
+   * Animation from the previous chord to this one: the voices (see
+   * voiceLeading) and the progress of their motion from 0 to 1. Until it is
+   * 1, the held tones stay lit, the moving voices are drawn on their way and
+   * the chord path morphs; the beads (as buttons) show the new chord.
+   */
+  transition?: { voices: readonly Voice[]; progress: number }
   className?: string
 }
 
@@ -204,6 +213,7 @@ export function ToneClock({
   tonic,
   onTonicChange,
   windowKeys = false,
+  transition,
   className,
 }: ToneClockProps) {
   const [internalValue, setInternalValue] = useState(defaultValue)
@@ -211,7 +221,12 @@ export function ToneClock({
   const svgRef = useRef<SVGSVGElement>(null)
   const isControlled = value !== undefined
   const tones = isControlled ? value : internalValue
-  const chord = chordPath(tones, order)
+  const frame =
+    transition && transition.progress < 1
+      ? transitionFrame(transition.voices, easeInOut(Math.max(transition.progress, 0)), order)
+      : null
+  const chord = frame ? frame.path : chordPath(tones, order)
+  const lit = (pitchClass: number) => (frame ? frame.lit.includes(pitchClass) : has(tones, pitchClass))
   const step = orderStep(order)
   const { beads, markers } = LAYOUTS[order]
   const colorTonic = keyColors ? tonic : undefined
@@ -381,6 +396,7 @@ export function ToneClock({
     'tone-clock',
     grabbing && 'tone-clock--rotating',
     colorTonic !== undefined && 'tone-clock--key-colors',
+    frame && 'tone-clock--transition',
     className,
   ]
 
@@ -419,7 +435,7 @@ export function ToneClock({
         const name = names[pitchClass]
         const beadClasses = [
           'tone-clock__bead',
-          active && 'tone-clock__bead--active',
+          lit(pitchClass) && 'tone-clock__bead--active',
           pitchClass === root && 'tone-clock__bead--root',
         ]
         return (
@@ -469,6 +485,21 @@ export function ToneClock({
           </g>
         )
       })}
+      {frame && frame.moving.length > 0 && (
+        <g className="tone-clock__voices" opacity={frame.opacity} aria-hidden="true">
+          {frame.moving.map(({ center, to }, index) => (
+            <circle
+              key={index}
+              className="tone-clock__voice"
+              cx={center.x}
+              cy={center.y}
+              r={BEAD_RADIUS}
+              // colored like the bead it moves to
+              data-level={colorTonic === undefined ? undefined : keyLevel(to, colorTonic)}
+            />
+          ))}
+        </g>
+      )}
       {ghost && ghost.point && (
         <g
           className={

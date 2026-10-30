@@ -1,5 +1,5 @@
 import { OCTAVE_SIZE, mod, toPitchClasses, type PitchClassSet } from '../../music/pitchClassSet.ts'
-import { beadLayout, format, positionOf, type CircleOrder, type Point } from './geometry.ts'
+import { beadLayout, format, pointAngle, positionOf, type CircleOrder, type Point } from './geometry.ts'
 
 // in the chromatic order, indexed by position
 const APEXES = beadLayout().map((bead) => bead.apex)
@@ -21,17 +21,41 @@ function formatPoint(p: Point): string {
   return `${format(p.x)} ${format(p.y)}`
 }
 
+/** Angle between the directions of two points from the center, in semitone steps of the circle (0..6). */
+function angularSteps(a: Point, b: Point): number {
+  const turn = Math.abs(pointAngle(a) - pointAngle(b)) / (2 * Math.PI)
+  return Math.min(turn, 1 - turn) * OCTAVE_SIZE
+}
+
 /**
- * Quadratic Bézier between the beads at positions `from` and `to` whose control point is the midpoint of
- * the apexes pulled towards the center: tritones bend to the center,
- * semitones stay almost straight (as in the original ChordPath).
+ * Quadratic Bézier from `a` to `b` whose control point is their midpoint
+ * pulled towards the center by how far apart they are around the circle:
+ * tritones bend to the center, semitones stay almost straight (as in the
+ * original ChordPath).
  */
-function quadSegment(from: number, to: number): string {
-  const stiffness = 1 - intervalClass(from, to) / 6
-  const a = APEXES[from]
-  const b = APEXES[to]
+function quadSegment(a: Point, b: Point): string {
+  const stiffness = 1 - angularSteps(a, b) / 6
   const control = { x: (a.x + b.x) * 0.5 * stiffness, y: (a.y + b.y) * 0.5 * stiffness }
   return `Q ${formatPoint(control)} ${formatPoint(b)}`
+}
+
+/**
+ * Curved polygon through the points in the given order: closed for 3+
+ * points, an open curve for 2 points, none for fewer.
+ */
+export function curvedPolygon(points: readonly Point[]): ChordPath | null {
+  if (points.length < 2) {
+    return null
+  }
+  const closed = points.length >= 3
+  const parts = [`M ${formatPoint(points[0])}`]
+  for (let i = 1; i < points.length; i++) {
+    parts.push(quadSegment(points[i - 1], points[i]))
+  }
+  if (closed) {
+    parts.push(quadSegment(points[points.length - 1], points[0]), 'Z')
+  }
+  return { d: parts.join(' '), closed }
 }
 
 /** Curved polygon connecting the active pitch classes clockwise around the circle. */
@@ -39,16 +63,5 @@ export function chordPath(tones: PitchClassSet, order: CircleOrder = 'semitones'
   const positions = toPitchClasses(tones)
     .map((pc) => positionOf(pc, order))
     .sort((a, b) => a - b)
-  if (positions.length < 2) {
-    return null
-  }
-  const closed = positions.length >= 3
-  const parts = [`M ${formatPoint(APEXES[positions[0]])}`]
-  for (let i = 1; i < positions.length; i++) {
-    parts.push(quadSegment(positions[i - 1], positions[i]))
-  }
-  if (closed) {
-    parts.push(quadSegment(positions[positions.length - 1], positions[0]), 'Z')
-  }
-  return { d: parts.join(' '), closed }
+  return curvedPolygon(positions.map((position) => APEXES[position]))
 }

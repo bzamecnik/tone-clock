@@ -13,7 +13,9 @@ import {
   markerLayout,
   type Point,
 } from './geometry.ts'
+import { voiceLeading } from '../../music/voiceLeading.ts'
 import { chordPath } from './chordPath.ts'
+import { transitionFrame } from './voiceMotion.ts'
 import { ToneClock } from './ToneClock.tsx'
 
 const C_MAJOR = fromPitchClasses([0, 4, 7])
@@ -596,6 +598,44 @@ describe('ToneClock', () => {
       fireEvent.pointerUp(svg, client({ x: 0, y: -30 }))
 
       expect(pressedNames()).toEqual(['C', 'E', 'G'])
+    })
+  })
+
+  describe('transition between chords', () => {
+    const A_MINOR = fromPitchClasses([9, 0, 4])
+    const voices = voiceLeading(C_MAJOR, A_MINOR)
+    const litBeads = () =>
+      beads()
+        .filter((b) => b.classList.contains('tone-clock__bead--active'))
+        .map((b) => b.getAttribute('aria-label'))
+    const movingVoices = () => document.querySelectorAll('.tone-clock__voice')
+
+    it('lights the held tones and draws the moving voices on their way', () => {
+      render(<ToneClock value={A_MINOR} transition={{ voices, progress: 0.5 }} />)
+      expect(litBeads()).toEqual(['C', 'E'])
+      expect(movingVoices()).toHaveLength(1)
+      // the state of the buttons is the new chord already
+      expect(pressedNames()).toEqual(['C', 'E', 'A'])
+    })
+
+    it('colors the moving voices like the beads they move to', () => {
+      render(<ToneClock value={A_MINOR} transition={{ voices, progress: 0.5 }} keyColors tonic={0} />)
+      expect(movingVoices()[0]).toHaveAttribute('data-level', beads()[9].getAttribute('data-level'))
+    })
+
+    it('morphs the chord path', () => {
+      render(<ToneClock value={A_MINOR} transition={{ voices, progress: 0.5 }} />)
+      expect(document.querySelector('.tone-clock__chord')).toHaveAttribute(
+        'd',
+        transitionFrame(voices, 0.5, 'semitones').path!.d,
+      )
+    })
+
+    it('shows the new chord when the transition is over', () => {
+      render(<ToneClock value={A_MINOR} transition={{ voices, progress: 1 }} />)
+      expect(litBeads()).toEqual(['C', 'E', 'A'])
+      expect(movingVoices()).toHaveLength(0)
+      expect(document.querySelector('.tone-clock__chord')).toHaveAttribute('d', chordPath(A_MINOR)!.d)
     })
   })
 })

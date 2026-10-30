@@ -1,6 +1,6 @@
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
 import { fromPitchClasses } from './music/pitchClassSet.ts'
 
@@ -304,10 +304,19 @@ describe('App', () => {
     expect(selectedTones()).toBe('C E G Bb')
   })
 
-  it('falls back to the default for invalid stored data', () => {
-    localStorage.setItem(STORAGE_KEY, 'garbage')
+  it('remembers a chord sequence and its current step', () => {
+    localStorage.setItem(STORAGE_KEY, `${fromPitchClasses([0, 4, 7])},${fromPitchClasses([9, 0, 4])};1`)
     render(<App />)
-    expect(selectedTones()).toBe('C E G')
+    expect(selectedTones()).toBe('A C E')
+  })
+
+  it('falls back to the default for invalid stored data', () => {
+    for (const garbage of ['garbage', '4096', '145,529;2']) {
+      localStorage.setItem(STORAGE_KEY, garbage)
+      const { unmount } = render(<App />)
+      expect(selectedTones()).toBe('C E G')
+      unmount()
+    }
   })
 
   it('names the selected chord and scale', async () => {
@@ -511,6 +520,25 @@ describe('App', () => {
       expect(chordName()).toBe('Am')
     })
 
+    it('keeps a chord sequence in the URL fragment', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(screen.getByRole('textbox', { name: 'Chord, scale or notes' }), 'C | Am | G7{Enter}')
+      expect(location.hash).toBe('#seq=0,4,7|9,0,4|7,11,2,5')
+    })
+
+    it('opens a chord sequence from a link, showing it', () => {
+      history.replaceState(null, '', '#seq=2,5,9,0|7,11,2,5|0,4,7,11&key=0')
+      render(<App />)
+      const steps = within(screen.getByRole('list', { name: 'Chord sequence' })).getAllByRole('button')
+      expect(steps.map((step) => step.getAttribute('aria-label'))).toEqual([
+        'Step 1: Dm7, IIm7',
+        'Step 2: G7, V7',
+        'Step 3: CM7, IM7',
+      ])
+      expect(chordName()).toBe('Dm7')
+    })
+
     it('copies the link with a button', async () => {
       const user = userEvent.setup()
       render(<App />)
@@ -518,6 +546,184 @@ describe('App', () => {
       expect(await navigator.clipboard.readText()).toBe(location.href)
       expect(location.href).toMatch(/#tones=0,4,7$/)
       expect(screen.getByRole('button', { name: 'Link copied' })).toBeInTheDocument()
+    })
+  })
+
+  describe('chord sequence', () => {
+    const input = () => screen.getByRole('textbox', { name: 'Chord, scale or notes' })
+    const strip = () => screen.queryByRole('list', { name: 'Chord sequence' })
+    const stepNames = () =>
+      within(strip()!)
+        .getAllByRole('button')
+        .map((step) => step.getAttribute('aria-label'))
+    const currentStep = () => within(strip()!).getByRole('button', { current: 'step' }).getAttribute('aria-label')
+
+    it('is hidden until shown by the S key or the toggle', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      expect(strip()).toBeNull()
+      await user.keyboard('s')
+      expect(stepNames()).toEqual(['Step 1: C'])
+      await user.click(screen.getByRole('button', { name: 'Hidden' }))
+      expect(strip()).toBeNull()
+      await user.click(screen.getByRole('button', { name: 'Shown' }))
+      expect(strip()).not.toBeNull()
+    })
+
+    it('is entered as text and shown', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am | F | G7{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: Am', 'Step 3: F', 'Step 4: G7'])
+      expect(currentStep()).toBe('Step 1: C')
+    })
+
+    it('names the steps by Roman numerals in a key', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.click(screen.getByRole('button', { name: 'Key C' }))
+      await user.type(input(), 'C | Am{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C, I', 'Step 2: Am, VIm'])
+    })
+
+    it('shows the current step on the clock, which edits it', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.click(within(strip()!).getByRole('button', { name: 'Step 2: Am' }))
+      expect(chordName()).toBe('Am')
+      await user.click(screen.getByRole('button', { name: 'G' }))
+      expect(chordName()).toBe('Am7')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: Am7'])
+      // a single chord typed replaces the current step
+      await user.type(input(), 'Dm{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: Dm'])
+    })
+
+    it('adds a copy of the current step and removes steps by keys', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.keyboard('s+')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: C'])
+      expect(currentStep()).toBe('Step 2: C')
+      await user.keyboard('{ArrowRight}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: C#'])
+      await user.keyboard('-')
+      expect(stepNames()).toEqual(['Step 1: C'])
+    })
+
+    it('moves between the steps by keys, wrapping around', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am | F{Enter}')
+      await user.keyboard('.')
+      expect(currentStep()).toBe('Step 2: Am')
+      await user.keyboard('..')
+      expect(currentStep()).toBe('Step 1: C')
+      await user.keyboard(',')
+      expect(currentStep()).toBe('Step 3: F')
+      await user.keyboard('{Home}')
+      expect(currentStep()).toBe('Step 1: C')
+    })
+
+    it('ignores the sequence keys while the strip is hidden', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.keyboard('+')
+      await user.keyboard('s')
+      expect(stepNames()).toEqual(['Step 1: C'])
+    })
+
+    it('names empty steps and sets without a chord name', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | N.C. | C Db D{Enter}')
+      expect(stepNames()).toEqual(['Step 1: C', 'Step 2: N.C.', 'Step 3: C C# D'])
+    })
+
+    it('clears the sequence to the current step', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.click(screen.getByRole('button', { name: 'Clear sequence' }))
+      expect(stepNames()).toEqual(['Step 1: C'])
+    })
+  })
+
+  describe('playback', () => {
+    const input = () => screen.getByRole('textbox', { name: 'Chord, scale or notes' })
+    const strip = () => screen.getByRole('list', { name: 'Chord sequence' })
+    const currentStep = () => within(strip()).getByRole('button', { current: 'step' }).getAttribute('aria-label')
+
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const setup = () => userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+
+    it('plays the steps in a loop, each lasting the beats at the tempo', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am | F{Enter}')
+      // 120 BPM, 4 beats per chord: 2 s per step
+      expect(screen.getByRole('spinbutton', { name: 'Tempo (BPM)' })).toHaveValue(120)
+      await user.click(screen.getByRole('button', { name: 'Play' }))
+      act(() => vi.advanceTimersByTime(2000))
+      expect(currentStep()).toBe('Step 2: Am')
+      expect(chordName()).toBe('Am')
+      act(() => vi.advanceTimersByTime(4000))
+      expect(currentStep()).toBe('Step 1: C')
+      await user.click(screen.getByRole('button', { name: 'Pause' }))
+      act(() => vi.advanceTimersByTime(4000))
+      expect(currentStep()).toBe('Step 1: C')
+    })
+
+    it('moves the voices on the clock between the steps', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      const movingVoices = () => document.querySelectorAll('.tone-clock__voice')
+      expect(movingVoices()).toHaveLength(0)
+      await user.keyboard('.')
+      // G moves to A, C and E stay
+      expect(movingVoices()).toHaveLength(1)
+      act(() => vi.advanceTimersByTime(1000))
+      expect(movingVoices()).toHaveLength(0)
+    })
+
+    it('plays and pauses with the Space key', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.keyboard(' ')
+      expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+      await user.keyboard(' ')
+      expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+    })
+
+    it('pauses when the tones are edited', async () => {
+      const user = setup()
+      render(<App />)
+      await user.type(input(), 'C | Am{Enter}')
+      await user.keyboard(' ')
+      await user.click(screen.getByRole('button', { name: 'Bb' }))
+      expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+      expect(currentStep()).toBe('Step 1: C7')
+    })
+
+    it('remembers the tempo and beats', async () => {
+      const user = setup()
+      const { unmount } = render(<App />)
+      await user.keyboard('s')
+      const beats = screen.getByRole('spinbutton', { name: 'Beats per chord' })
+      await user.clear(beats)
+      await user.type(beats, '2')
+      unmount()
+      render(<App />)
+      expect(screen.getByRole('spinbutton', { name: 'Beats per chord' })).toHaveValue(2)
     })
   })
 

@@ -1,0 +1,70 @@
+.sequence-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 100%;
+}
+
+/* the steps in a row, scrolled sideways when there are many */
+.sequence-strip__steps {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.sequence-strip__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3.5rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background: var(--color-control);
+  color: var(--color-accent-strong);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sequence-strip__step[aria-current='step'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.sequence-strip__name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sequence-strip__relative {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.sequence-strip__actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.sequence-strip__actions button {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-control);
+  color: var(--color-accent-strong);
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sequence-strip__actions button:disabled {
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-text);
+  cursor: default;
+}

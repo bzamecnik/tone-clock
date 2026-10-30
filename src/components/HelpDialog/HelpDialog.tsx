@@ -13,7 +13,7 @@ const GESTURES: [gesture: string, action: string][] = [
 ]
 
 const SHORTCUTS: [keys: string[], action: string][] = [
-  [['/'], 'type a chord, scale or notes'],
+  [['/'], 'type a chord, scale or notes, or a sequence: C | Am | F | G'],
   [['Enter'], 'apply what you typed'],
   [['Esc'], 'cancel typing'],
   [['Delete'], 'clear all tones'],
@@ -24,6 +24,11 @@ const SHORTCUTS: [keys: string[], action: string][] = [
   [['A'], 'accidentals: key / flats / sharps'],
   [['C'], 'colors: key / plain'],
   [['T'], 'theme: auto / light / dark'],
+  [['S'], 'chord sequence: hidden / shown'],
+  [['Space'], 'play / pause the sequence'],
+  [['+', '−'], 'add a step after the current one / remove it'],
+  [[',', '.'], 'previous / next step'],
+  [['Home'], 'first step'],
   [['Tab', 'Space'], 'move to a tone and toggle it'],
   [['?'], 'show or hide this help'],
 ]

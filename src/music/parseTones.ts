@@ -61,10 +61,14 @@ const CHORD_ALIASES: Record<string, number[]> = {
   '6/9': [0, 2, 4, 7, 9],
   '69': [0, 2, 4, 7, 9],
   add9: [0, 2, 4, 7],
+  '(add9)': [0, 2, 4, 7],
   add2: [0, 2, 4, 7],
+  // the same set as a 6,9 chord on the 7th (C6,9 = D9sus4)
+  '9sus4': [0, 2, 5, 7, 10],
+  '9sus': [0, 2, 5, 7, 10],
+  '9sus4-5': [0, 2, 5, 10],
   madd9: [0, 2, 3, 7],
   maj9: [0, 2, 4, 7, 11],
-  M9: [0, 2, 4, 7, 11],
 }
 
 /** Scales beyond the namer's templates (lowercase names). */
